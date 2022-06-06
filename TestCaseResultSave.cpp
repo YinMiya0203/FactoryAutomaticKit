@@ -77,7 +77,7 @@ int32_t TestCaseResultSaveICMP::SyncToDisk()
 ResultFileInfo::ResultFileInfo(QString prex):
 	mfilledcnt(0)
 {
-	qDebug(" %p", this);
+	if(GlobalConfig_debugTestCaseResultSave)qDebug(" %p", this);
 
 }
 
@@ -85,7 +85,7 @@ ResultFileInfo::~ResultFileInfo()
 {
 	Utility::OutputDebugPrintf("~ResultFileInfo");
 	if (mfile.fileName().size() <= 0 ||  !mfile.isOpen()) {
-		qDebug("empty file");
+		if (GlobalConfig_debugTestCaseResultSave)qDebug("empty file");
 		return;
 	}
 	//close file rename file
@@ -242,7 +242,7 @@ int32_t ResultFileInfo::FormatTable(int sector, int seek, QString prex, QString 
 		output.append("\r\n");
 	}
 	output.append(QString::asprintf("<td bgcolor=\"%s\" >", c.name()));
-	qDebug("c %s",c.name());
+	if (GlobalConfig_debugTestCaseResultSave)qDebug("c %s",c.name());
 	output.append(value);
 	output.append(QString("</td>"));
 	output.append("\r\n");
@@ -262,7 +262,7 @@ int32_t ResultFileInfo::FormatTable(QTableWidget* tableWidget, QString prex,QStr
 	}
 	{
 		int row_count = tableWidget->rowCount(); int col_count = tableWidget->columnCount();
-		qDebug("Table [%d ~ %d]", row_count, col_count);
+		if (GlobalConfig_debugTestCaseResultSave)qDebug("Table [%d ~ %d]", row_count, col_count);
 		output.append(QString("<caption> %1 </caption>\r\n").arg(prex));
 		// calc width
 		QVector<int> rect_list;
@@ -353,7 +353,7 @@ int32_t ResultFileInfo::SetupNewfile()
 	mcurrentlogdir = Log_dir;
 	QString raw_log_file = QString("%1/%2/.%3-tmp.html").arg(Log_dir).arg(current_dir).arg(current_name);
 	mfile.setFileName(raw_log_file);
-	qDebug("raw_log_file %s", raw_log_file.toStdString().c_str());
+	qInfo("raw_log_file %s", raw_log_file.toStdString().c_str());
 	Utility::NewDir(QFileInfo(raw_log_file).absolutePath());
 	if (!mfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
 		qCritical("open %s fail", mfile.fileName().toStdString().c_str());

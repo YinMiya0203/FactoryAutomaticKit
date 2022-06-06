@@ -168,7 +168,7 @@ void QGlobalSettingsDialog::setupsettingview()
 		okpb->setText(QStringLiteral("È·¶¨"));
 		itemlayout->addWidget(okpb);
 		connect(okpb, &QPushButton::clicked, this, [this]() {
-			qDebug(" ");
+			//qDebug(" ");
 			GLOBALSETTINGSINSTANCE->SaveSettings();
 			accept();
 			});

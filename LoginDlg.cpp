@@ -51,6 +51,10 @@ void LoginDlg::on_pushButton_clicked()
 		QMessageBox::warning(this, WARN_STR, tr("请输入测试员姓名"), QMessageBox::Yes);
 		return;
 	}
+	if (!GLOBALSETTINGSINSTANCE->IsSettingParamLoad()) {
+		QMessageBox::critical(this, ERROR_STR, tr("参数加载失败,请先确认User权限"), QMessageBox::Yes);
+		return;
+	}
     QString fileName = QFileDialog::getOpenFileName(this, tr("打开测试用例"), "." , tr("INI File(*.ini)"));
 	if (fileName.isEmpty()) {
 		return; 	

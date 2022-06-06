@@ -5,6 +5,7 @@
 #include <QMutexLocker> 
 #include <QWaitCondition>
 #include "WorkThread.h"
+#include "Utility.h"
 #define WORKTHREADWAIT(x) x->workthreadwait
 #define WORKTHREADMUTEX(x) (x->workthreadmutex)
 typedef std::function<int32_t (void)>threadworkfunc;

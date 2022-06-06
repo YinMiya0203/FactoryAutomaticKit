@@ -8,3 +8,8 @@ extern bool GlobalConfig_debugtestcaseini;
 extern bool GlobalConfig_debugtestcaseverbose;
 extern bool GlobalConfig_debugtestcasebgserver;
 extern bool GlobalConfig_debugtestcasetablewidget;
+extern bool GlobalConfig_debugAutoTestView;
+extern bool GlobalConfig_debugCaseItemBase;
+extern bool GlobalConfig_debugFactoryAutoTest;
+extern bool GlobalConfig_debugGloabalSettings;
+extern bool GlobalConfig_debugTestCaseResultSave;

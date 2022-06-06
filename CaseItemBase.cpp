@@ -309,7 +309,7 @@ caseitem_class CaseItemBase::getCaseItemclass(QString input)
 int32_t CaseItemBase::DefaultCaseItemBaseHandle(std::string input, int mstep)
 {
 	int ret = 0;
-	qDebug("input %s",input.c_str());
+	if(GlobalConfig_debugCaseItemBase)qDebug("input %s",input.c_str());
 	return ret;
 }
 
@@ -566,7 +566,7 @@ int32_t CaseItemBase::CaseItemDelaymsHandle(std::string input, int mstep)
 	else {
 		delayms = QString(input.c_str()).toInt();
 	}
-	qDebug("delayms %d ms ui %d", delayms, need_ui);
+	if (GlobalConfig_debugCaseItemBase)qDebug("delayms %d ms ui %d", delayms, need_ui);
 	if (need_ui){
 		//QMessageBox::warning(NULL, "hehe", "yahha", QMessageBox::Yes);//不能在背后偷偷弹啊
 		auto mmsg = new MessageTVCaseCountDownDialog;
@@ -578,7 +578,7 @@ int32_t CaseItemBase::CaseItemDelaymsHandle(std::string input, int mstep)
 		QMutexLocker locker(&(mmsg->mutex));
 		int result = mmsg->mwait.wait(&(mmsg->mutex), delayms+1000);
 		if (!mmsg->is_success) {//true dialog cancel
-			qDebug("user cancel");
+			if (GlobalConfig_debugCaseItemBase)qInfo("user cancel");
 			ret = error_caseusrtermin;
 		}
 		else {
@@ -595,7 +595,7 @@ int32_t CaseItemBase::CaseItemDelaymsHandle(std::string input, int mstep)
 int32_t CaseItemBase::CaseItemManualNoticeHandle(std::string input, int mstep)
 {
 	int ret = 0;
-	qDebug(" input %s", input.c_str());
+	if (GlobalConfig_debugCaseItemBase)qDebug(" input %s", input.c_str());
 	auto mmsg = new MessageTVCaseNoticeDialog;
 	CaseItemManualNoticeShow(input,mmsg->msg);
 	MessageTVBasePtr ptr(mmsg);
@@ -626,7 +626,7 @@ int32_t CaseItemBase::CaseItemManualConfirmHandle(std::string input, int mstep)
 		emit notifytoView(int(mmsg->GetCmd()), ptr);
 		QMutexLocker locker(&(mmsg->mutex));
 		mmsg->mwait.wait(&(mmsg->mutex));
-		qDebug(" result 0x%x",mmsg->buttonclicked);
+		if (GlobalConfig_debugCaseItemBase)qDebug(" result 0x%x",mmsg->buttonclicked);
 		if (mmsg->buttonclicked == QMessageBox::StandardButton::Yes) {
 			ret = 0;
 		}
@@ -726,7 +726,7 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 		if (ret == 0) {
 			if(msg->voltage_mv!=0)default_currentlimit_ma = (st.maxWVA*1000*1000) / (msg->voltage_mv)/1000*1000;
 		}
-		qDebug("default_currentlimit_ma %d  mv %d maxWVA %d", default_currentlimit_ma, msg->voltage_mv, st.maxWVA);
+		if (GlobalConfig_debugCaseItemBase)qDebug("default_currentlimit_ma %d  mv %d maxWVA %d", default_currentlimit_ma, msg->voltage_mv, st.maxWVA);
 		auto mptrcl = VisaDriverIoctrlBasePtr(new DeviceDriverSourceCurrentLimit);
 		DeviceDriverSourceCurrentLimit* upper = dynamic_cast<DeviceDriverSourceCurrentLimit*>(mptrcl.get());
 		upper->is_read = true;
@@ -802,25 +802,6 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
-#ifndef  UI_DEBUG //for dbg
-	//if not output immet return false;
-	{
-		auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverOutputState);
-		DeviceDriverOutputState* upper = dynamic_cast<DeviceDriverOutputState*>(mptrsv.get());
-		upper->is_read = true;
-		ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrsv);
-		if (ret != 0) {
-			qCritical("IOCTRL DeviceDriverOutputState set %d fail", upper->onoff);
-			ret = -ERROR_DEVICE_UNREACHABLE;
-			goto ERROR_OUT;
-		}
-		if (!upper->onoff) {
-			qCritical("device %d onff %d",moffset_inlist, upper->onoff);
-			ret = -ERROR_DEVICE_UNREACHABLE;
-			goto ERROR_OUT;
-		}
-	}
-#endif
 	{
 			bool had_checked = false;
 			QDateTime starttime = QDateTime::currentDateTime();
@@ -861,7 +842,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					ret = -ERROR_DATA_NOT_ACCEPTED;
 					if (msg->duration_ms > 0){
 						_sleep(1 * 1000);
-						qDebug("time: %s",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString().c_str());
+						if (GlobalConfig_debugCaseItemBase)qDebug("time: %s",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString().c_str());
 					}
 				}
 				output = QStringLiteral("实际数值:%1 %2").arg(taget).arg(msg->unit);

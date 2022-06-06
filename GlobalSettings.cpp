@@ -26,6 +26,9 @@ int32_t GlobalSettings::SetTestCaseResultDirLocation(QString value)
 int32_t GlobalSettings::LoadDefaultSettings()
 {
 		int ret = msettingsparam.load();
+		if (ret == 0) {
+			msettingparamload = true;
+		}
 		DumpSettingParam();
 		return ret;
 }
@@ -39,7 +42,7 @@ int32_t GlobalSettings::SaveSettings()
 }
 void GlobalSettings::DumpSettingParam()
 {
-	qDebug("SettingParam %s", msettingsparam.to_string().toStdString().c_str());
+	qInfo("SettingParam %s", msettingsparam.to_string().toStdString().c_str());
 }
 void GlobalSettings::SetCurrentOp(QString val)
 {
@@ -53,6 +56,10 @@ QString GlobalSettings::GetCurrentOp()
 	else {
 		return mCurrentOp;
 	}
+}
+bool GlobalSettings::IsSettingParamLoad()
+{
+	return msettingparamload;
 }
 GlobalSettings::GlobalSettings()
 {
@@ -83,7 +90,7 @@ QString GlobalSettings::GetVersion()
 
 int32_t GlobalSettings::SetUserRoot(QString usrname, QString passwd)
 {
-	qDebug("[%s]:[%s]", usrname.toStdString().c_str(), passwd.toStdString().c_str());
+	qInfo("[%s]:[%s]", usrname.toStdString().c_str(), passwd.toStdString().c_str());
 	if (msettingsparam.is_root)return 0;
 	if (usrname=="root" && passwd=="dogoodnotevil") {
 		msettingsparam.is_root = true;
@@ -136,7 +143,7 @@ int32_t GlobalSettings::SettingsParam::load(QString path)
 					global_settings_path = value;
 					}
 					else {
-						qInfo("value %s inexistence default to %s",value.toStdString().c_str(),
+						qCritical("value %s inexistence default to %s",value.toStdString().c_str(),
 							global_settings_path.toStdString().c_str());
 						nead_save = true;
 					}
@@ -146,7 +153,7 @@ int32_t GlobalSettings::SettingsParam::load(QString path)
 						global_log_dir = value;
 					}
 					else {
-						qInfo("value %s inexistence default to %s", value.toStdString().c_str(),
+						qCritical("value %s inexistence default to %s", value.toStdString().c_str(),
 							global_log_dir.toStdString().c_str());
 						nead_save = true;
 					}
@@ -156,7 +163,7 @@ int32_t GlobalSettings::SettingsParam::load(QString path)
 						global_testcaseResult_dir = value;
 					}
 					else {
-						qInfo("value %s inexistence default to %s", value.toStdString().c_str(),
+						qCritical("value %s inexistence default to %s", value.toStdString().c_str(),
 							global_testcaseResult_dir.toStdString().c_str());
 						nead_save = true;
 					}
@@ -171,6 +178,7 @@ int32_t GlobalSettings::SettingsParam::load(QString path)
 	}
 	}
 ERROR_OUT:
+
 	return ret;
 }
 int32_t GlobalSettings::SettingsParam::save(QString path)
@@ -232,6 +240,7 @@ int32_t GlobalSettings::SettingsParam::save(QString path)
 	delete m_psetting;
 	}
 ERROR_OUT:
+
 	return ret;
 }
 

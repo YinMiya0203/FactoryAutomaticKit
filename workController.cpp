@@ -1,7 +1,7 @@
 #include "workController.h"
 
 ThreadworkController::~ThreadworkController() {
-	qDebug("%p ",this);
+	if(GlobalConfig_debugthread)qDebug("%p ",this);
 	threadkeeprun = false;
 	workthreadwait.notify_all();
 	mworkThread->quit();
@@ -11,7 +11,7 @@ ThreadworkController::~ThreadworkController() {
 void ThreadworkController::handleResults(int result)
 {
 	{
-		qDebug("quit result %d \n",result);
+		qInfo("quit result %d \n",result);
 		//_sleep(2000);
 		if(result!=0)setupworkthread();
 	}
@@ -32,7 +32,7 @@ int32_t ThreadworkController::setupworkthread()
 			mworkThread->start();
 		}
 		else {
-			qDebug("mworkThread.isRunning() %d", mworkThread->isRunning());
+			qInfo("mworkThread.isRunning() %d", mworkThread->isRunning());
 		}
 	}
 	if (threadkeeprun)emit RunThread(0);

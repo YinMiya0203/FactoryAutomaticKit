@@ -1,50 +1,7 @@
 #include "VisaDriver.h"
 #include "winerror.h"
 #include <exception>
-#if 0
-int32_t VisaDriver::Driveropen(std::string res)
-{
-    int ret = 0;
-    ViStatus status=VI_SUCCESS;
 
-    if (vi) {
-        qDebug("had opened");
-        goto ERR_OUT;
-    }
-    if (GlobalConfig_debugdevciedriver)qDebug("res %s", res.c_str());
-#ifdef VIRTUAL_DEVICE
-    return ret;
-#endif  
-    {
-        
-        if (rm == VI_NULL) { 
-            status = viOpenDefaultRM(&rm); 
-        }
-        else { 
-            status = VI_SUCCESS; 
-        }
-        if (status<VI_SUCCESS) {
-            ret = -ERROR_PATH_NOT_FOUND;
-            goto ERR_OUT;
-        }
-        if (!isResourceVaild(res)) {
-            ret = -ERROR_PATH_NOT_FOUND;
-            goto ERR_OUT;
-        }
-        status = viOpen(rm, res.c_str(), VI_NULL, VI_NULL, &vi);
-        if (status < VI_SUCCESS) {
-            ret = -ERROR_PATH_NOT_FOUND;
-            goto ERR_OUT;
-        }
-    }
-ERR_OUT:
-    qDebug("ret %d",ret);
-    if (ret != 0) {
-        Driverclose();
-    }
-    return ret;
-}
-#endif
 int32_t VisaDriver::Driverclose()
 {
     int32_t ret = 0;
@@ -56,12 +13,12 @@ int32_t VisaDriver::Driverclose()
         //printf("vi or rm not init");
     }
     if (vi != VI_NULL) { 
-        qDebug("close vi");
+        if (GlobalConfig_debugdevciedriver)qDebug("close vi");
         viClose(vi); 
         vi = VI_NULL;
     }
     if (rm != VI_NULL) {
-        qDebug("close rm");
+        if (GlobalConfig_debugdevciedriver)qDebug("close rm");
         viClose(rm);
         rm = VI_NULL;
     }

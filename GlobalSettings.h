@@ -2,6 +2,7 @@
 #include <QString>
 #include <memory>
 #include "Utility.h"
+#include "MessagePacket.h"
 
 #define GSVERSION_M	"0"
 #define GSVERSION_S	"0"
@@ -50,10 +51,12 @@ public:
 
 	void SetCurrentOp(QString val);
 	QString GetCurrentOp();
+	bool IsSettingParamLoad();
 private:
 	GlobalSettings();
 	static GlobalSettingsPtr __instance;
 	SettingsParam msettingsparam;
 	QString mCurrentOp;
+	bool msettingparamload = false;
 };
 

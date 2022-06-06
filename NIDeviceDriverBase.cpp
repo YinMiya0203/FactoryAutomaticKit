@@ -22,7 +22,7 @@ int32_t NiDeviceDriverBase::FindDeviceResource(Resourcecontainer& contain)
     char* res = NULL;
     ViStatus status;
     ViFindList flist;
-    ViUInt32 itemCnt;
+    ViUInt32 itemCnt=0;
     ViChar desc[256];
     contain.clear();
 #ifdef VIRTUAL_DEVICE
@@ -44,13 +44,13 @@ int32_t NiDeviceDriverBase::FindDeviceResource(Resourcecontainer& contain)
     }
     status = viFindRsrc(rm, "?*INSTR", &flist, &itemCnt, desc);
     if (status < VI_SUCCESS || itemCnt <= 0) {
-        qDebug("dump status 0x%x itemCnt %u\n", status, itemCnt);
+        qCritical("dump status 0x%x itemCnt %u\n", status, itemCnt);
         ret = -1;
         goto error;
     }
     for (ViUInt32 i = 0; i < itemCnt; i++) {
         res = desc;
-        qDebug("desc %s \n", desc);
+        qInfo("desc %s \n", desc);
         contain.push_back(std::string(res));
         viFindNext(flist, desc);
     }
@@ -74,13 +74,13 @@ int32_t NiDeviceDriverBase::Driversetattribute(const asrlconfg_t config)
 #ifdef VIRTUAL_DEVICE
     return ret;
 #endif
-    qDebug("vi %p", vi);
+    if(GlobalConfig_debugdevciedriver)qDebug("vi %p", vi);
     if (vi == VI_NULL || rm == VI_NULL) {
         ret = -ERROR_PATH_NOT_FOUND;
-        qDebug("driver not open");
+        qCritical("driver not open");
         goto ERR_OUT;
     }
-    qDebug("Set Attribute %d/%d/%d/%d/%d", config.baud_rate, config.data_bits, config.stop_bits,
+    if (GlobalConfig_debugdevciedriver)qDebug("Set Attribute %d/%d/%d/%d/%d", config.baud_rate, config.data_bits, config.stop_bits,
         config.parity, config.flow_control);
     status = viSetAttribute(vi, VI_ATTR_ASRL_BAUD, config.baud_rate);
     status |= viSetAttribute(vi, VI_ATTR_ASRL_DATA_BITS, config.data_bits);
@@ -102,7 +102,8 @@ int32_t NiDeviceDriverBase::Driveropen(std::string res)
     ViStatus status = VI_SUCCESS;
 
     if (vi) {
-        qDebug("had opened");
+        qCritical("had opened");
+        status = VI_ERROR_FILE_ACCESS;
         goto ERR_OUT;
     }
     if (GlobalConfig_debugdevciedriver)qDebug("res %s", res.c_str());
@@ -132,7 +133,7 @@ int32_t NiDeviceDriverBase::Driveropen(std::string res)
         }
     }
 ERR_OUT:
-    qDebug("ret %d", ret);
+    if (GlobalConfig_debugdevciedriver)qDebug("ret %d", ret);
     if (ret != 0) {
         Driverclose();
     }
@@ -151,12 +152,12 @@ int32_t NiDeviceDriverBase::Driverclose()
         //printf("vi or rm not init");
     }
     if (vi != VI_NULL) {
-        qDebug("close vi");
+        if (GlobalConfig_debugdevciedriver)qDebug("close vi");
         viClose(vi);
         vi = VI_NULL;
     }
     if (rm != VI_NULL) {
-        qDebug("close rm");
+        if (GlobalConfig_debugdevciedriver)qDebug("close rm");
         viClose(rm);
         rm = VI_NULL;
     }
@@ -168,66 +169,18 @@ std::string NiDeviceDriverBase::GetCmdPostfix()
     return mCmdPostfix;
 }
 
-#if 0
-int32_t NiDeviceDriverBase::testactive()
-{
-    int32_t ret = 0;
-#ifdef VIRTUAL_DEVICE
-    return ret;
-#endif
-    if (vi == VI_NULL || rm == VI_NULL) {
-        ret = -ERROR_PATH_NOT_FOUND;
-        qDebug("driver not open");
-        goto ERR_OUT;
-    }
-
-ERR_OUT:
-    return ret;
-}
-
-int32_t NiDeviceDriverBase::writeandread(std::string input, std::string& output)
-{
-    int ret = 0;
-    ViStatus status;
-    QMutexLocker locker(&mdrivermutex);
-    output.clear();
-#ifdef VIRTUAL_DEVICE
-    return ret;
-#endif
-    if (vi == VI_NULL || rm == VI_NULL) {
-        ret = -ERROR_PATH_NOT_FOUND;
-        qDebug("driver not open");
-        goto ERR_OUT;
-    }
-    {
-        ViChar cmdbuffer[128];
-        ViUInt32 retCnt;
-        snprintf(cmdbuffer, sizeof(cmdbuffer), "%s", input.c_str());
-        status = viWrite(vi, (ViBuf)cmdbuffer, strlen(cmdbuffer), &retCnt);
-        if (status < VI_SUCCESS) goto ERR_OUT;
-        memset(cmdbuffer, 0, sizeof(cmdbuffer));
-        status = viRead(vi, (ViBuf)cmdbuffer, sizeof(cmdbuffer), &retCnt);
-        if (status < VI_SUCCESS) {
-            goto ERR_OUT;
-        }
-        output = std::string(cmdbuffer);
-    }
-ERR_OUT:
-    return ret;
-}
-#endif
 int32_t NiDeviceDriverBase::write(VisaDriverIoctrlWrite* arg)
 {
     QMutexLocker locker(&mdrivermutex);
     int32_t ret = 0;
     if (arg == nullptr)return -ERROR_INVALID_PARAMETER;
-    qDebug("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
+    if (GlobalConfig_debugdevciedriver)qDebug("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
 #ifdef VIRTUAL_DEVICE
     return ret;
 #endif
     if (vi == VI_NULL || rm == VI_NULL) {
         ret = -ERROR_DEVICE_NOT_CONNECTED;
-        qDebug("driver not open");
+        qCritical("driver not open");
         goto ERR_OUT;
     }
     {
@@ -250,13 +203,13 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
     int32_t ret = 0;
     arg->result.clear();
     if (arg == nullptr)return -ERROR_INVALID_PARAMETER;
-    qDebug("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
+    if (GlobalConfig_debugdevciedriver)qDebug("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
 #ifdef VIRTUAL_DEVICE
     return ret;
 #endif
     if (vi == VI_NULL || rm == VI_NULL) {
         ret = -ERROR_DEVICE_NOT_CONNECTED;
-        qDebug("driver not open");
+        qCritical("driver not open");
         goto ERR_OUT;
     }
     {
@@ -276,7 +229,7 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
     }
 ERR_OUT:
     if (ret != 0) {
-        qDebug("ret 0x%x", ret);
+        qCritical("ret 0x%x", ret);
     }
     return ret;
 }
@@ -315,7 +268,7 @@ int32_t NiDeviceDriverBase::ioctrl(VisaDriverIoctrlBasePtr ptr)
         break;
     }
     if (ret != 0) {
-        qDebug("ret %d cmd %d", ret, cmd);
+        qCritical("ret %d cmd %d", ret, cmd);
     }
     return ret;
 }

@@ -321,7 +321,7 @@ int32_t TestcaseBase::devcieioctrl(int32_t index,VisaDriverIoctrlBasePtr ptr)
 
 ERR_OUT:
 	if (ret != 0) {
-		qDebug("ret %d index %d cmd %d", ret,index,cmd);
+		qCritical("ret %d index %d cmd %d", ret,index,cmd);
 	}
 	return ret;
 }
@@ -378,7 +378,7 @@ void TestcaseBase::messagefromdevice(int cmd, MessageTVBasePtr ptr)
 				auto itemres = std::find(msg->res.begin(), msg->res.end(), iteminfo.interfaceid);
 				if(itemres!= msg->res.end()){
 						itemres->append(" [Connected]");
-						qDebug("%s had connected", itemres->c_str());
+						qInfo("%s had connected", itemres->c_str());
 				}				
 			}
 		}

@@ -39,7 +39,7 @@ bool FactoryAutoTestMain::eventFilter(QObject* watched, QEvent* event)
 {
     //qDebug("type %d", event->type());
     if (event->type()== QEvent::MouseButtonPress) {
-        qDebug("type %d", event->type());
+        if(GlobalConfig_debugFactoryAutoTest)qDebug("type %d", event->type());
     }
 #if 0
     if (event->type() == QEvent::KeyPress) {
@@ -74,7 +74,6 @@ void FactoryAutoTestMain::on_action_about_triggered()
 
 void FactoryAutoTestMain::on_actionDevice_Driver_triggered()
 {
-    //qDebug(" ");
     auto dlg = new QDeviceDriverRunDialog;
     dlg->exec();
 }
@@ -91,7 +90,7 @@ void FactoryAutoTestMain::on_action_settings_triggered()
 void FactoryAutoTestMain::setuprootactions()
 {
     //QMenu* menu_root = new QMenu(menuBar);
-    qDebug("GlobalSettings::is_root %d", GLOBALSETTINGSINSTANCE->isUserRoot());
+    qInfo("GlobalSettings::is_root %d", GLOBALSETTINGSINSTANCE->isUserRoot());
     ui.menuroot->menuAction()->setVisible(GLOBALSETTINGSINSTANCE->isUserRoot());
 
 }

@@ -16,7 +16,7 @@ DeviceBasePtrContainer DeviceBase::mstaticdeviceptrcontainer = {};
 
 DeviceBase::~DeviceBase()
 {
-	qDebug(" ");
+	if(GlobalConfig_debugdevcieBase)qDebug(" ");
 	Utility::OutputDebugPrintf("~DeviceBase %d\r\n",moffset_inlist);
 	disconnectsync();
 
@@ -60,7 +60,7 @@ DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string
 {
 	int band, stopbits, databits;
 	char parity[8], flow_ctr[8];
-	qDebug("dev[%d]arslconfgstr %s", moffset_inlist, arslconfgstr.c_str());
+	if (GlobalConfig_debugdevcieBase)qDebug("dev[%d]arslconfgstr %s", moffset_inlist, arslconfgstr.c_str());
 	
 	int result = sscanf(arslconfgstr.c_str(), "%d/%d/%[^/]/%d/%s", &band, &databits, parity, &stopbits, flow_ctr);
 	if (result == 5) {
@@ -131,7 +131,7 @@ std::string DeviceBase::GetIdentify()
 		(identifycustomer.size() > 0)) {
 		tmp = identifycustomer;
 	}
-	qDebug("index %d [%s] [%s]", moffset_inlist, tmp.c_str(), identifycustomer.c_str());
+	if (GlobalConfig_debugdevcieBase)qDebug("index %d [%s] [%s]", moffset_inlist, tmp.c_str(), identifycustomer.c_str());
 	return tmp;
 }
 std::string DeviceBase::GetInterfaceId()
@@ -142,7 +142,7 @@ std::string DeviceBase::GetInterfaceId()
 		(interfaceidcustomer.size()>0)) {
 		tmp = interfaceidcustomer;
 	}
-	qDebug("index %d [%s] [%s]",moffset_inlist,tmp.c_str(), interfaceidcustomer.c_str());
+	if (GlobalConfig_debugdevcieBase)qDebug("index %d [%s] [%s]",moffset_inlist,tmp.c_str(), interfaceidcustomer.c_str());
 	return tmp;
 }
 bool DeviceBase::InterfaceidSetable()
@@ -153,12 +153,12 @@ bool DeviceBase::InterfaceidSetable()
 			ret = true;
 		}
 	}
-	qDebug("index %d ret %d",moffset_inlist,ret);
+	if (GlobalConfig_debugdevcieBase)qDebug("index %d ret %d",moffset_inlist,ret);
 	return ret;
 }
 int32_t DeviceBase::SetInterfaceIdCustomer(std::string value)
 {
-	qDebug(" value %s", value.c_str());
+	if (GlobalConfig_debugdevcieBase)qDebug(" value %s", value.c_str());
 	int ret = -1;
 	if (stricmp(interfaceidorig.c_str(), "auto") == 0){
 		interfaceidcustomer = value;
@@ -168,7 +168,7 @@ int32_t DeviceBase::SetInterfaceIdCustomer(std::string value)
 }
 int32_t DeviceBase::SetIdentifyCustomer(std::string value)
 {
-	qDebug(" value %s", value.c_str());
+	if (GlobalConfig_debugdevcieBase)qDebug(" value %s", value.c_str());
 	int ret = -1;
 	if (stricmp(identifyorig.c_str(), "auto") == 0) {
 		identifycustomer = value;
@@ -208,7 +208,7 @@ bool DeviceBase::checkingParam(QSettings* settings, DeviceBaseSettingMap& settin
 				int result = sscanf(value.toStdString().c_str(),"%d/%d/%[^/]/%d/%s",&band,&databits,parity,&stopbits, flow_ctr);
 				if(result!=5) { 
 					checkok = false; 
-					qDebug("param %s result %d\n", value.toStdString().c_str(), result);
+					qCritical("param %s result %d\n", value.toStdString().c_str(), result);
 					break; 
 				}
 				settingmap[key] = value.toStdString();
@@ -411,7 +411,7 @@ int32_t DeviceBase::Handlecmd()
 	}
 	break;
 	default:
-		qDebug("cmd %d unknown", cmd);
+		qCritical("cmd %d unknown", cmd);
 		break;
 	}
 ERR_OUT:
@@ -461,7 +461,7 @@ int32_t DeviceBase::ioctrl(VisaDriverIoctrlBasePtr ptr)
 	{
 	case VisaDriverIoctrl::IoRead:
 	case VisaDriverIoctrl::IoWrite:
-		qDebug("command %s",ptr->commond.c_str());
+		if (GlobalConfig_debugdevcieBase)qDebug("command %s",ptr->commond.c_str());
 		ret = 0;
 		if (!isVirtualDevice())ret = interior_driver->ioctrl(ptr);
 		break;
@@ -501,13 +501,13 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 {
 	int ret = 0;
 	std::string command_read = ":OUTPut?";
-	qDebug(" ");
+	if (GlobalConfig_debugdevcieBase)qDebug(" ");
 	if (ptr == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
 	if (mcommuinterface == DriverClass::DriverDMMIVictor) {
-		qDebug(" driver %d unsupport", mcommuinterface);
+		qInfo(" driver %d unsupport", mcommuinterface);
 		ret = 0;
 		goto ERROR_OUT;
 	}
@@ -579,7 +579,7 @@ int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 		goto ERROR_OUT;
 	}
 	if (mcommuinterface == DriverClass::DriverDMMIVictor) {
-		qDebug("dev[%d] driver %d unsupport",moffset_inlist, mcommuinterface);
+		qInfo("dev[%d] driver %d unsupport",moffset_inlist, mcommuinterface);
 		ret = 0;
 		goto ERROR_OUT;
 	}
@@ -623,7 +623,7 @@ int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 		ptr->commond = mptr->commond;
 		upper_arg->result = mptr->result;
 		if (GetDeviceSCPIVersion() < SCPI_VERSION_1999) {
-			qDebug("force sleep");
+			if (GlobalConfig_debugdevcieBase)qDebug("force sleep");
 			_sleep(2000);
 		}
 	}
@@ -639,7 +639,7 @@ int32_t DeviceBase::SourceVoltageAmplitude(VisaDriverIoctrlBasePtr ptr)
 		goto ERROR_OUT;
 	}
 	if (mcommuinterface == DriverClass::DriverDMMIVictor) {
-		qDebug("dev[%d] driver %d unsupport", moffset_inlist, mcommuinterface);
+		qInfo("dev[%d] driver %d unsupport", moffset_inlist, mcommuinterface);
 		ret = 0;
 		goto ERROR_OUT;
 	}
@@ -703,7 +703,7 @@ int32_t DeviceBase::Readidentification(VisaDriverIoctrlBasePtr ptr)
 		goto ERROR_OUT;
 	}
 	if (mcommuinterface==DriverClass::DriverDMMIVictor) {
-		qDebug("dev[%d] driver %d unsupport", moffset_inlist, mcommuinterface);
+		qInfo("dev[%d] driver %d unsupport", moffset_inlist, mcommuinterface);
 		ret = 0;
 		goto ERROR_OUT;
 	}
@@ -837,7 +837,7 @@ int32_t DeviceBase::ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr)
 			VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
 			mptr->commond = command.toStdString();
 			VISA_DEVICE_IOCTRL(mptr)
-				ptr->commond = mptr->commond;
+			ptr->commond = mptr->commond;
 			ptr->result = mptr->result;
 			if (ret == VI_ERROR_TMO) {
 				need_ins = true;
@@ -881,7 +881,7 @@ int32_t DeviceBase::ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr)
 			VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
 			mptr->commond = command.toStdString();
 			VISA_DEVICE_IOCTRL(mptr)
-				ptr->commond.append(mptr->commond);
+			ptr->commond.append(mptr->commond);
 			ptr->result.append(mptr->result);
 			if (ret == 0) {
 				Sleep(3 * 1000);
@@ -896,7 +896,7 @@ int32_t DeviceBase::ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr)
 			VisaDriverIoctrlBasePtr tmpptr(new VisaDriverIoctrlRead);
 			tmpptr->commond = tmp.toStdString();
 			VISA_DEVICE_IOCTRL(tmpptr)
-				ptr->commond.append(tmpptr->commond);
+			ptr->commond.append(tmpptr->commond);
 			if (ret == 0) {
 				if (tmpptr->result.size() <= 0) {
 					ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
@@ -957,7 +957,7 @@ int32_t DeviceBase::ReadQuery_1997(VisaDriverIoctrlBasePtr ptr)
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
 		mptr->commond = command;
 		VISA_DEVICE_IOCTRL(mptr)
-			ptr->commond = mptr->commond;
+		ptr->commond = mptr->commond;
 		if (ret == 0) {
 			if (mptr->result.size() <= 0) {
 				ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
@@ -1067,7 +1067,7 @@ QString DeviceBase::GetDeviceSCPIVersion()
 			}
 			result = QString(mptr->result.c_str());
 			scpi_version = result;
-			qDebug("device %d SCPI %s",moffset_inlist, mptr->result.c_str());
+			if (GlobalConfig_debugdevcieBase)qDebug("device %d SCPI %s",moffset_inlist, mptr->result.c_str());
 		}
 	}
 ERROR_OUT:

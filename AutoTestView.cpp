@@ -24,7 +24,7 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 	//add to parent
 	parent_layout->setSpacing(20);
 	auto log_widget = new QWidget;
-
+	int total_col = 0;
 	{
 		parent_layout->addWidget(title_widget, 0, 0, 1, getMainViewGridColum());
 		row_offset += 1;
@@ -37,6 +37,7 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 		int device_view_row = row_offset, device_view_colum = 0;
 		int device_view_rowspan = 10;
 		int device_view_columspan = 9;
+		total_col += device_view_columspan;
 		device_widget->setObjectName("device_widget");
 
 		device_widget->setStyleSheet(QString::fromUtf8("#device_widget{border:1px groove gray}"));
@@ -51,6 +52,7 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 		int setting_view_rowspan = 10;
 		row_offset += setting_view_rowspan;
 		int setting_view_columspan = 3;
+		total_col += setting_view_columspan;
 		setting_widget->setObjectName("setting_widget");
 		setting_widget->setStyleSheet(QString::fromUtf8("#setting_widget{border:1px groove gray}"));
 		parent_layout->addWidget(setting_widget, setting_view_row, setting_view_colum, setting_view_rowspan, setting_view_columspan);
@@ -60,12 +62,17 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 		auto tctable_widget = new QWidget;
 		int tctable_view_row = row_offset, tctable_view_colum = 0;
 		int tctable_view_rowspan = 20;
+#ifdef SHOW_LOGWIDGET
 		int tctable_view_columspan = 9;
+#else
+		int tctable_view_columspan = total_col;
+#endif
 		tctable_widget->setObjectName("tctable_widget");
 		tctable_widget->setStyleSheet(QString::fromUtf8("#tctable_widget{border:1px groove gray}"));
 		parent_layout->addWidget(tctable_widget, tctable_view_row, tctable_view_colum, tctable_view_rowspan, tctable_view_columspan);
 		setuptestcaseView(tctable_widget);
 	}
+#ifdef SHOW_LOGWIDGET	//hide log widget
 	{
 		auto log_widget = new QWidget;
 		int log_view_row = row_offset, log_view_colum = 9;
@@ -77,12 +84,13 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 		parent_layout->addWidget(log_widget, log_view_row, log_view_colum, log_view_rowspan, log_view_columspan);
 		setuplogView(log_widget);
 	}
+#endif
 	RegisterSignalTotestcase();
 }
 
 AutoTestView::~AutoTestView()
 {
-	qInfo(" ");
+	if(GlobalConfig_debugAutoTestView)qInfo(" ");
 	OutputDebugStringA("~AutoTestView\r\n");
 	//close device device ptr
 	//sync result result ptr
@@ -198,7 +206,7 @@ int32_t AutoTestView::setupdeviceView(QWidget* parent)
 	int columoffset = 0;
 	int cntoffset = 0;
 	int totalcolum = 5;
-	qDebug("Get_deviceInfo size %d", deviceinfo.size());
+	if(GlobalConfig_debugAutoTestView) qDebug("Get_deviceInfo size %d", deviceinfo.size());
 	auto dev_layout = new QGridLayout(this);
 	parent->setLayout(dev_layout);
 	dev_layout->setHorizontalSpacing(15);
@@ -245,7 +253,7 @@ int32_t AutoTestView::DeleteView(QWidget* dev_widget)
 }
 int32_t AutoTestView::setdeviceupitem_auto(QWidget* dev_widget, DeviceInfo_t dev, int32_t cntoffset, int32_t totalcolum)
 {
-	qDebug(" ");
+	if (GlobalConfig_debugAutoTestView) qDebug(" ");
 	DeleteView(dev_widget);
 	auto devitem_layout = new QGridLayout;
 	dev_widget->setLayout(devitem_layout);
@@ -270,7 +278,7 @@ int32_t AutoTestView::setdeviceupitem_auto(QWidget* dev_widget, DeviceInfo_t dev
 	deviceres_box->setFocusPolicy(Qt::NoFocus);
 	connect(deviceres_box, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [this, deviceres_box, connect_pb](int index) {
 		QString res = deviceres_box->currentText();
-		qDebug("select index %d ,res %s result %d", index, res.toStdString().c_str(),res.count("Connected")!=0);
+		if (GlobalConfig_debugAutoTestView)qDebug("select index %d ,res %s result %d", index, res.toStdString().c_str(),res.count("Connected")!=0);
 		connect_pb->setVisible(res.count("Connected") == 0);
 		connect_pb->setStyleSheet("QPushButton{background-color:green;}");
 		
@@ -289,7 +297,7 @@ int32_t AutoTestView::setdeviceupitem_auto(QWidget* dev_widget, DeviceInfo_t dev
 
 	connect(scandevice_pb, &QPushButton::clicked, this, [this, scandevice_pb, deviceres_box, loadinganima_label, cntoffset]() {
 		//FV;start gif
-		qDebug(" ");
+		if (GlobalConfig_debugAutoTestView)qDebug(" ");
 		deviceres_box->clear();
 		scandevice_pb->setEnabled(false);
 		scandevice_pb->setStyleSheet("QPushButton{background-color:gray;}");
@@ -312,7 +320,7 @@ int32_t AutoTestView::setdeviceupitem_auto(QWidget* dev_widget, DeviceInfo_t dev
 
 int32_t AutoTestView::setdeviceupiteminterface(QWidget* dev_widget, DeviceInfo_t dev, int32_t cntoffset, int32_t totalcolum)
 {
-	qDebug("cntoffset %d", cntoffset);
+	if (GlobalConfig_debugAutoTestView)qDebug("cntoffset %d", cntoffset);
 	DeleteView(dev_widget);
 	//goto ERR_OUT; //dbg view
 	auto devitem_layout = new QGridLayout;
@@ -478,7 +486,7 @@ int32_t AutoTestView::setupsettingView(QWidget* parent)
 		connect(cycleintervalbox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
 			QSpinBox* box = qobject_cast<QSpinBox*>(sender());
 			msettings.cycleintervalsecond = box->value();
-			qDebug("updata cycleintervalsecond %d", msettings.cycleintervalsecond);
+			if (GlobalConfig_debugAutoTestView)qDebug("updata cycleintervalsecond %d", msettings.cycleintervalsecond);
 			});
 		setting_layout->addWidget(cycleintervalbox, row_offset, 0, 1, 1);
 	}
@@ -505,6 +513,7 @@ int32_t AutoTestView::setupsettingView(QWidget* parent)
 			msettings.fail_cnt = 0;
 			msettings.success_cnt = 0;
 			msettings.usertermin_cnt = 0;
+			TestCaseResultSaveICMP::get_instance()->SyncToDisk();
 			TestCastcycleStatusWidgetFresh();
 			});
 	}
@@ -555,7 +564,7 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 		ret = false; goto ERR_OUT;
 	}
 	{
-		qDebug(" ");
+		if (GlobalConfig_debugAutoTestView)qDebug(" ");
 #if 1
 		QPalette p = table->palette();
 		QPalette winp = mparent_widget->palette(); //获取parent的palette
@@ -687,7 +696,7 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 
 				while (++max_colum< table->columnCount()) {
 					QTableWidgetItem* witem = table->item(current_row, max_colum);
-					qDebug("virtual item on %d ~ %d", current_row, max_colum);
+					if (GlobalConfig_debugAutoTestView)qDebug("virtual item on %d ~ %d", current_row, max_colum);
 					if (witem == nullptr) {
 						witem = new QTableWidgetItem;
 						table->setItem(current_row, max_colum, witem);
@@ -747,7 +756,7 @@ bool AutoTestView::eventFilter(QObject* watched, QEvent* event)
 	//qDebug("type %d", event->type());
 	if (event->type() == QEvent::MouseButtonPress ||
 		event->type() == QEvent::MouseButtonDblClick ) {
-		qDebug("type %d", event->type());
+		if (GlobalConfig_debugAutoTestView)qDebug("type %d", event->type());
 		if (TestcaseBase::get_instance()->isRuncase()) {
 			stopevnt = true;
 		}
@@ -781,7 +790,7 @@ void AutoTestView::DeviceConnectWdigetFresh(int32_t index, QPushButton* pb)
 
 	if (pb)connect_pb = pb;
 	if (!connect_pb) {
-		qDebug("null pb index %d",index);
+		qCritical("null pb index %d",index);
 		return;
 	}
 	if (GlobalConfig_debugdevciewidget)qDebug("pb index %d status %d", index, status.connected);
@@ -801,7 +810,7 @@ void AutoTestView::DeviceActiveWdigetFresh(int32_t index, QPushButton*pb)
 	auto mpb = mparent_widget->findChild<QPushButton*>(QString("dev%1_testactive_pb").arg(index));
 	if (pb)mpb = pb;
 	if (!mpb) {
-		qDebug("null mpb index %d", index);
+		qCritical("null mpb index %d", index);
 		return;
 	}
 	if (GlobalConfig_debugdevciewidget)qDebug("mpb index %d status %d", index, status.connected);
@@ -829,7 +838,7 @@ void AutoTestView::DeviceWidgetFresh(int32_t index, MessageTVDeviceUpdate* msg)
 			Beep(do, 400);
 			break;
 		default:
-			qDebug("icon %d unknown", icon);
+			qCritical("icon %d unknown", icon);
 			break;
 		}
 
@@ -851,7 +860,7 @@ void AutoTestView::HandleTestCaseOneShot(MessageTVBGStatus* msg)
 {
 	bool issuccess = false;
 	bool isusertermin = false;
-	qDebug(" ");
+	if (GlobalConfig_debugAutoTestView)qDebug(" ");
 	if (msg == nullptr) {
 		issuccess = TestcaseBase::get_instance()->GetTestcaseBGStep() == TestStep::Complete;
 		isusertermin = TestcaseBase::get_instance()->GetTestcaseBGStep() == TestStep::UserTermin;
@@ -909,7 +918,7 @@ void AutoTestView::CycleTestHandle()
 		QCountDownDialog* dlg = new QCountDownDialog(this,2);
 		QString msg = QStringLiteral("请在倒计时完成前,更换被测试主板 \n并按 确认 按钮");
 		int res = dlg->Run(msettings.cycleintervalsecond*1000, msg);
-		qDebug("dlg res %d", res);
+		if (GlobalConfig_debugAutoTestView)qDebug("dlg res %d", res);
 		if (res == QDialog::Accepted) {
 			TestingBoardSNWidgetIncrease();
 			on_test_start_pb_clicked();
@@ -922,7 +931,7 @@ void AutoTestView::HandleCountDonwDialog(MessageTVCaseCountDownDialog* msg)
 	if (msg == nullptr)return;
 	QCountDownDialog* dlg = new QCountDownDialog(NULL,1,msg->resource);
 	int res = dlg->Run(msg->durationms, msg->msg);
-	qDebug("dlg res %d", res);
+	if (GlobalConfig_debugAutoTestView)qDebug("dlg res %d", res);
 	msg->is_success = (res != QDialog::Rejected);
 	msg->mwait.notify_all();
 	delete dlg;
@@ -933,7 +942,7 @@ void AutoTestView::HandleCaseNoticeDialog(MessageTVCaseNoticeDialog* msg)
 	if (msg == nullptr)return;
 	QMessageBox::StandardButton result = QMessageBox::information(this, INFO_STR, msg->msg, QMessageBox::Yes);
 	msg->mwait.notify_all();
-	qDebug("result 0x%x", result);
+	if (GlobalConfig_debugAutoTestView)qDebug("result 0x%x", result);
 }
 void AutoTestView::HandleCaseConfirmDialog(MessageTVCaseConfirmDialog* msg)
 {
@@ -942,7 +951,7 @@ void AutoTestView::HandleCaseConfirmDialog(MessageTVCaseConfirmDialog* msg)
 	msg->buttonclicked = result;
 	msg->mwait.notify_all();
 
-	qDebug("result 0x%x", result);
+	if (GlobalConfig_debugAutoTestView)qDebug("result 0x%x", result);
 }
 
 void AutoTestView::HandleCaseConfirmWithinputDialog(MessageTVCaseConfirmWithInputsDialog* msg)
@@ -1035,8 +1044,8 @@ if (msg == nullptr)return;
 	int index = msg->index;
 	QStringList mres;
 	//return ;//debug anima 
-	qDebug("index %d",index);
-	qDebug("Msg %s", msg->to_string().c_str());
+	if (GlobalConfig_debugAutoTestView)qDebug("index %d",index);
+	if (GlobalConfig_debugAutoTestView)qDebug("Msg %s", msg->to_string().c_str());
 	auto loadinganima = mparent_widget->findChild<QLabel*>(QString("loadinganima_%1_label").arg(index));
 	if (loadinganima) {
 		if(loadinganima->movie())loadinganima->movie()->stop();
@@ -1138,7 +1147,7 @@ void AutoTestView::on_deviceconectpb_clicked()
 				packet->customerinterfaceid = mcombox->currentText().toStdString();
 			}
 		}
-		qDebug("customerinterfaceid %s", packet->customerinterfaceid.c_str());
+		if (GlobalConfig_debugAutoTestView)qDebug("customerinterfaceid %s", packet->customerinterfaceid.c_str());
 		MessageFVBasePtr packetptr(packet);
 		if (st.connected) {
 			packet->isconnect = false;
@@ -1190,7 +1199,7 @@ void AutoTestView::on_test_termin_pb_clicked()
 	QPushButton* rb = qobject_cast<QPushButton*>(sender());
 	//先判断下状态
 	bool isrun = TestcaseBase::get_instance()->isRuncase();
-	qDebug("is_run %d",isrun);
+	if (GlobalConfig_debugAutoTestView)qDebug("is_run %d",isrun);
 	if(isrun){
 		auto packet = new MessageFVBase;
 		packet->cmd = MessageFromView::TestCaseTermin;

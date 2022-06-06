@@ -167,10 +167,10 @@ int32_t TestCaseBGServer::ToStarting()
 			QMutexLocker locker(&WORKTHREADMUTEX(mautorunthread));
 			if (!(WORKTHREADWAIT(mautorunthread).wait(&WORKTHREADMUTEX(mautorunthread), timems))) {
 				ret = -ERROR_NOT_ENOUGH_MEMORY;
-				qDebug("mautorunthread setup fail");
+				qCritical("mautorunthread setup fail");
 			}
 			else {
-				qDebug("mautorunthread setup %p", mautorunthread);
+				qInfo("mautorunthread setup %p", mautorunthread);
 			}
 		}
 #else

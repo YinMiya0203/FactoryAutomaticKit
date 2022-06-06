@@ -7,6 +7,7 @@
 #include <QLocale>
 #include <QTime>
 #include <windows.h>
+#include "GlobalConfig.h"
 class Utility
 {
 public:
