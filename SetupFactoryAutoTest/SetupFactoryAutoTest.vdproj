@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_09FE8EF3FB2446A293B501D79A762CCE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0BEF07A6509A495DB2BA17722CCCE6A4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -105,7 +99,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4FA8066C75B84FD1B3EEFD9B10B7AA98"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5EC462EAD88E4B80BB72C8F8BC73E7DE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6038A3412BB7444DACC582103E5ED047"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -159,6 +165,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7352A9D9E8284B1FA8B5CC69A92BFFD1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7A2A2270D2074740BAB214B28D786AE2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -178,6 +190,12 @@
         "Entry"
         {
         "MsmKey" = "8:_8E95E342D2C645C089EF0D73CE917FB5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_99161665459A4B099AEB91AA5A0E9DA0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -682,12 +700,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4FA8066C75B84FD1B3EEFD9B10B7AA98"
+            {
+            "SourcePath" = "8:..\\x64\\Release_console\\FactoryAutoTest.exe"
+            "TargetName" = "8:console.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5EC462EAD88E4B80BB72C8F8BC73E7DE"
             {
             "SourcePath" = "8:..\\res\\image\\machine.ico"
             "TargetName" = "8:machine.ico"
             "Tag" = "8:"
             "Folder" = "8:_9DDA5DFC41A441EBA8E7009D4EC2FBA3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6038A3412BB7444DACC582103E5ED047"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588_V33\\Res\\外电开关关.jpg"
+            "TargetName" = "8:外电开关关.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_18EBCA29485F43A1B3442AEF164C8392"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -862,6 +920,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7352A9D9E8284B1FA8B5CC69A92BFFD1"
+            {
+            "SourcePath" = "8:..\\x64\\Release\\FactoryAutoTest.exe"
+            "TargetName" = "8:FactoryAutoTest.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7A2A2270D2074740BAB214B28D786AE2"
             {
             "SourcePath" = "8:FactoryAutoTestinstall\\imageformats\\qico.dll"
@@ -928,6 +1006,26 @@
             "TargetName" = "8:msiexec.exe"
             "Tag" = "8:"
             "Folder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_99161665459A4B099AEB91AA5A0E9DA0"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588_V33\\A588_充电测试_测试案例_V33.ini"
+            "TargetName" = "8:A588_充电测试_测试案例_V33.ini"
+            "Tag" = "8:"
+            "Folder" = "8:_AABF7FC3D4544C2B838F773C664073D4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1408,6 +1506,39 @@
                         {
                         }
                     }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_F961360388EA46CFA925076311C73EBF"
+                    {
+                    "Name" = "8:样本案例"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_D07DB57711F6420DB30DD038437E82B8"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_AABF7FC3D4544C2B838F773C664073D4"
+                            {
+                            "Name" = "8:A588_V33"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_BFF01D07B8DE4668A13E3649DA50A95C"
+                                "Folders"
+                                {
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_18EBCA29485F43A1B3442AEF164C8392"
+                                    {
+                                    "Name" = "8:Res"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_279C7F8928864AD7BA85A1693C07285B"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1427,13 +1558,13 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SetupFactoryAutoTest"
         "ProductCode" = "8:{798C44D2-220D-4EAD-9D2C-AA8D5B1E0634}"
-        "PackageCode" = "8:{B82F507D-57EA-4FE4-A067-4624E5C1A315}"
+        "PackageCode" = "8:{17DCEA46-0BF3-4862-BE7D-7FE683241ED6}"
         "UpgradeCode" = "8:{9BF24265-30A2-49DE-A374-E971ECAF0096}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "InstallAllUsers" = "11:FALSE"
+        "InstallAllUsers" = "11:TRUE"
         "ProductVersion" = "8:1.0.0"
         "Manufacturer" = "8:Spromise"
         "ARPHELPTELEPHONE" = "8:"
@@ -1547,6 +1678,34 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_2784213C6B0F48B3B6C290F8A7899A38"
+            {
+            "Name" = "8:FactoryAutoTest.exe"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_7352A9D9E8284B1FA8B5CC69A92BFFD1"
+            "Folder" = "8:_E25562FD268745BFB0EEAFB0339C6A81"
+            "WorkingFolder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
+            "Icon" = "8:_5EC462EAD88E4B80BB72C8F8BC73E7DE"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_516BE137D2174BAA902C021DDE59064B"
+            {
+            "Name" = "8:FactoryAutoTest.exe"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_7352A9D9E8284B1FA8B5CC69A92BFFD1"
+            "Folder" = "8:_BA0985FDA71F4FDFA40132ABE1A60A58"
+            "WorkingFolder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
+            "Icon" = "8:_5EC462EAD88E4B80BB72C8F8BC73E7DE"
+            "Feature" = "8:"
+            }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_55AD8D1025EC4FAFBB96FC2C78106DF1"
             {
             "Name" = "8:uninstall.exe"
@@ -1561,32 +1720,18 @@
             "Icon" = "8:"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_59195FEC637C44A89B495459BCF39071"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_9AAD8C70A71A4B5DB792C875D5CDDCD5"
             {
-            "Name" = "8:FactoryAutoTest"
-            "Arguments" = "8:"
+            "Name" = "8:uninstall.exe"
+            "Arguments" = "8:/x {798C44D2-220D-4EAD-9D2C-AA8D5B1E0634}"
             "Description" = "8:"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_09FE8EF3FB2446A293B501D79A762CCE"
-            "Folder" = "8:_BA0985FDA71F4FDFA40132ABE1A60A58"
+            "Target" = "8:_8E95E342D2C645C089EF0D73CE917FB5"
+            "Folder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
             "WorkingFolder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
-            "Icon" = "8:_5EC462EAD88E4B80BB72C8F8BC73E7DE"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_B7EEE11CD2184CF59A583B154FA403B7"
-            {
-            "Name" = "8:FactoryAutoTest"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_09FE8EF3FB2446A293B501D79A762CCE"
-            "Folder" = "8:_E25562FD268745BFB0EEAFB0339C6A81"
-            "WorkingFolder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
-            "Icon" = "8:_5EC462EAD88E4B80BB72C8F8BC73E7DE"
+            "Icon" = "8:"
             "Feature" = "8:"
             }
         }
@@ -1988,34 +2133,6 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_09FE8EF3FB2446A293B501D79A762CCE"
-            {
-            "SourcePath" = "8:..\\x64\\Release\\FactoryAutoTest.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_F1C75CEE27EA45BC81562E5D3BF1092A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{51AC3A0B-0918-4A15-B052-EC12F0DEA543}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
         }
     }
 }
