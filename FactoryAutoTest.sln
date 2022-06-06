@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FactoryAutoTest", "FactoryAutoTest.vcxproj", "{51AC3A0B-0918-4A15-B052-EC12F0DEA543}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupFactoryAutoTest", ".\SetupFactoryAutoTest\SetupFactoryAutoTest.vdproj", "{BA63B68C-66FD-4059-8987-CA1971720C9A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_UI|x64 = Debug_UI|x64
+		Debug|x64 = Debug|x64
+		Release_console|x64 = Release_console|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{51AC3A0B-0918-4A15-B052-EC12F0DEA543}.Debug_UI|x64.ActiveCfg = Debug_UI|x64
+		{51AC3A0B-0918-4A15-B052-EC12F0DEA543}.Debug_UI|x64.Build.0 = Debug_UI|x64
+		{51AC3A0B-0918-4A15-B052-EC12F0DEA543}.Debug|x64.ActiveCfg = Debug|x64
+		{51AC3A0B-0918-4A15-B052-EC12F0DEA543}.Debug|x64.Build.0 = Debug|x64
+		{51AC3A0B-0918-4A15-B052-EC12F0DEA543}.Release_console|x64.ActiveCfg = Release_console|x64
+		{51AC3A0B-0918-4A15-B052-EC12F0DEA543}.Release_console|x64.Build.0 = Release_console|x64
+		{51AC3A0B-0918-4A15-B052-EC12F0DEA543}.Release|x64.ActiveCfg = Release|x64
+		{51AC3A0B-0918-4A15-B052-EC12F0DEA543}.Release|x64.Build.0 = Release|x64
+		{BA63B68C-66FD-4059-8987-CA1971720C9A}.Debug_UI|x64.ActiveCfg = Debug
+		{BA63B68C-66FD-4059-8987-CA1971720C9A}.Debug|x64.ActiveCfg = Debug
+		{BA63B68C-66FD-4059-8987-CA1971720C9A}.Release_console|x64.ActiveCfg = Release_console
+		{BA63B68C-66FD-4059-8987-CA1971720C9A}.Release|x64.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C28272E3-8C5F-43A7-8FA2-676536235CD3}
+	EndGlobalSection
+EndGlobal

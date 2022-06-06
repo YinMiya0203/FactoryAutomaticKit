@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FactoryAutoTestClass</class>
+ <widget class="QMainWindow" name="FactoryAutoTestClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>FactoryAutoTest</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="FactoryAutoTest.qrc">
+    <normaloff>:/res/image/machine.ico</normaloff>:/res/image/machine.ico</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuroot">
+    <property name="title">
+     <string>root窗口</string>
+    </property>
+    <addaction name="actionDevice_Driver"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>工具(&amp;T)</string>
+    </property>
+    <addaction name="action_settings"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>帮助(&amp;H)</string>
+    </property>
+    <addaction name="action_about"/>
+   </widget>
+   <addaction name="menuroot"/>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionDevice_Driver">
+   <property name="text">
+    <string>Device Driver</string>
+   </property>
+  </action>
+  <action name="actionVisa_Driver">
+   <property name="text">
+    <string>Visa Driver</string>
+   </property>
+  </action>
+  <action name="action_settings">
+   <property name="text">
+    <string>选项(&amp;O)</string>
+   </property>
+  </action>
+  <action name="action_about">
+   <property name="text">
+    <string>关于(&amp;A)</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="FactoryAutoTest.qrc"/>
+ </resources>
+ <connections/>
+</ui>
