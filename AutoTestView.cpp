@@ -586,6 +586,9 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 			if(index==nullptr) {
 				if (rowspan > 1 || columspan > 1)table->setSpan(row, colum, rowspan, columspan);
 				index = new QTableWidgetItem;
+				if (GLOBALSETTINGSINSTANCE->isUserRoot()) {
+					index->setCheckState(Qt::Checked);
+				}
 				table->setItem(row, colum, index);
 				index->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 				index->setText(QString::asprintf("%03d", stepindex));
@@ -1197,6 +1200,24 @@ void AutoTestView::on_test_start_pb_clicked()
 	MessageFVBasePtr packetptr(packet);
 	if (!TestcaseBase::get_instance()->isRuncase()) {
 		TestCaseTableWidgetFresh();
+	}
+	if(GLOBALSETTINGSINSTANCE->isUserRoot()) {
+		QList<int> active = {};
+		auto table = mparent_widget->findChild<QTableWidget*>(QString("testcase_tablewidget"));
+		if(table){
+			foreach(auto caseitem, mtcitemcontainer) {
+				int32_t row, colum, rowspan, columspan = 0;
+				caseitem->GetindexRect(row, colum, rowspan, columspan);
+				auto tcitem = table->item(row,colum);
+				if (tcitem && tcitem->checkState() == Qt::Checked) {
+					active.push_back(caseitem->GetOffset());
+				}
+			}
+			TestcaseBase::get_instance()->SetActiveCaseSector(active);
+		}
+		else {
+			qCritical("null testcase_tablewidget");
+		}
 	}
 	emit messagetodevice(int(packetptr->GetCmd()), packetptr);
 	//Lock clicked test_start_pb

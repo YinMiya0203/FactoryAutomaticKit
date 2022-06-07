@@ -31,6 +31,9 @@ public:
 	int32_t GetCurrentCursor() {
 		return mcursor;
 	};
+	int32_t GetOffset() {
+		return mstep;
+	}
 	//int32_t GetCurrentitemShow(std::string &output);
 	//int32_t GetCurrentitemtcclass(caseitem_class &type);
 	int32_t GetCurrentitemtctype(caseitem_type &type);

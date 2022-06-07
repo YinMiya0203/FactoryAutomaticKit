@@ -1,8 +1,9 @@
 #include "TestCase.h"
+#include "GlobalSettings.h"
 
 TestcaseBasePtr TestcaseBase::_instance=NULL;
 static CRITICAL_SECTION g_winsec_settings;
-QList<int> active_casesector = {};// {6, };
+
 TestcaseBasePtr TestcaseBase::get_instance()
 {
 	if (!_instance)
@@ -293,6 +294,12 @@ caseitem_type TestcaseBase::Gettestcaseitemtype(int offset_testcase, int offset_
 {
 	if (offset_testcase >= mcase_list.size() ) return caseitem_type::unknown;
 	return mcase_list[offset_testcase]->Getitemtype(offset_item);
+}
+void TestcaseBase::SetActiveCaseSector(QList<int> v)
+{
+	if (GLOBALSETTINGSINSTANCE->isUserRoot()) {
+	active_casesector = v;
+	}
 }
 int32_t TestcaseBase::devicetestactive(int32_t index)
 {

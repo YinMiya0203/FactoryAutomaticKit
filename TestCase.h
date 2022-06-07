@@ -63,7 +63,7 @@ public:
 	int32_t Gettestcasetypeshow(int offset_testcase, caseitem_class type, ShowString & output);
 	QString GettestcasetConditionShowTotal(int32_t offset_testcase);
 	caseitem_type Gettestcaseitemtype(int offset_testcase, int offset_item);
-
+	void SetActiveCaseSector(QList<int>);
 public:
 
 	int32_t Getdevicestatus(int32_t index, DeviceStatus_t &st);
@@ -103,6 +103,7 @@ private:
 	MessageToViewContainer mmtvcontainer;
 	INICommontagContainer minicommontagcontainer;
 	ThreadworkControllerPtr  msgthread=nullptr;
+	QList<int>active_casesector = {};
 };
 
 
