@@ -17,8 +17,9 @@ DeviceBasePtrContainer DeviceBase::mstaticdeviceptrcontainer = {};
 DeviceBase::~DeviceBase()
 {
 	if(GlobalConfig_debugdevcieBase)qDebug(" ");
-	Utility::OutputDebugPrintf("~DeviceBase %d\r\n",moffset_inlist);
+	Utility::OutputDebugPrintf("Enter ~DeviceBase %d\r\n",moffset_inlist);
 	disconnectsync();
+	Utility::OutputDebugPrintf("Leave ~DeviceBase %d\r\n", moffset_inlist);
 
 }
 
@@ -329,6 +330,7 @@ int32_t DeviceBase::disconnectsync()
 {
 	if (GlobalConfig_debugdevciedriver)qDebug("index %d ", moffset_inlist);
 	int ret = 0;
+	if (!mdevicestatus.connected)return ret;
 	if(mdevice_class == DeviceClass::DeviceClass_DC_BatterySimulator ||
 		mdevice_class == DeviceClass::DeviceClass_DC) {
 		//œ»πÿ±’ ‰≥ˆ

@@ -29,6 +29,7 @@ bool LoginDlg::eventFilter(QObject* watched, QEvent* event)
 		auto e = dynamic_cast <QKeyEvent*>(event);
 		if (e != nullptr) {
 			if (e->modifiers() == (Qt::ShiftModifier | Qt::ControlModifier) && e->key() == Qt::Key_R) {
+
 				qDebug("root window ");
 				auto win = new QGlobalSettingsDialog(true);
 				win->exec();

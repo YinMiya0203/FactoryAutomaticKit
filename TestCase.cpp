@@ -298,8 +298,9 @@ caseitem_type TestcaseBase::Gettestcaseitemtype(int offset_testcase, int offset_
 void TestcaseBase::SetActiveCaseSector(QList<int> v)
 {
 	if (GLOBALSETTINGSINSTANCE->isUserRoot()) {
-	active_casesector = v;
+		active_casesector = v;
 	}
+
 }
 int32_t TestcaseBase::devicetestactive(int32_t index)
 {

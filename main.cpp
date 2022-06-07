@@ -123,6 +123,14 @@ int main(int argc, char *argv[])
 
     if (dlg.exec() == LoginDlg::Accepted) 
     {
+#ifdef APP_RELEASE_CONSOLE
+        qCritical("only run on root");
+        if (!GLOBALSETTINGSINSTANCE->isUserRoot()) {
+            QMessageBox::critical(NULL, ERROR_STR, QString::fromLocal8Bit("Only operation on Root"), QMessageBox::Yes);
+            qApp->quit();
+            return -1;
+        }
+#endif
         FactoryAutoTestMain w; //×¢ÒâË³Ðò
         w.show();
         a.exec();

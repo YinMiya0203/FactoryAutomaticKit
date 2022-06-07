@@ -1,8 +1,11 @@
-#include "CaseItemBase.h"
-#include "TestCase.h"
+
 #include <QRegularExpression> 
 #include <QMessageBox>
 #include <QDateTime>
+#include "CaseItemBase.h"
+#include "TestCase.h"
+#define PURE_FLOAT_RE "-?\\d{1,}(\\.[0-9]+)?"
+#define PURE_UINT_RE "\\d+"
 CaseItemBasePtrContain CaseItemBase::mstaticcaseitemptrcontain = {};
 CaseItemBasePtr CaseItemBase::get_instance(QSettings* settings,int offset)
 {
@@ -278,6 +281,7 @@ bool CaseItemBase::checkparam(QSettings* settings, CaseItemContainer & itemlist)
 		}
 	ERR_OUT:
 		if (!checked) { 
+			qInfo("key %s === %s", key.toStdString().c_str(), value.toStdString().c_str());
 			qCritical("case checkingParam fail");
 			ret = false; break; 
 
@@ -350,8 +354,7 @@ IniInfoBasePtr CaseItemBase::translation_slash_smart(std::string input, QString&
 	output.clear();
 	IniInfoBasePtr ptr = nullptr;
 	//int slash_cnt = input_str.count('/');
-#define PURE_FLOAT_RE "-?\\d{1,}(\\.[0-9]+)?"
-#define PURE_UINT_RE "\\d+"
+
 	if (type == caseitem_class::Precondition) {
 		ptr = PreconditionWithNetworkId(input_str, output);
 		goto ERROR_OUT;
@@ -421,7 +424,9 @@ IniInfoBasePtr CaseItemBase::ManualConfirmWithRes(QString input_str, QString& ou
 		if (str.contains("Resource:", Qt::CaseInsensitive)) {
 			info->resource.push_back(str.right(str.size()-QString("Resource:").size()));
 		}
-		else {
+		else if (str.contains(QRegExp("^\\d+$"))) {
+			info->duration_ms = str.toInt();
+		}else {
 			info->msgs.push_back(str);
 		}
 	}
@@ -565,6 +570,9 @@ int32_t CaseItemBase::CaseItemDelaymsHandle(std::string input, int mstep)
 	}
 	else {
 		delayms = QString(input.c_str()).toInt();
+		if (delayms > 3000) {
+			need_ui = true;
+		}
 	}
 	if (GlobalConfig_debugCaseItemBase)qDebug("delayms %d ms ui %d", delayms, need_ui);
 	if (need_ui){
@@ -621,6 +629,7 @@ int32_t CaseItemBase::CaseItemManualConfirmHandle(std::string input, int mstep)
 		ManualViewInfoBase* info = dynamic_cast<ManualViewInfoBase*>(info_raw.get());
 		if (info != nullptr) {
 			mmsg->resource = info->resource;
+			mmsg->durationms = info->duration_ms;
 		}
 		CaseItemManualConfirmShow(input, showinput);
 		mmsg->msg = QStringLiteral("%1 %2\n%3\n%4").arg(QStringLiteral("ÇëÈ·ÈÏ")) \
@@ -632,7 +641,8 @@ int32_t CaseItemBase::CaseItemManualConfirmHandle(std::string input, int mstep)
 		QMutexLocker locker(&(mmsg->mutex));
 		mmsg->mwait.wait(&(mmsg->mutex));
 		if (GlobalConfig_debugCaseItemBase)qDebug(" result 0x%x",mmsg->buttonclicked);
-		if (mmsg->buttonclicked == QMessageBox::StandardButton::Yes) {
+		if (mmsg->buttonclicked == QMessageBox::StandardButton::Yes||
+			mmsg->buttonclicked== QDialog::Accepted) {
 			ret = 0;
 		}
 		else {

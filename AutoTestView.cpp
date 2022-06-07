@@ -956,7 +956,7 @@ void AutoTestView::HandleCaseConfirmDialog(MessageTVCaseConfirmDialog* msg)
 	}
 	else {
 		QCountDownDialog * dlg = new QCountDownDialog(NULL, 2, msg->resource);
-		result = QMessageBox::StandardButton(dlg->Run(-1, msg->msg));
+		result = QMessageBox::StandardButton(dlg->Run(msg->durationms, msg->msg));
 		delete dlg;
 	}
 	msg->buttonclicked = result;

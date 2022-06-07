@@ -188,7 +188,8 @@ private:
 public:
 	QString msg;
 	QString resource;
-	QMessageBox::StandardButton buttonclicked;
+	int32_t durationms=0;
+	int32_t buttonclicked;
 	QMutex mutex;
 	QWaitCondition mwait;
 	MessageToView GetCmd() { return cmd; };
@@ -198,6 +199,7 @@ public:
 		raw.append(";Index:"); raw.append(std::to_string(index));
 		raw.append(";Msg:"); raw.append(msg.toStdString());
 		raw.append(";Clicked:"); raw.append(std::to_string(buttonclicked));
+		raw.append(";Duration:"); raw.append(std::to_string(durationms));
 		return raw;
 	};
 };
@@ -225,7 +227,7 @@ class MessageTVCaseItemWidgetStatus :public MessageTVBase {
 private:
 	MessageToView cmd = MessageToView::TestCaseItemStatus;
 public:
-	bool is_success;
+	bool is_success=false;
 	int sector=0;
 	int seek=0;
 	MessageToView GetCmd() { return cmd; };

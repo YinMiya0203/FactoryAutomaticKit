@@ -53,6 +53,7 @@ public:
 	QString raw_str;
 	QList<QString> msgs;
 	QString resource;
+	int32_t duration_ms = 0;
 	virtual QString to_string() {
 		QString output;
 		//output.append("[msgs] ");output.append(msgs.size());
@@ -60,13 +61,9 @@ public:
 			output.append(msg);
 			output.append("\r\n");
 		}
-#if 0
-		output.append("[resource] "); output.append(resource.size());
-		foreach(auto msg, resource) {
-			resource.append(msg);
-			resource.append(";");
+		if (duration_ms != 0) {
+			output.append(QStringLiteral(" ÔÚ %1 ms ÄÚ").arg(duration_ms));
 		}
-#endif
 		return output;
 	}
 };
@@ -111,10 +108,10 @@ class NetworkLabelPassconditionBase :public NetworkLabelInfoBase
 {
 public:
 	int32_t duration_ms = 0;
-	QString mode;
-	QString unit; //A or V
-	double rangmin_m;
-	double rangmax_m;
+	QString mode="";
+	QString unit = ""; //A or V
+	double rangmin_m=0.0;
+	double rangmax_m=0.0;
 	virtual QString to_string() {
 		QString output;
 		output.append(networklabel);

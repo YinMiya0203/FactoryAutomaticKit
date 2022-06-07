@@ -150,7 +150,8 @@ int32_t NiDeviceDriverBase::Driverclose()
 #endif
     if (vi == VI_NULL || rm == VI_NULL) {
         //ret = -ERROR_PATH_NOT_FOUND;
-        //printf("vi or rm not init");
+        qDebug("vi or rm not init");
+        goto ERROR_OUT;
     }
     if (vi != VI_NULL) {
         if (GlobalConfig_debugdevciedriver)qDebug("close vi");
@@ -162,6 +163,7 @@ int32_t NiDeviceDriverBase::Driverclose()
         viClose(rm);
         rm = VI_NULL;
     }
+ERROR_OUT:
     return ret;
 }
 

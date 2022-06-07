@@ -139,6 +139,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_console|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir)/UI;$(VISA_WIN64)/Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);QT_MESSAGELOGCONTEXT;APP_RELEASE_CONSOLE</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Program Files\IVI Foundation\VISA\Win64\Lib_x64\msc;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
