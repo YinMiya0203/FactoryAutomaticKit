@@ -187,7 +187,7 @@ private:
 	MessageToView cmd = MessageToView::TestCaseHandleManualConfirmDialog;
 public:
 	QString msg;
-	//QStringList resource;
+	QString resource;
 	QMessageBox::StandardButton buttonclicked;
 	QMutex mutex;
 	QWaitCondition mwait;

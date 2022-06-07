@@ -104,6 +104,7 @@ int32_t NiDeviceDriverBase::Driveropen(std::string res)
     if (vi) {
         qCritical("had opened");
         status = VI_ERROR_FILE_ACCESS;
+        ret = -ERROR_DEVICE_IN_USE;
         goto ERR_OUT;
     }
     if (GlobalConfig_debugdevciedriver)qDebug("res %s", res.c_str());

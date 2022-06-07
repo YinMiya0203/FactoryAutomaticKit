@@ -947,7 +947,15 @@ void AutoTestView::HandleCaseNoticeDialog(MessageTVCaseNoticeDialog* msg)
 void AutoTestView::HandleCaseConfirmDialog(MessageTVCaseConfirmDialog* msg)
 {
 	if (msg == nullptr)return;
-	QMessageBox::StandardButton result = QMessageBox::question(this, INFO_STR, msg->msg);
+	QMessageBox::StandardButton result;
+	if(msg->resource.size()==0){
+		result = QMessageBox::question(this, INFO_STR, msg->msg);
+	}
+	else {
+		QCountDownDialog * dlg = new QCountDownDialog(NULL, 2, msg->resource);
+		result = QMessageBox::StandardButton(dlg->Run(-1, msg->msg));
+		delete dlg;
+	}
 	msg->buttonclicked = result;
 	msg->mwait.notify_all();
 

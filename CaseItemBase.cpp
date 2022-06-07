@@ -507,7 +507,7 @@ int32_t CaseItemBase::CaseItemPreconditionShow(std::string input, ShowString& ou
 }
 int32_t CaseItemBase::CaseItemPassconditionShow(std::string input, ShowString& output)
 {
-	//007_passcondition = ALi / average / (700ma / 900ma) / 5s;; 网络标号 / 类型(平均，峰值，) / (rang1 / rang2) / 时长
+	//007_passcondition = ALi / immediate / (700ma / 900ma) / 5s;; 网络标号 / 类型(平均，峰值，) / (rang1 / rang2) / 时长
 	translation_slash_smart(input, output, caseitem_class::Passcondition);
 	return output.size() > 0 ? 0 : -ERROR_INVALID_PARAMETER;
 }
@@ -609,19 +609,24 @@ int32_t CaseItemBase::CaseItemManualConfirmHandle(std::string input, int mstep)
 	int ret = 0;
 	QString input_value = QString(input.c_str());
 	bool is_needinput = false;
-	//bool had_res = input_value.contains("Resource:",Qt::CaseInsensitive);
-	if (input_value.count('/') > 0) {
+	bool had_res = input_value.contains("Resource:",Qt::CaseInsensitive);
+	if (input_value.count('/') > 0 && !had_res) {
 		is_needinput = true;
 	}
 	if (!is_needinput) {
 		//没有输入框
 		QString showinput;
-		CaseItemManualConfirmShow(input, showinput);
 		auto mmsg = new MessageTVCaseConfirmDialog;
+		auto info_raw = translation_slash_smart(input, showinput, caseitem_class::ManualConfirm);
+		ManualViewInfoBase* info = dynamic_cast<ManualViewInfoBase*>(info_raw.get());
+		if (info != nullptr) {
+			mmsg->resource = info->resource;
+		}
+		CaseItemManualConfirmShow(input, showinput);
 		mmsg->msg = QStringLiteral("%1 %2\n%3\n%4").arg(QStringLiteral("请确认")) \
 			.arg(showinput) \
 			.arg(QStringLiteral("确认成功请点击 确定 按钮")) \
-			.arg(QStringLiteral("无法确认或确实失败请点击 取消 按钮"));
+			.arg(QStringLiteral("无法确认或确认失败请点击 取消 按钮"));
 		MessageTVBasePtr ptr(mmsg);
 		emit notifytoView(int(mmsg->GetCmd()), ptr);
 		QMutexLocker locker(&(mmsg->mutex));
@@ -678,8 +683,10 @@ int32_t CaseItemBase::CaseItemManualConfirmHandle(std::string input, int mstep)
 				}
 			}
 		}
-		else if (info_raw->GetType() == caseiteminfo_type::ManualConfirmWithRes) {
-		
+		else {
+			ret = -ERROR_INVALID_PARAMETER;
+			goto ERR_OUT;
+			qCritical("info_raw->GetType() %d", info_raw->GetType());
 		}
 	}
 ERR_OUT:
@@ -797,7 +804,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
-	if (msg->mode.toUpper()!="AVERAGE") {
+	if (msg->mode.toUpper()!="IMMEDIATE") {
 		qCritical("Mode %s can't support", msg->mode.toStdString().c_str());
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
@@ -808,45 +815,45 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 			while((!had_checked) && 
 				(QDateTime::currentDateTime().toTime_t()- starttime.toTime_t() <(msg->duration_ms/1000)))
 			{
-			auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverReadQuery);
-			DeviceDriverReadQuery* upper = dynamic_cast<DeviceDriverReadQuery*>(mptrrq.get());
-			if (msg->networklabel.front() == 'V') {
-				upper->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCV;
-			}else if (msg->networklabel.front()=='I'|| msg->networklabel.front() == 'A') {
-				upper->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCI;
-			}
-			ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrrq);
-			if (ret != 0) {
-				qCritical("IOCTRL DeviceDriverReadQuery fail");
-				ret = -ERROR_DEVICE_UNREACHABLE;
-				goto ERROR_OUT;
-			}
-			double limit[2] = { msg->rangmin_m,msg->rangmax_m };
-			if (msg->unit.toUpper().count('M') == 0) {
-				limit[0] *= 1000;
-				limit[1] *= 1000;
-			}
-			{
+				auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverReadQuery);
+				DeviceDriverReadQuery* upper = dynamic_cast<DeviceDriverReadQuery*>(mptrrq.get());
+				if (msg->networklabel.front() == 'V') {
+					upper->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCV;
+				}else if (msg->networklabel.front()=='I'|| msg->networklabel.front() == 'A') {
+					upper->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCI;
+				}
+				ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrrq);
+				if (ret != 0) {
+					qCritical("IOCTRL DeviceDriverReadQuery fail");
+					ret = -ERROR_DEVICE_UNREACHABLE;
+					goto ERROR_OUT;
+				}
+				double limit[2] = { msg->rangmin_m,msg->rangmax_m };
+				if (msg->unit.toUpper().count('M') == 0) {
+					limit[0] *= 1000;
+					limit[1] *= 1000;
+				}
+				{
 				
-				double taget = upper->current_ma;
-				if (upper->mMeasfunc == DeviceDriverReadQuery::QueryMeasFunc::MeasDCV) {
-					taget = upper->voltage_mv;
-				}
-				//qDebug("value %lf rang[%lf/%lf] unit [%s]", upper->current_ma,limit[0],limit[1], msg->unit.toStdString().c_str());
-				if (taget <= limit[1] && taget >=limit[0]) {
-					ret = 0;
-					had_checked = true;
-				}
-				else {
-					qCritical("value %lf out of rang [%lf/%lf]", taget, limit[0], limit[1]);
-					ret = -ERROR_DATA_NOT_ACCEPTED;
-					if (msg->duration_ms > 0){
-						_sleep(1 * 1000);
-						if (GlobalConfig_debugCaseItemBase)qDebug("time: %s",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString().c_str());
+					double taget = upper->current_ma;
+					if (upper->mMeasfunc == DeviceDriverReadQuery::QueryMeasFunc::MeasDCV) {
+						taget = upper->voltage_mv;
 					}
+					//qDebug("value %lf rang[%lf/%lf] unit [%s]", upper->current_ma,limit[0],limit[1], msg->unit.toStdString().c_str());
+					if (taget <= limit[1] && taget >=limit[0]) {
+						ret = 0;
+						had_checked = true;
+					}
+					else {
+						qCritical("value %lf out of rang [%lf/%lf]", taget, limit[0], limit[1]);
+						ret = -ERROR_DATA_NOT_ACCEPTED;
+						if (msg->duration_ms > 0){
+							_sleep(1 * 1000);
+							if (GlobalConfig_debugCaseItemBase)qDebug("time: %s",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString().c_str());
+						}
+					}
+					output = QStringLiteral("实际数值:%1 %2").arg(taget).arg(msg->unit);
 				}
-				output = QStringLiteral("实际数值:%1 %2").arg(taget).arg(msg->unit);
-			}
 			}
 	}
 ERROR_OUT:

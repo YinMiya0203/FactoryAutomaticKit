@@ -52,7 +52,7 @@ public:
 	virtual caseiteminfo_type GetType() { return type; };
 	QString raw_str;
 	QList<QString> msgs;
-	QList<QString> resource;
+	QString resource;
 	virtual QString to_string() {
 		QString output;
 		//output.append("[msgs] ");output.append(msgs.size());
@@ -118,17 +118,17 @@ public:
 	virtual QString to_string() {
 		QString output;
 		output.append(networklabel);
-		output.append(QString(" %1").arg(mode));
-		output.append(QStringLiteral(" 保持范围 ["));
+		//output.append(QString(" %1").arg(mode));
+		output.append(QStringLiteral(" 稳定范围 ["));
 		output.append(QString("%1").arg(rangmin_m));
 		output.append(",");
 		output.append(QString("%1").arg(rangmax_m));
 		output.append(" ]");
 		output.append(unit);
 		if (duration_ms != 0) {
-			output.append(QStringLiteral(" 持续"));
-			output.append(QString("%1").arg(duration_ms / 1000));
+			output.append(QStringLiteral(" 在 %1").arg(duration_ms / 1000));
 			output.append(" S");
+			output.append(QStringLiteral(" 内"));
 		}
 		return output;
 	};
