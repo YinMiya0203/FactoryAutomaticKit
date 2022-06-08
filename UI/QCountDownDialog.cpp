@@ -7,8 +7,8 @@
 #include <QImageReader>
 #include "../TestCase.h"
 
-QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons,QString res_filler):
-	mStartvaluems(0)
+QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QString res_filler) :
+    mCountStartvaluems(0), mcontinuevaluems(0)
 {
 
     //setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
@@ -105,41 +105,51 @@ QCountDownDialog::~QCountDownDialog()
 int QCountDownDialog::Run(int nvaluems, QString msg)
 {
     m_pTimer->stop();
-    mStartvaluems = nvaluems;
+    mCountStartvaluems = nvaluems;
     m_msgLabel->setText(msg);
+    if (nvaluems <=0) {
+        nead_countdownaccept = false;
+    }
     on_timer_timeout();
     m_pTimer->start();
+    mcontinuevaluems = 0;
     return exec();
 }
 void QCountDownDialog::reject() {
+    if (GlobalConfig_debugAutoTestView) {
+        qDebug("res size %d", mfileInfo.size());
+    }
     m_pTimer->stop();
     QDialog::reject();
 }
 void QCountDownDialog::on_cancelBtn_clicked()
 {
     m_pTimer->stop();
-    if(mfileInfo.size()==0)this->reject();
-    else {
-        this->accept();
-    }
+
+    this->reject(); 
+
 }
 void QCountDownDialog::on_timer_timeout() 
 {
     
-    if (mStartvaluems <= 0) {
+    if (mcontinuevaluems >mCountStartvaluems && nead_countdownaccept) {
         m_pTimer->stop();
-        this->accept();
+        if (GlobalConfig_debugAutoTestView) {
+            qDebug("res size %d", mfileInfo.size());
+        }
+        if (mfileInfo.size() == 0)this->accept();
+        else this->reject();
         return;
     }
-    if (ui_time == 0 || (ui_time- mStartvaluems >1000)) {
-        if(m_timeLabel)m_timeLabel->setText(QString("%1").arg(QString::number(mStartvaluems/1000)));
-        ui_time = mStartvaluems;
+    if (ui_time == 0 || (mcontinuevaluems- ui_time>1000)) {
+        if(m_timeLabel)m_timeLabel->setText(QString("%1").arg(QString::number((mCountStartvaluems - mcontinuevaluems) /1000)));
+        ui_time = mcontinuevaluems;
         PlantResource();
         if (cancelBtn) {
-            cancelBtn->setText(QStringLiteral("取消(%1)").arg(mStartvaluems / 1000));
+            if(nead_countdownaccept)cancelBtn->setText(QStringLiteral("取消(%1)").arg((mCountStartvaluems-mcontinuevaluems) / 1000));
         }
     }
-    mStartvaluems -= mcounterunit;
+    mcontinuevaluems += mcounterunit;
 }
 
 

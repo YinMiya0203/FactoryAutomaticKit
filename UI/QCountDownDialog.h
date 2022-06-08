@@ -23,10 +23,12 @@ private:
     QLabel* m_msgLabel = nullptr;
     QTimer* m_pTimer;
     QPushButton* cancelBtn = nullptr;
-    int32_t mStartvaluems;
+    int32_t mCountStartvaluems;
+    int32_t mcontinuevaluems;
     int32_t mcounterunit = 100;
     int32_t ui_time = 0;
     QList<QFileInfo> mfileInfo = {};
     int32_t mshowfileindex=0;
+    bool nead_countdownaccept=true;
 };
 
