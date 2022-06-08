@@ -957,6 +957,7 @@ void AutoTestView::HandleCaseConfirmDialog(MessageTVCaseConfirmDialog* msg)
 	else {
 		QCountDownDialog * dlg = new QCountDownDialog(NULL, 2, msg->resource);
 		result = QMessageBox::StandardButton(dlg->Run(msg->durationms, msg->msg));
+		if (GlobalConfig_debugAutoTestView)qDebug("dlg res %d", result);
 		delete dlg;
 	}
 	msg->buttonclicked = result;
@@ -1191,6 +1192,9 @@ void AutoTestView::on_devicetestactivepb_clicked()
 void AutoTestView::on_test_start_pb_clicked()
 {
 	QPushButton* rb = qobject_cast<QPushButton*>(sender());
+	if (!rb) {
+		rb = mparent_widget->findChild<QPushButton*>(QString("test_start_pb"));
+	}
 	if (TestcaseBase::get_instance()->InterfaceidSetable()) {
 		QMessageBox::warning(NULL,WARN_STR,QStringLiteral("请先连接设备"));
 		return;
@@ -1221,7 +1225,7 @@ void AutoTestView::on_test_start_pb_clicked()
 	}
 	emit messagetodevice(int(packetptr->GetCmd()), packetptr);
 	//Lock clicked test_start_pb
-	rb->setEnabled(false);
+	if(rb)rb->setEnabled(false);
 }
 void AutoTestView::on_test_termin_pb_clicked()
 {

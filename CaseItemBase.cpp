@@ -499,7 +499,7 @@ IniInfoBasePtr CaseItemBase::PassconditionWithNetworkId(QString input_str, QStri
 		goto ERROR_OUT;
 	}
 	else {
-		qCritical("input %s match fail", input_str.toStdString().c_str());
+		if(input_str.contains("/"))qCritical("input %s match fail", input_str.toStdString().c_str());
 	}
 ERROR_OUT:
 	return ptr;
@@ -584,7 +584,8 @@ int32_t CaseItemBase::CaseItemDelaymsHandle(std::string input, int mstep)
 		MessageTVBasePtr ptr(mmsg);
 		emit notifytoView(int(mmsg->GetCmd()), ptr);
 		QMutexLocker locker(&(mmsg->mutex));
-		int result = mmsg->mwait.wait(&(mmsg->mutex), delayms+1000);
+		//int result = mmsg->mwait.wait(&(mmsg->mutex), delayms+1000);
+		int result = mmsg->mwait.wait(&(mmsg->mutex));
 		if (!mmsg->is_success) {//true dialog cancel
 			if (GlobalConfig_debugCaseItemBase)qInfo("user cancel");
 			ret = error_caseusrtermin;
@@ -736,35 +737,7 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
-	{
-		DeviceStatus_t st;
-		int32_t default_currentlimit_ma = 2 * 1000;
-		ret = TestcaseBase::get_instance()->Getdevicestatus(dev_id, st);
-		if (ret == 0) {
-			if(msg->voltage_mv!=0)default_currentlimit_ma = (st.maxWVA*1000*1000) / (msg->voltage_mv)/1000*1000;
-		}
-		if (GlobalConfig_debugCaseItemBase)qDebug("default_currentlimit_ma %d  mv %d maxWVA %d", default_currentlimit_ma, msg->voltage_mv, st.maxWVA);
-		auto mptrcl = VisaDriverIoctrlBasePtr(new DeviceDriverSourceCurrentLimit);
-		DeviceDriverSourceCurrentLimit* upper = dynamic_cast<DeviceDriverSourceCurrentLimit*>(mptrcl.get());
-		upper->is_read = true;
-		ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrcl);
-		if (ret != 0) {
-			qCritical("IOCTRL DeviceDriverSourceCurrentLimit read fail");
-			ret = -ERROR_DEVICE_UNREACHABLE;
-			goto ERROR_OUT;
-		}
 
-		if (upper->current_ma < default_currentlimit_ma) {
-			upper->is_read = false;
-			upper->current_ma = default_currentlimit_ma;
-			ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrcl);
-			if (ret != 0) {
-				qCritical("IOCTRL DeviceDriverSourceCurrentLimit set %d fail", upper->current_ma);
-				ret = -ERROR_DEVICE_UNREACHABLE;
-				goto ERROR_OUT;
-			}
-		}
-	}
 	{
 		auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverSourceVoltage);
 		DeviceDriverSourceVoltage* upper = dynamic_cast<DeviceDriverSourceVoltage*>(mptrrq.get());
@@ -776,6 +749,36 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 			goto ERROR_OUT;
 		}
 		if (upper->voltage_mv != msg->voltage_mv) {
+			//set current
+			{
+				DeviceStatus_t st;
+				int32_t default_currentlimit_ma = 2 * 1000;
+				ret = TestcaseBase::get_instance()->Getdevicestatus(dev_id, st);
+				if (ret == 0) {
+					if (msg->voltage_mv != 0)default_currentlimit_ma = (st.maxWVA * 1000 * 1000) / (msg->voltage_mv) / 1000 * 1000;
+				}
+				if (GlobalConfig_debugCaseItemBase)qDebug("default_currentlimit_ma %d  mv %d maxWVA %d", default_currentlimit_ma, msg->voltage_mv, st.maxWVA);
+				auto mptrcl = VisaDriverIoctrlBasePtr(new DeviceDriverSourceCurrentLimit);
+				DeviceDriverSourceCurrentLimit* upper = dynamic_cast<DeviceDriverSourceCurrentLimit*>(mptrcl.get());
+				upper->is_read = true;
+				ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrcl);
+				if (ret != 0) {
+					qCritical("IOCTRL DeviceDriverSourceCurrentLimit read fail");
+					ret = -ERROR_DEVICE_UNREACHABLE;
+					goto ERROR_OUT;
+				}
+
+				if (upper->current_ma < default_currentlimit_ma) {
+					upper->is_read = false;
+					upper->current_ma = default_currentlimit_ma;
+					ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrcl);
+					if (ret != 0) {
+						qCritical("IOCTRL DeviceDriverSourceCurrentLimit set %d fail", upper->current_ma);
+						ret = -ERROR_DEVICE_UNREACHABLE;
+						goto ERROR_OUT;
+					}
+				}
+			}
 			//set voltage
 			auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverSourceVoltage);
 			DeviceDriverSourceVoltage* upper = dynamic_cast<DeviceDriverSourceVoltage*>(mptrsv.get());
@@ -822,9 +825,8 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 	{
 			bool had_checked = false;
 			QDateTime starttime = QDateTime::currentDateTime();
-			while((!had_checked) && 
-				(QDateTime::currentDateTime().toTime_t()- starttime.toTime_t() <(msg->duration_ms/1000)))
-			{
+			
+			do{
 				auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverReadQuery);
 				DeviceDriverReadQuery* upper = dynamic_cast<DeviceDriverReadQuery*>(mptrrq.get());
 				if (msg->networklabel.front() == 'V') {
@@ -864,7 +866,17 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					}
 					output = QStringLiteral("实际数值:%1 %2").arg(taget).arg(msg->unit);
 				}
-			}
+				if ((msg->duration_ms == 0) ||
+					((QDateTime::currentDateTime().toTime_t() - starttime.toTime_t()) > (msg->duration_ms / 1000))
+					)
+				{
+					if(msg->duration_ms != 0){
+						qInfo("duration outof rang %d ms", msg->duration_ms);
+						ret = -ERROR_TIMEOUT;
+					}
+					break;
+				}
+			} while (!had_checked);
 	}
 ERROR_OUT:
 	return ret;
@@ -877,6 +889,11 @@ int ret = 0;
 	auto info_raw = translation_slash_smart(input, showinput, caseitem_class::Passcondition);
 	NetworkLabelPassconditionBase* info = dynamic_cast<NetworkLabelPassconditionBase*>(info_raw.get());
 	int32_t dev_id;
+	if (info == nullptr) {
+		qCritical("input %s can't translation to NetworkLabelPassconditionBase", input.c_str());
+		ret = -ERROR_INVALID_PARAMETER;
+		goto ERR_OUT;
+	}
 	ret = TestcaseBase::get_instance()->GetDeviceId(info->networklabel.toStdString(), dev_id);
 	if (ret != 0) {
 		qCritical("networklabel %s can't find", info->networklabel.toStdString().c_str());

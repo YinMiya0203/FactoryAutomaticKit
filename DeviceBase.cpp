@@ -625,6 +625,7 @@ int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 		ptr->commond = mptr->commond;
 		upper_arg->result = mptr->result;
 		if (GetDeviceSCPIVersion() < SCPI_VERSION_1999) {
+			//ºÏÀí±¨´í
 			if (GlobalConfig_debugdevcieBase)qDebug("force sleep");
 			_sleep(2000);
 		}
