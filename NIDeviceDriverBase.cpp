@@ -25,12 +25,7 @@ int32_t NiDeviceDriverBase::FindDeviceResource(Resourcecontainer& contain)
     ViUInt32 itemCnt=0;
     ViChar desc[256];
     contain.clear();
-#ifdef VIRTUAL_DEVICE
-    _sleep(3 * 1000);
-    contain.push_back("TCPIP::169.254.247.189::INSTR");
-    contain.push_back("COM3::INSTR");
-    return ret;
-#endif
+
     if (rm == NULL) {
         status = viOpenDefaultRM(&rm);
     }
@@ -50,7 +45,7 @@ int32_t NiDeviceDriverBase::FindDeviceResource(Resourcecontainer& contain)
     }
     for (ViUInt32 i = 0; i < itemCnt; i++) {
         res = desc;
-        qInfo("desc %s \n", desc);
+        if (GlobalConfig_debugdevciedriver)qInfo("desc %s \n", desc);
         contain.push_back(std::string(res));
         viFindNext(flist, desc);
     }
@@ -177,7 +172,7 @@ int32_t NiDeviceDriverBase::write(VisaDriverIoctrlWrite* arg)
     QMutexLocker locker(&mdrivermutex);
     int32_t ret = 0;
     if (arg == nullptr)return -ERROR_INVALID_PARAMETER;
-    if (GlobalConfig_debugdevciedriver)qDebug("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
+    if (GlobalConfig_debugdevciedriver)qInfo("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
 #ifdef VIRTUAL_DEVICE
     return ret;
 #endif
@@ -206,7 +201,7 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
     int32_t ret = 0;
     arg->result.clear();
     if (arg == nullptr)return -ERROR_INVALID_PARAMETER;
-    if (GlobalConfig_debugdevciedriver)qDebug("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
+    if (GlobalConfig_debugdevciedriver)qInfo("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
 #ifdef VIRTUAL_DEVICE
     return ret;
 #endif

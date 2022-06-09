@@ -10,7 +10,7 @@
 #include <QMovie>
 #include "TestCaseResultSave.h"
 //#include "SliderButton.h"
-
+#define SHOW_LOGWIDGET
 AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 {
 	auto parent_layout = new QGridLayout;
@@ -103,7 +103,7 @@ int32_t AutoTestView::setuplogView(QWidget* parent)
 	parent->setLayout(log_layout);
 	auto  log_plaintextedit = new QPlainTextEdit;
 	log_layout->addWidget(log_plaintextedit, 0, 0, 1, 1);
-
+	log_plaintextedit->setObjectName("log_plaintextedit");
 	log_plaintextedit->setReadOnly(true);
 	QPalette p = log_plaintextedit->palette();
 	QPalette winp = parent->palette(); //»ñÈ¡parentµÄpalette
@@ -1049,6 +1049,24 @@ void AutoTestView::HandleCaseItemWidgetStringUpdate(MessageTVCaseItemWidgetStrin
 ERR_OUT:
 	return;
 }
+void AutoTestView::HandleLogWidgetUpdate(MesageTVLogWidgetUpdate* msg)
+{
+	auto log_plaintextedit = mparent_widget->findChild<QPlainTextEdit*>(QString("log_plaintextedit"));
+	if (log_plaintextedit == nullptr)return;
+	if (msg == nullptr) {
+		if (log_plaintextedit) {
+			log_plaintextedit->clear();
+		}
+		return;
+	}
+	if (msg->overwriteMode) {
+		log_plaintextedit->setPlainText(msg->msg);
+	}
+	else {
+		log_plaintextedit->appendPlainText(msg->msg);
+	}
+
+}
 void AutoTestView::HandleDeviceScanWidgetUpdate(MessageTVHardWareDeviceRes* msg)
 {
 if (msg == nullptr)return;
@@ -1203,6 +1221,7 @@ void AutoTestView::on_test_start_pb_clicked()
 	packet->cmd = MessageFromView::TestCasePauseRun;
 	MessageFVBasePtr packetptr(packet);
 	if (!TestcaseBase::get_instance()->isRuncase()) {
+		HandleLogWidgetUpdate();
 		TestCaseTableWidgetFresh();
 	}
 	if(GLOBALSETTINGSINSTANCE->isUserRoot()) {
@@ -1313,7 +1332,14 @@ void AutoTestView::messagefromtestcase(int cmd, MessageTVBasePtr ptr)
 		HandleDeviceScanWidgetUpdate(msg);
 	}
 	break;
+	case MessageToView::BackGroundServiceMsgToLogWidget:
+	{
+		MesageTVLogWidgetUpdate* msg = dynamic_cast<MesageTVLogWidgetUpdate*>(devp);
+		HandleLogWidgetUpdate(msg);
+	}
+		break;
 	default:
-			break;
+		qCritical("Unkown vcmd %d", vcmd);
+		break;
 	}
 }

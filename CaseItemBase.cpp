@@ -809,7 +809,7 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 ERROR_OUT:
 	return ret;
 }
-int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, NetworkLabelPassconditionBase* msg)
+int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, NetworkLabelPassconditionBase* msg, int32_t mstep)
 {
 	int ret = 0;
 	output.clear();
@@ -825,7 +825,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 	{
 			bool had_checked = false;
 			QDateTime starttime = QDateTime::currentDateTime();
-			
+			auto tologwidgettime = 0;
 			do{
 				auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverReadQuery);
 				DeviceDriverReadQuery* upper = dynamic_cast<DeviceDriverReadQuery*>(mptrrq.get());
@@ -855,9 +855,12 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					if (taget <= limit[1] && taget >=limit[0]) {
 						ret = 0;
 						had_checked = true;
+						if (msg->duration_ms > 0) {
+							qInfo("cost time %d s", QDateTime::currentDateTime().toTime_t() - starttime.toTime_t());
+						}
 					}
 					else {
-						qCritical("value %lf out of rang [%lf/%lf]", taget, limit[0], limit[1]);
+						qInfo("value %lf out of rang [%lf/%lf]", taget, limit[0], limit[1]);
 						ret = -ERROR_DATA_NOT_ACCEPTED;
 						if (msg->duration_ms > 0){
 							_sleep(1 * 1000);
@@ -875,6 +878,18 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 						ret = -ERROR_TIMEOUT;
 					}
 					break;
+				}
+				else {
+					auto current_time = QDateTime::currentDateTime().toTime_t();
+					if( (mstep >= 0) && ((current_time-tologwidgettime)>=5))
+					{
+						auto msg = new MesageTVLogWidgetUpdate;
+						msg->msg = QStringLiteral("测试步骤 %1 第 %2 项 已经花费 %3 s ...\r\n").arg(moffset_inlist)
+							.arg(mstep).arg(current_time - starttime.toTime_t());
+						MessageTVBasePtr mptr(msg);
+						emit notifytoView(int(msg->GetCmd()), mptr);
+						tologwidgettime = current_time;
+					}
 				}
 			} while (!had_checked);
 	}
@@ -901,7 +916,7 @@ int ret = 0;
 		goto ERR_OUT;
 	}
 
-	ret = FunctionQueryCurrent(dev_id, result, info);
+	ret = FunctionQueryCurrent(dev_id, result, info,mstep);
 	{
 		//toview color
 		auto msg = new MessageTVCaseItemWidgetStringUpdate;

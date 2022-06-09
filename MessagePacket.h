@@ -36,7 +36,7 @@ enum class MessageToView {
 	TestCaseHandleManualConfirmWithInputsDialog,
 	TestCaseItemStatus,
 	TestCaseItemStringMsgUpdate,
-	BackGroundServiceMsgNotify,
+	BackGroundServiceMsgToLogWidget,
 };
 enum class DeviceStatusIcon {
 	Unknown,
@@ -256,6 +256,21 @@ public:
 		raw.append(";Index:"); raw.append(std::to_string(index));
 		raw.append(";sector:"); raw.append(std::to_string(sector));
 		raw.append(";seek:"); raw.append(std::to_string(seek));
+		raw.append(";msg:"); raw.append(msg.toStdString());
+		raw.append(";overwriteMode:"); raw.append(std::to_string(overwriteMode));
+		return raw;
+	};
+};
+class MesageTVLogWidgetUpdate :public MessageTVBase {
+private:
+	MessageToView cmd = MessageToView::BackGroundServiceMsgToLogWidget;
+public:
+	QString msg;
+	bool overwriteMode = false;
+	MessageToView GetCmd() { return cmd; };
+	std::string to_string() {
+		std::string raw;
+		raw.append("Cmd:"); raw.append(std::to_string(int(cmd)));
 		raw.append(";msg:"); raw.append(msg.toStdString());
 		raw.append(";overwriteMode:"); raw.append(std::to_string(overwriteMode));
 		return raw;
