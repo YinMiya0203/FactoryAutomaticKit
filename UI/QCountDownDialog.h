@@ -9,7 +9,7 @@ class QCountDownDialog :
     public QDialog
 {
 public:
-    explicit QCountDownDialog(QWidget* parent = nullptr,int buttons = 1,QString res_filler = "");
+    explicit QCountDownDialog(QWidget* parent = nullptr, int buttons = 1, QList<QString> res_filler = {});
     int Run(int32_t nvaluems,QString msg);
     ~QCountDownDialog();
     void reject();
@@ -17,7 +17,7 @@ public slots:
     void on_timer_timeout();
     void on_cancelBtn_clicked();
 private:
-	int32_t ShowResource(QString, QVBoxLayout*);
+	int32_t ShowResource(QList<QString>, QVBoxLayout*);
 	void PlantResource();
     QLabel* m_timeLabel=nullptr;
     QLabel* m_msgLabel = nullptr;

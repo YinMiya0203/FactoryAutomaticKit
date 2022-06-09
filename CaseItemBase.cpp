@@ -544,7 +544,7 @@ int32_t CaseItemBase::CaseItemDelaymsHandle(std::string input, int mstep)
 	bool had_res = false;
 	int32_t delayms = 0;
 	QString msg="";
-	QString res="";
+	QList<QString> res = {};
 	int ret = 0;
 	if (input_value.count('/') > 0) {
 		QStringList param = QString(input.c_str()).split('/');
@@ -558,7 +558,7 @@ int32_t CaseItemBase::CaseItemDelaymsHandle(std::string input, int mstep)
 			else if (item.contains("Resource:",Qt::CaseInsensitive)) {
 				had_res = true;
 				need_ui = true;
-				res = item.right(item.size()-strlen("Resource:"));
+				res.push_back(item.right(item.size()-strlen("Resource:")));
 			}else{
 				if (!had_res)msg = QString("%1 %2").arg(item).arg(QStringLiteral("\n点击 取消 按键将终止本次测试"));
 				else {

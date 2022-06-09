@@ -52,7 +52,7 @@ public:
 	virtual caseiteminfo_type GetType() { return type; };
 	QString raw_str;
 	QList<QString> msgs;
-	QString resource;
+	QList <QString> resource;
 	int32_t duration_ms = 0;
 	virtual QString to_string() {
 		QString output;

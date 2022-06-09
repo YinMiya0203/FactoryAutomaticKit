@@ -7,7 +7,7 @@
 #include <QImageReader>
 #include "../TestCase.h"
 
-QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QString res_filler) :
+QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QList<QString> res_filler) :
     mCountStartvaluems(0), mcontinuevaluems(0)
 {
 
@@ -56,7 +56,7 @@ QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QString res_fil
     connect(m_pTimer, &QTimer::timeout, this, &QCountDownDialog::on_timer_timeout);
     m_pTimer->setInterval(mcounterunit);
 }
-int32_t QCountDownDialog::ShowResource(QString res_filler, QVBoxLayout* pVBoxLayout)
+int32_t QCountDownDialog::ShowResource(QList<QString> res_filler, QVBoxLayout* pVBoxLayout)
 {
     int ret = 0;
     //找出有多少res
@@ -66,7 +66,7 @@ int32_t QCountDownDialog::ShowResource(QString res_filler, QVBoxLayout* pVBoxLay
     filter << res_filler;
     dir->setNameFilters(filter);
     mfileInfo = QList<QFileInfo>(dir->entryInfoList(filter));
-    qDebug("fileInfo size %d dir [%s]/[%s]", mfileInfo.size(), dir->absolutePath().toStdString().c_str(), res_filler.toStdString().c_str());
+    if (GlobalConfig_debugAutoTestView)qDebug("fileInfo size %d dir [%s]/[%s]", mfileInfo.size(), dir->absolutePath().toStdString().c_str(), res_filler.front().toStdString().c_str());
     if (mfileInfo.size() > 0) {
         auto res = mfileInfo.first().absoluteFilePath();
         auto m_resLabel = new QLabel(this);
@@ -76,7 +76,7 @@ int32_t QCountDownDialog::ShowResource(QString res_filler, QVBoxLayout* pVBoxLay
         auto pixsize = QPixmap(res).size();
         auto targetscaledsize = pixsize.scaled(
             targetsize, Qt::KeepAspectRatio);
-        qDebug("targetscaledsize %d %d", targetscaledsize.width(), targetscaledsize.height());
+        if (GlobalConfig_debugAutoTestView)qDebug("targetscaledsize %d %d", targetscaledsize.width(), targetscaledsize.height());
         this->setFixedSize(targetscaledsize);
         pVBoxLayout->addWidget(m_resLabel);
         PlantResource();

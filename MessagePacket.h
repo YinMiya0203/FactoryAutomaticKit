@@ -151,7 +151,7 @@ private:
 public:
 	int32_t durationms;
 	QString msg;
-	QString resource;
+	QList<QString> resource;
 	QMutex mutex;
 	bool is_success = false;
 	QWaitCondition mwait;
@@ -187,7 +187,7 @@ private:
 	MessageToView cmd = MessageToView::TestCaseHandleManualConfirmDialog;
 public:
 	QString msg;
-	QString resource;
+	QList<QString> resource;
 	int32_t durationms=0;
 	int32_t buttonclicked;
 	QMutex mutex;
