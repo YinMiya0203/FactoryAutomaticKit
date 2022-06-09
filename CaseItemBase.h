@@ -180,7 +180,7 @@ public:
 	static CaseItemBasePtr get_instance(QSettings *,int);
 	static QString GetVersion() {
 
-		return QString("%1[%2]").arg("CaseItem").arg(CIVERSION);
+		return QString("%1 [%2]").arg("CaseItem").arg(CIVERSION);
 	};
 	CaseItemBase() = delete;
 	~CaseItemBase();

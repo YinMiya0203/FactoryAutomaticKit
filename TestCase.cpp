@@ -520,6 +520,17 @@ int32_t TestcaseBase::TestcasePauseStart(void)
 ERR_OUT:
 	return ret;
 }
+bool TestcaseBase::AllVirtualDevice()
+{
+	bool ret = true;
+	foreach(auto dev,mdevice_list) {
+		if (!dev->isVirtualDevice()) {
+			ret = false;
+			break;
+		}
+	}
+	return ret;
+}
 int32_t TestcaseBase::HandleTestcase(int sector, int seek)
 {
 	int ret = 0;
@@ -543,6 +554,12 @@ int32_t TestcaseBase::HandleTestcase(int sector, int seek)
 		}
 
 		ret = mcase_list[sector]->Process(seek);
+		if (ret!= error_itemseekend && ret!=0) {
+			if (AllVirtualDevice()) {
+				qDebug("virtual devices change ret 0x%x to 0",ret);
+				ret = 0;
+			}
+		}
 	} while (0);
 	if (GlobalConfig_debugtestcasebgserver)qDebug("sector %d: seek %d result 0x%x", sector, seek, ret);
 	return ret;

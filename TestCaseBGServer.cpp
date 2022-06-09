@@ -103,15 +103,6 @@ int32_t TestCaseBGServer::HandleNextCaseitem()
 		}
 			break;
 		case ERROR_SUCCESS:
-#if 0
-			//notice view 由于需要更新文字数据，从casebase notice
-		{
-			auto msg = new MessageTVBGStatus;
-			msg->issuccess = true;
-			MessageTVBasePtr mptr(msg);
-			emit notifytoView(int(msg->cmd), mptr);
-		}
-#endif
 			mBGstatus.caseitemseek++;
 			break;
 		case error_caseusrtermin:

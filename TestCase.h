@@ -81,6 +81,7 @@ private:
 	int32_t TestcasePauseStart(void);
 
 	int32_t HandleTestcase(int sector,int seek);
+	bool AllVirtualDevice();
 private:
 	TestcaseBase();
 	TestcaseBase(const TestcaseBase& module) = delete;

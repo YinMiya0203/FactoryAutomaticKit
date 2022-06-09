@@ -10,6 +10,10 @@
 #include "VisaDriver_ioctrl.h"
 #include "Utility.h"
 #include <memory>
+#define NIDD_VERSION_M	"0"
+#define NIDD_VERSION_S	"1"
+#define NIDD_VERSION_P	"1"
+#define NIDD_VERSION NIDD_VERSION_M "." NIDD_VERSION_S "." NIDD_VERSION_P
 typedef std::list<std::string> Resourcecontainer;
 typedef struct asrlconfg_t {
 	uint32_t baud_rate = 9600;
@@ -41,6 +45,10 @@ public:
 	void SetCmdPostfix(std::string val) {
 		mCmdPostfix = val;
 	}
+	static QString GetVersion() {
+
+		return QString("%1 [%2]").arg("NIDD").arg(NIDD_VERSION);
+	};
 protected:
 	int32_t write(VisaDriverIoctrlWrite* arg);
 	int32_t read(VisaDriverIoctrlRead* arg);

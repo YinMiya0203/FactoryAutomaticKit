@@ -85,7 +85,7 @@ GlobalSettingsPtr GlobalSettings::get_instance()
 
 QString GlobalSettings::GetVersion()
 {
-	return QString("%1[%2]").arg("GlobalSettings").arg(GSVERSION);
+	return QString("%1 [%2]").arg("GlobalSettings").arg(GSVERSION);
 }
 
 int32_t GlobalSettings::SetUserRoot(QString usrname, QString passwd)

@@ -28,7 +28,7 @@ FactoryAutoTestMain::FactoryAutoTestMain(QWidget *parent)
     this->setWindowTitle("FactoryAutomation");
     setuprootactions();
 
-    QWidget* main_widget = new QWidget(this);
+    main_widget = new QWidget(this);
     main_widget->setObjectName("AutoTestView");
     mainview = new AutoTestView(main_widget);
     
@@ -64,11 +64,7 @@ void FactoryAutoTestMain::closeEvent(QCloseEvent*)
 void FactoryAutoTestMain::on_action_about_triggered()
 {
     //TBD 显示各个版本
-    QString versions;
-    versions.append(QString("%1\n").arg(Utility::buildDateTime( QString::fromUtf8("编译时间:") ) ));
-    versions.append(QString("%1\n").arg(GlobalSettings::GetVersion()));
-    versions.append(QString("%1\n").arg(DeviceBase::GetVersion()));
-    versions.append(QString("%1\n").arg(CaseItemBase::GetVersion()));
+    QString versions = AutoTestView::GetVerionInfo();
     QMessageBox::about(nullptr, VER_STR ,versions);
 }
 

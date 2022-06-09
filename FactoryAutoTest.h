@@ -20,5 +20,6 @@ private slots:
 private:
     void setuprootactions();
     Ui::FactoryAutoTestClass ui;
-    AutoTestView* mainview;
+    AutoTestView* mainview=nullptr;
+    QWidget* main_widget = nullptr;
 };

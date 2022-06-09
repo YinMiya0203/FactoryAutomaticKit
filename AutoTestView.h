@@ -40,7 +40,7 @@ public:
 	AutoTestView(QWidget* main_widget);
 	AutoTestView()=delete;
 	AutoTestView& operator=(const AutoTestView ) = delete;
-
+	static QString GetVerionInfo();
 	~AutoTestView();
 	bool eventFilter(QObject* watched, QEvent* event) override;
 private slots:

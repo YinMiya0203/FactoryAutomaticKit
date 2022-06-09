@@ -11,7 +11,7 @@
 #include "Utility.h"
 #define TESTCASE_VERSION_M	"0"
 #define TESTCASE_VERSION_S	"0"
-#define TESTCASE_VERSION_P	"0"
+#define TESTCASE_VERSION_P	"1"
 #define TESTCASE_VERSION TESTCASE_VERSION_M "." TESTCASE_VERSION_S "." TESTCASE_VERSION_P
 #define SCPI_VERSION_1999	"1999.0"
 enum class DeviceClass {
@@ -60,7 +60,7 @@ public:
 	DeviceBase(int offset,std::string identify, std::string networklabel, std::string interfaceid, std::string arslconfg="", std::string maxva="", DriverClass driverclass= DriverClass::DriverSCPI);
 	static QString GetVersion() {
 		
-		return QString("%1[%2]").arg("DeviceBase").arg(TESTCASE_VERSION);
+		return QString("%1 [%2]").arg("DeviceBase").arg(TESTCASE_VERSION);
 	};
 	std::string GetIdentify();
 	int32_t SetIdentifyCustomer(std::string value);
@@ -91,6 +91,9 @@ public:
 
 	Resourcecontainer FindResourcecontainer();
 	QString GetDeviceSCPIVersion();
+	bool isVirtualDevice() {
+		return QString(interfaceidorig.c_str()).toUpper() == "VIRTUAL";
+	}
 private:
 	int32_t Handlecmd();
 	void setupworkthread();
@@ -105,9 +108,7 @@ private:
 	int32_t ReadQuery_1999(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadQuery_1997(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr);
-	bool isVirtualDevice() {
-		return QString(interfaceidorig.c_str()).toUpper() == "VIRTUAL";
-	}
+
 private:
 	std::string  identifyorig;
 	std::string  identifycustomer;

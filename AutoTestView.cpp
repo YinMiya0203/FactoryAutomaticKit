@@ -16,7 +16,7 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 	auto parent_layout = new QGridLayout;
 
 	main_widget->setLayout(parent_layout);
-	
+	qInfo("Ver: %s",GetVerionInfo().toStdString().c_str());
 	//ui.setupUi(this);
 	auto title_widget = new QWidget;
 	int row_offset = 0;
@@ -86,6 +86,17 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 	}
 #endif
 	RegisterSignalTotestcase();
+}
+
+QString AutoTestView::GetVerionInfo()
+{
+	QString versions;
+	versions.append(QString("%1\n").arg(Utility::buildDateTime(QStringLiteral("±‡“Î ±º‰:"))));
+	versions.append(QString("%1\n").arg(GlobalSettings::GetVersion()));
+	versions.append(QString("%1\n").arg(DeviceBase::GetVersion()));
+	versions.append(QString("%1\n").arg(CaseItemBase::GetVersion()));
+	versions.append(QString("%1\n").arg(NiDeviceDriverBase::GetVersion()));
+	return versions;
 }
 
 AutoTestView::~AutoTestView()
