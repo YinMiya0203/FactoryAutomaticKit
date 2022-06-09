@@ -232,6 +232,8 @@ private:
 
 	int32_t FunctionSetVoltageOut(int32_t dev_id,NetworkLabelPreconditionBase* msg = nullptr);
 	int32_t FunctionQueryCurrent(int32_t dev_id,QString &output, NetworkLabelPassconditionBase* msg = nullptr, int32_t mstep=-1);
+	
+	int32_t GetMaxCurrentLimitMA(QString input,int32_t voltage_mv=0);
 	CaseItemContainer mcaseitems;
 	CaseItemHandles mcaseitemhandles;
 	CaseItemShows  mcaseItemshows;

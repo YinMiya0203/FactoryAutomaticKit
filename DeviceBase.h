@@ -23,7 +23,7 @@ enum class DeviceClass {
 typedef struct DeviceStatus_t {
 	bool connected;
 	bool output;
-	int32_t maxWVA;
+	QString maxWVAStr;
 	int32_t voltage_mv;
 }DeviceStatus;
 typedef struct DeviceInfo_t {
@@ -116,7 +116,7 @@ private:
 	std::string interfaceidcustomer;
 	std::string arslconfgstr;
 	asrlconfg_t masrlconfg;
-	int32_t maxWVA = 8;
+	//int32_t maxWVA = 8;
 	int moffset_inlist;
 	QString scpi_version;
 	DeviceClass mdevice_class;

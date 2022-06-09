@@ -118,10 +118,8 @@ DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string
 	mdevicestatus.connected = false;
 	interfaceidcustomer.clear();
 	FVcontainer.clear();
-	if (maxva.size() > 0) {
-		maxWVA = atoi(maxva.c_str());
-	}
-	mdevicestatus.maxWVA = maxWVA;
+
+	mdevicestatus.maxWVAStr = maxva.size()>0? QString(maxva.c_str()): QString("8");
 	setupworkthread();
 }
 std::string DeviceBase::GetIdentify()

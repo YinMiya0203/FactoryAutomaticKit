@@ -729,6 +729,45 @@ int32_t CaseItemBase::CaseItemPreconditionHandle(std::string input, int mstep)
 ERR_OUT:
 	return ret;
 }
+int32_t CaseItemBase::GetMaxCurrentLimitMA(QString input, int32_t voltage_mv)
+{
+	int32_t limitma = 1500;
+	if (voltage_mv == 0) {
+		goto ERR_OUT;
+	}
+	if (input.contains("/")) {
+		QVector<float>volmv_vecotr = {};
+		QVector<float>curma_vecotr = {};
+		foreach(auto item, input.split("/")) {
+			//maxvA=8v-3A/20v-1.5A
+			QRegularExpression re("(?<voltage>" PURE_FLOAT_RE ")[vV]{1,}-(?<current>" PURE_FLOAT_RE ")[aA]{1,}");
+			QRegularExpressionMatch match = re.match(item);
+			if (match.hasMatch()) {
+				float v = match.captured("voltage").toFloat();
+				float I = match.captured("current").toFloat();
+				volmv_vecotr.push_back(v * 1000);
+				curma_vecotr.push_back(I * 1000);
+			}
+			else {
+				qCritical("unmatch %s ", item.toStdString().c_str());
+			}
+		}
+		int offset = 0;
+		foreach(auto item, volmv_vecotr) {
+			if (item >= voltage_mv)break;
+			offset++;
+		}
+		if (offset < curma_vecotr.size()) {
+			limitma = curma_vecotr[offset];
+		}
+	}
+	else {
+		limitma = input.toInt() * 1000 * 1000 / voltage_mv;
+	}
+ERR_OUT:
+	if (GlobalConfig_debugCaseItemBase)qDebug("input %s vol %d limitma %d", input.toStdString().c_str(), voltage_mv, limitma);
+	return limitma;
+}
 int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPreconditionBase* msg)
 {
 	//set voltage;check current limit;check output on
@@ -752,12 +791,12 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 			//set current
 			{
 				DeviceStatus_t st;
-				int32_t default_currentlimit_ma = 2 * 1000;
+				int32_t default_currentlimit_ma = 1.5 * 1000;
 				ret = TestcaseBase::get_instance()->Getdevicestatus(dev_id, st);
 				if (ret == 0) {
-					if (msg->voltage_mv != 0)default_currentlimit_ma = (st.maxWVA * 1000 * 1000) / (msg->voltage_mv) / 1000 * 1000;
+					if (msg->voltage_mv != 0)default_currentlimit_ma = GetMaxCurrentLimitMA(st.maxWVAStr, msg->voltage_mv);
 				}
-				if (GlobalConfig_debugCaseItemBase)qDebug("default_currentlimit_ma %d  mv %d maxWVA %d", default_currentlimit_ma, msg->voltage_mv, st.maxWVA);
+				if (GlobalConfig_debugCaseItemBase)qDebug("default_currentlimit_ma %d  mv %d maxWVAStr %s", default_currentlimit_ma, msg->voltage_mv, st.maxWVAStr.toStdString().c_str());
 				auto mptrcl = VisaDriverIoctrlBasePtr(new DeviceDriverSourceCurrentLimit);
 				DeviceDriverSourceCurrentLimit* upper = dynamic_cast<DeviceDriverSourceCurrentLimit*>(mptrcl.get());
 				upper->is_read = true;
@@ -866,6 +905,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 							_sleep(1 * 1000);
 							if (GlobalConfig_debugCaseItemBase)qDebug("time: %s",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString().c_str());
 						}
+
 					}
 					output = QStringLiteral("实际数值:%1 %2").arg(taget).arg(msg->unit);
 				}
