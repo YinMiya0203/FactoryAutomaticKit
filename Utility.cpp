@@ -16,7 +16,7 @@ QString Utility::GetWinErrorText(int32_t errcode) {
 	//printf("errcode %x ´íÎóÃèÊö£º%s", errcode, pmsg);
 	return QString::fromLocal8Bit(pmsg);
 }
-int32_t Utility::NewFile(QString value)
+int32_t Utility::NewFile(QString value,bool ishidden)
 {
 	int ret=0;
 	QFile file(value);
@@ -28,6 +28,7 @@ int32_t Utility::NewFile(QString value)
 		QDir* dir = new QDir();
 		if (!dir->exists(filePath)) {
 			dir->mkpath(filePath);
+			if(ishidden)SetFileAttributes((LPCWSTR)filePath.unicode(), FILE_ATTRIBUTE_HIDDEN);
 		}
 		if (file.open(QIODevice::WriteOnly)) {
 			ret = 0;

@@ -194,7 +194,7 @@ int32_t GlobalSettings::SettingsParam::save(QString path)
 		settingspath = global_settings_path;
 	}
 	if (!QFile(settingspath).exists()) {
-		ret = Utility::NewFile(settingspath);
+		ret = Utility::NewFile(settingspath,true);
 		if (ret != 0 || !QFile(settingspath).exists()) {
 			qCritical("settingfile %s invaild", settingspath.toStdString().c_str());
 			goto ERROR_OUT;
