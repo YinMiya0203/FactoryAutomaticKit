@@ -322,6 +322,13 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 		SetInterfaceIdCustomer(tmp);
 	}
 ERROR_OUT:
+	if (!mdevicestatus.connected) {
+		if (!isVirtualDevice())ret = interior_driver->Driverclose();
+		auto msg = new MessageTVLogWidgetUpdate;
+		msg->msg = QStringLiteral("设备 %1 连接失败").arg(GetNetworklabel().c_str());
+		MessageTVBasePtr ptr(msg);
+		emit notifytoView(int(msg->GetCmd()), ptr);
+	}
 	return ret;
 }
 int32_t DeviceBase::disconnectasync()

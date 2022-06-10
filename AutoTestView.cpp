@@ -789,6 +789,7 @@ void AutoTestView::DeviceConnectWdigetFresh(int32_t index, QPushButton* pb)
 
 	if (connect_pb == nullptr) {
 		if (!status.connected) { 
+			AudioEffect::Warning();
 			auto scanconnect_pb=mparent_widget->findChild<QPushButton*>(QString("devscan%1_connect_pb").arg(index));
 			if (scanconnect_pb) {
 				scanconnect_pb->setEnabled(true);
