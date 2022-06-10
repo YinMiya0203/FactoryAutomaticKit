@@ -39,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_1784C96F94294CE08F6E27EA3CD8ACEC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1CD99C0C482F4B9C95633D88854A8890"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -64,6 +70,12 @@
         "Entry"
         {
         "MsmKey" = "8:_35C522ECB9854307968B999266E00BF5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_35E241951CCB47B4900B3A9CFB8A749D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -106,12 +118,6 @@
         "Entry"
         {
         "MsmKey" = "8:_5EC462EAD88E4B80BB72C8F8BC73E7DE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6038A3412BB7444DACC582103E5ED047"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -195,12 +201,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_99161665459A4B099AEB91AA5A0E9DA0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9ED2D5D0F7284C2090D33E31EE7083AF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -267,7 +267,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D03888594B7C4B0BADF6264DF125EBFE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D13E775F9799459FA6360DEB24C54A07"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D71DE1D0D80D43DE9FAEAE50FAFFC721"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -500,6 +512,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1784C96F94294CE08F6E27EA3CD8ACEC"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588\\A588_充电测试_测试案例_V32.ini"
+            "TargetName" = "8:A588_充电测试_测试案例_V32.ini"
+            "Tag" = "8:"
+            "Folder" = "8:_F1FC523FACFD4AB0835692679078E82A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1CD99C0C482F4B9C95633D88854A8890"
             {
             "SourcePath" = "8:FactoryAutoTestinstall\\translations\\qt_lv.qm"
@@ -586,6 +618,26 @@
             "TargetName" = "8:qt_bg.qm"
             "Tag" = "8:"
             "Folder" = "8:_3EE3DE5FAF9C4F1CA7C44F02AC6FA0D9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35E241951CCB47B4900B3A9CFB8A749D"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588\\Res\\依次接通所有供电.jpg"
+            "TargetName" = "8:依次接通所有供电.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_D8312383880A4B5987326BC26A356525"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -726,26 +778,6 @@
             "TargetName" = "8:machine.ico"
             "Tag" = "8:"
             "Folder" = "8:_9DDA5DFC41A441EBA8E7009D4EC2FBA3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6038A3412BB7444DACC582103E5ED047"
-            {
-            "SourcePath" = "8:..\\样本案例\\A588_V33\\Res\\外电开关关.jpg"
-            "TargetName" = "8:外电开关关.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_18EBCA29485F43A1B3442AEF164C8392"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1020,26 +1052,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_99161665459A4B099AEB91AA5A0E9DA0"
-            {
-            "SourcePath" = "8:..\\样本案例\\A588_V33\\A588_充电测试_测试案例_V33.ini"
-            "TargetName" = "8:A588_充电测试_测试案例_V33.ini"
-            "Tag" = "8:"
-            "Folder" = "8:_AABF7FC3D4544C2B838F773C664073D4"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9ED2D5D0F7284C2090D33E31EE7083AF"
             {
             "SourcePath" = "8:FactoryAutoTestinstall\\translations\\qt_pl.qm"
@@ -1260,12 +1272,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D03888594B7C4B0BADF6264DF125EBFE"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588\\Res\\断开所有供电.jpg"
+            "TargetName" = "8:断开所有供电.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_D8312383880A4B5987326BC26A356525"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D13E775F9799459FA6360DEB24C54A07"
             {
             "SourcePath" = "8:FactoryAutoTestinstall\\translations\\qt_fr.qm"
             "TargetName" = "8:qt_fr.qm"
             "Tag" = "8:"
             "Folder" = "8:_3EE3DE5FAF9C4F1CA7C44F02AC6FA0D9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D71DE1D0D80D43DE9FAEAE50FAFFC721"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588\\Res\\外电开关关.jpg"
+            "TargetName" = "8:外电开关关.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_D8312383880A4B5987326BC26A356525"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1515,22 +1567,22 @@
                     "Property" = "8:_D07DB57711F6420DB30DD038437E82B8"
                         "Folders"
                         {
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_AABF7FC3D4544C2B838F773C664073D4"
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_F1FC523FACFD4AB0835692679078E82A"
                             {
-                            "Name" = "8:A588_V33"
+                            "Name" = "8:A588"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
-                            "Property" = "8:_BFF01D07B8DE4668A13E3649DA50A95C"
+                            "Property" = "8:_733458561C5C4C7E9786CA18EAB27285"
                                 "Folders"
                                 {
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_18EBCA29485F43A1B3442AEF164C8392"
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_D8312383880A4B5987326BC26A356525"
                                     {
                                     "Name" = "8:Res"
                                     "AlwaysCreate" = "11:FALSE"
                                     "Condition" = "8:"
                                     "Transitive" = "11:FALSE"
-                                    "Property" = "8:_279C7F8928864AD7BA85A1693C07285B"
+                                    "Property" = "8:_214F5F72C03745099856F897ED56F7D2"
                                         "Folders"
                                         {
                                         }
