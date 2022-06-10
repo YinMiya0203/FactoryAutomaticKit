@@ -781,6 +781,7 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 		auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverSourceVoltage);
 		DeviceDriverSourceVoltage* upper = dynamic_cast<DeviceDriverSourceVoltage*>(mptrrq.get());
 		upper->is_read = true;
+		//读取当前电压
 		ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrrq);
 		if (ret != 0) {
 			qCritical("IOCTRL DeviceDriverReadQuery fail");
@@ -789,6 +790,8 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 		}
 		if (upper->voltage_mv != msg->voltage_mv) {
 			//set current
+			//先设置Current再设置Voltage 再on 是CV
+			//先设置Voltage再设置Current 再on 是CC
 			{
 				DeviceStatus_t st;
 				int32_t default_currentlimit_ma = 1.5 * 1000;

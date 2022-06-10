@@ -1732,7 +1732,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_2784213C6B0F48B3B6C290F8A7899A38"
             {
-            "Name" = "8:FactoryAutoTest.exe"
+            "Name" = "8:超诺辅助电源测试"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -1746,7 +1746,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_516BE137D2174BAA902C021DDE59064B"
             {
-            "Name" = "8:FactoryAutoTest.exe"
+            "Name" = "8:超诺辅助电源测试"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
