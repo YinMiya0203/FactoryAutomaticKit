@@ -912,7 +912,7 @@ void AutoTestView::HandleTestCaseOneShot(MessageTVBGStatus* msg)
 	}
 
 	
-	if (issuccess) {
+	if (issuccess&& msettings.is_cycle) {
 		CycleTestHandle();
 	}
 	else {

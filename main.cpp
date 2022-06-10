@@ -24,7 +24,7 @@ static QString GetLogfile(bool update=false) {
 }
 void logMessageOutputQt5(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
-    static qint64 max = 10485760;//10 * 1024 * 1024;
+    static qint64 maxsize = 10 * 1024 * 1024;
     static QMutex mutex;
     mutex.lock();
     QString text;
@@ -77,12 +77,13 @@ void logMessageOutputQt5(QtMsgType type, const QMessageLogContext& context, cons
     }
     if(type >= QtSystemMsg) {
         QFile file(GetLogfile());
-        if (file.size() > max) { //超过指定大小时截取文件
+#if 0
+        if (file.size() > maxsize) { //超过指定大小时截取文件
             QFile logfile(GetLogfile(true));
 
             file.open(QIODevice::ReadWrite);
             logfile.open(QIODevice::ReadWrite);
-            qint64 nresult = 4194304; //4 * 1024 * 1024;
+            qint64 nresult = 4 * 1024 * 1024;
             file.seek(file.size() - nresult);
             char lbuffer[256];
             int count;
@@ -94,12 +95,18 @@ void logMessageOutputQt5(QtMsgType type, const QMessageLogContext& context, cons
             file.remove();
             logfile.close();
         }
-        else {
+        else 
+#endif
+        //超过大小新建文件
+        if (file.size() > maxsize) {
+             file.setFileName(GetLogfile(true));
+        }
+        {
             QTextStream text_stream(&file);
             file.open(QIODevice::ReadWrite | QIODevice::Append);
             text_stream << message << endl;
             file.flush();
-            file.close(); //频繁开关卡不卡啊
+            file.close(); 
         }
     }
 ERR_OUT:

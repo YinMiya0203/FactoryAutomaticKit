@@ -91,11 +91,13 @@ QString GlobalSettings::GetVersion()
 
 int32_t GlobalSettings::SetUserRoot(QString usrname, QString passwd)
 {
-	qInfo("[%s]:[%s]", usrname.toStdString().c_str(), passwd.toStdString().c_str());
 	if (msettingsparam.is_root)return 0;
 	if (usrname=="root" && passwd=="dogoodnotevil") {
 		msettingsparam.is_root = true;
 		return 0;
+	}
+	else {
+		qInfo("Fail to root [%s]:[%s]", usrname.toStdString().c_str(), passwd.toStdString().c_str());
 	}
 	return -1;
 }
