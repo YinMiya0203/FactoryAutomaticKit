@@ -1,5 +1,21 @@
 #include "Utility.h"
 #include <winerror.h>
+QString Utility::GetWinErrorText(int32_t errcode) {
+	int len = 256;
+	static CHAR* pmsg = (CHAR*)malloc(len * sizeof(CHAR));
+	if (errcode < 0)errcode = -errcode;
+	FormatMessageA(
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		errcode,
+		//»ñµÃÈ±Ê¡ÓïÑÔ
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		pmsg,
+		len,
+		NULL);
+	//printf("errcode %x ´íÎóÃèÊö£º%s", errcode, pmsg);
+	return QString::fromLocal8Bit(pmsg);
+}
 int32_t Utility::NewFile(QString value)
 {
 	int ret=0;

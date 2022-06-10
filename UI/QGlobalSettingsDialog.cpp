@@ -185,15 +185,7 @@ void QGlobalSettingsDialog::setupsettingview()
 
 void QGlobalSettingsDialog::on_okpb_clicked(int)
 {
-#if 0
-	auto widgets = this->findChildren<QWidget*>();
-	qDebug("widgets %d", widgets.size());
-	int index = 0;
-	foreach(auto item, widgets) {
-		qDebug("widgets %d [%s]", index, item->objectName().toStdString().c_str());
-		index++;
-	}
-#endif
+
 	QPushButton* rb = qobject_cast<QPushButton*>(sender());
 	auto userline = this->findChild<QLineEdit*>(QString("userline"));
 	auto passwdline = this->findChild<QLineEdit*>(QString("passwdline"));

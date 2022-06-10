@@ -21,9 +21,9 @@ enum class DeviceClass {
 	DeviceClass_digit_multimeter,
 };
 typedef struct DeviceStatus_t {
-	bool connected;
-	bool output;
-	QString maxWVAStr;
+	bool connected=false;
+	bool output = false;
+	QString maxWVAStr="";
 	int32_t voltage_mv;
 }DeviceStatus;
 typedef struct DeviceInfo_t {

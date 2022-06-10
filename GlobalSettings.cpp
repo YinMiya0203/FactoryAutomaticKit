@@ -40,9 +40,10 @@ int32_t GlobalSettings::SaveSettings()
 	DumpSettingParam();
 	return ret;
 }
-void GlobalSettings::DumpSettingParam()
+void GlobalSettings::DumpSettingParam(bool to_log)
 {
-	qInfo("SettingParam %s", msettingsparam.to_string().toStdString().c_str());
+	if (to_log)qInfo("SettingParam %s", msettingsparam.to_string().toStdString().c_str());
+	else qDebug("SettingParam %s", msettingsparam.to_string().toStdString().c_str());
 }
 void GlobalSettings::SetCurrentOp(QString val)
 {

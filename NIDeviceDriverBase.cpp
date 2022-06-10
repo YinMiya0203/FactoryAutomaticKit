@@ -188,7 +188,10 @@ int32_t NiDeviceDriverBase::write(VisaDriverIoctrlWrite* arg)
         snprintf(cmdbuffer, sizeof(cmdbuffer), "%s%s",arg->commond.c_str(), GetCmdPostfix().c_str());
         status = viWrite(vi, (ViBuf)cmdbuffer, strlen(cmdbuffer), &retCnt);
         if (status < VI_SUCCESS) {
-            ret = status;
+            ViChar		mdescbuffer[64] = { 0 };
+            viStatusDesc(vi, status, mdescbuffer);
+            qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
+            ret = -ERROR_TIMEOUT;
             goto ERR_OUT;
         }
     }
@@ -216,18 +219,27 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
         ViStatus status;
         snprintf(cmdbuffer, sizeof(cmdbuffer), "%s%s", arg->commond.c_str(), GetCmdPostfix().c_str());
         status = viWrite(vi, (ViBuf)cmdbuffer, strlen(cmdbuffer), &retCnt);
-        if (status < VI_SUCCESS) goto ERR_OUT;
+        if (status < VI_SUCCESS) {
+            ViChar		mdescbuffer[64] = { 0 };
+            viStatusDesc(vi, status, mdescbuffer);
+            qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
+            ret = -ERROR_TIMEOUT;
+            goto ERR_OUT; 
+        }
         memset(cmdbuffer, 0, sizeof(cmdbuffer));
         status = viRead(vi, (ViBuf)cmdbuffer, sizeof(cmdbuffer), &retCnt);
         if (status < VI_SUCCESS) {
-            ret = status;
+            ViChar		mdescbuffer[64] = { 0 };
+            viStatusDesc(vi, status, mdescbuffer);
+            qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
+            ret = -ERROR_TIMEOUT;
             goto ERR_OUT;
         }
         arg->result = QString(cmdbuffer).trimmed().toStdString();
     }
 ERR_OUT:
     if (ret != 0) {
-        qCritical("ret 0x%x", ret);
+        qDebug("ret 0x%x", ret);
     }
     return ret;
 }
@@ -242,6 +254,7 @@ int32_t NiDeviceDriverBase::ioctrl(VisaDriverIoctrlBasePtr ptr)
         VisaDriverIoctrlRead* arg = dynamic_cast<VisaDriverIoctrlRead*>(ptr.get());
         if (arg == nullptr || arg->commond.size() <= 0) {
             ret = -ERROR_INVALID_PARAMETER;
+            qCritical("Null param");
             break;
         }
         else {
@@ -266,7 +279,7 @@ int32_t NiDeviceDriverBase::ioctrl(VisaDriverIoctrlBasePtr ptr)
         break;
     }
     if (ret != 0) {
-        qCritical("ret %d cmd %d", ret, cmd);
+        qDebug("ret 0x%x cmd %d", ret, cmd);
     }
     return ret;
 }

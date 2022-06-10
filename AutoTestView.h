@@ -87,7 +87,7 @@ private:
 	void HandleCaseItemWidgetStatus(MessageTVCaseItemWidgetStatus*msg = nullptr);
 	void HandleCaseItemWidgetStringUpdate(MessageTVCaseItemWidgetStringUpdate* msg = nullptr);
 	void HandleDeviceScanWidgetUpdate(MessageTVHardWareDeviceRes* msg = nullptr);
-	void HandleLogWidgetUpdate(MesageTVLogWidgetUpdate* msg = nullptr);
+	void HandleLogWidgetUpdate(MessageTVLogWidgetUpdate* msg = nullptr);
 
 	void HandleTestCaseResultSave(int sector, int seek, QString value, QColor c);
 	void HandleTestCaseResultSave();

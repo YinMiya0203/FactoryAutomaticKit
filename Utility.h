@@ -15,5 +15,6 @@ public:
 	static int32_t NewDir(QString value);
 	static const QString buildDateTime(QString prex="");
 	static void OutputDebugPrintf(const char* format, ...);
+	static QString GetWinErrorText(int32_t errcode);
 };
 

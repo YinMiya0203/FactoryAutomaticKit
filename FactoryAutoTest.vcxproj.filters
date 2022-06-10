@@ -94,10 +94,10 @@
     <ClCompile Include="UI\QMultInputLineDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QDeviceDriverRunDialog.cpp">
+    <ClCompile Include="UI\QDeviceDriverRunDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QGlobalSettingsDialog.cpp">
+    <ClCompile Include="UI\QGlobalSettingsDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utility.cpp">
@@ -110,6 +110,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VictorDMMIDriver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\QGlobalConfigDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -144,7 +147,7 @@
     <QtMoc Include="CaseItemBase.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="QDeviceDriverRunDialog.h">
+    <QtMoc Include="UI\QDeviceDriverRunDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -196,7 +199,7 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QGlobalSettingsDialog.h">
+    <ClInclude Include="UI\QGlobalSettingsDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility.h">
@@ -209,6 +212,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VictorDMMIDriver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\QGlobalConfigDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

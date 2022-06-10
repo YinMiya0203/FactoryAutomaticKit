@@ -44,7 +44,7 @@ public:
 	int32_t SetTestCaseResultDirLocation(QString value);
 	int32_t LoadDefaultSettings();
 	int32_t SaveSettings();
-	void DumpSettingParam();
+	void DumpSettingParam(bool to_log = false);
 
 	QString GetLogDirLocation();
 	QString GetTestCaseResultDirLocation();

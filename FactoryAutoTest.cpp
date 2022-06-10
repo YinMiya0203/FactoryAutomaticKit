@@ -9,6 +9,7 @@
 #include "GlobalSettings.h"
 #include "QDeviceDriverRunDialog.h"
 #include "QGlobalSettingsDialog.h"
+#include "QGlobalConfigDialog.h"
 FactoryAutoTestMain::FactoryAutoTestMain(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -41,17 +42,7 @@ bool FactoryAutoTestMain::eventFilter(QObject* watched, QEvent* event)
     if (event->type()== QEvent::MouseButtonPress) {
         if(GlobalConfig_debugFactoryAutoTest)qDebug("type %d", event->type());
     }
-#if 0
-    if (event->type() == QEvent::KeyPress) {
-        qDebug("type %d", event->type());
-        auto e = dynamic_cast <QKeyEvent*>(event);
-        if(e!=nullptr){
-            if (e->modifiers() == (Qt::ShiftModifier | Qt::ControlModifier) && e->key() == Qt::Key_R) {
-                qDebug("root window ");
-            }
-        }
-    }
-#endif
+
     return QMainWindow::eventFilter(watched, event);
 }
 
@@ -72,6 +63,7 @@ void FactoryAutoTestMain::on_actionDevice_Driver_triggered()
 {
     auto dlg = new QDeviceDriverRunDialog;
     dlg->exec();
+    delete dlg;
 }
 
 void FactoryAutoTestMain::on_action_settings_triggered()
@@ -81,6 +73,13 @@ void FactoryAutoTestMain::on_action_settings_triggered()
         GLOBALSETTINGSINSTANCE->LoadDefaultSettings();
     }
     delete win;
+}
+
+void FactoryAutoTestMain::on_action_GlobalConfig_triggered()
+{
+    auto dlg = new QGlobalConfigDialog;
+    dlg->exec();
+    delete dlg;
 }
 
 void FactoryAutoTestMain::setuprootactions()

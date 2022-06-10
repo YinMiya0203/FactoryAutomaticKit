@@ -13,3 +13,22 @@ extern bool GlobalConfig_debugCaseItemBase;
 extern bool GlobalConfig_debugFactoryAutoTest;
 extern bool GlobalConfig_debugGloabalSettings;
 extern bool GlobalConfig_debugTestCaseResultSave;
+
+enum class GC_DebugFlags {
+	GC_debugBegin,
+	GC_debugthread,
+	GC_debugpbclickevent,
+	GC_debugdevciewidget,
+	GC_debugdevciedriver,
+	GC_debugdevcieBase,
+	GC_debugtestcaseini,
+	GC_debugtestcaseverbose,
+	GC_debugtestcasebgserver,
+	GC_debugtestcasetablewidget,
+	GC_debugAutoTestView,
+	GC_debugCaseItemBase,
+	GC_debugFactoryAutoTest,
+	GC_debugGloabalSettings,
+	GC_debugTestCaseResultSave,
+	GC_debugEND,
+};

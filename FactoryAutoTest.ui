@@ -32,6 +32,7 @@
      <string>root窗口</string>
     </property>
     <addaction name="actionDevice_Driver"/>
+    <addaction name="action_GlobalConfig"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -68,6 +69,11 @@
   <action name="action_about">
    <property name="text">
     <string>关于(&amp;A)</string>
+   </property>
+  </action>
+  <action name="action_GlobalConfig">
+   <property name="text">
+    <string>GlobalConfig</string>
    </property>
   </action>
  </widget>

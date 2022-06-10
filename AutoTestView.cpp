@@ -2,13 +2,14 @@
 #include "AutoTestView.h"
 #include "ui_GlobalStr.h"
 #include "UI_style.h"
-#include "Sound.h"
+//#include "Sound.h"
 #include "TextEditDelegate.h"
 #include <QMessageBox>
 #include <QMultInputLineDialog.h>
 #include <QComboBox>
 #include <QMovie>
 #include "TestCaseResultSave.h"
+#include "AudioEffect.h"
 //#include "SliderButton.h"
 #define SHOW_LOGWIDGET
 AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
@@ -849,7 +850,7 @@ void AutoTestView::DeviceWidgetFresh(int32_t index, MessageTVDeviceUpdate* msg)
 			DeviceActiveWdigetFresh(index);
 			break;
 		case DeviceStatusIcon::TestActive:
-			Beep(do, 400);
+			AudioEffect::TestActive();
 			break;
 		default:
 			qCritical("icon %d unknown", icon);
@@ -909,9 +910,15 @@ void AutoTestView::HandleTestCaseOneShot(MessageTVBGStatus* msg)
 	if (TestCaseResultSaveICMP::get_instance()->isSaveAsTable()) {
 		HandleTestCaseResultSave();
 	}
-	QMessageBox::warning(this, INFO_STR, msg_str, QMessageBox::Yes);
+
 	
-	if(issuccess)CycleTestHandle();
+	if (issuccess) {
+		CycleTestHandle();
+	}
+	else {
+		//AudioEffect::Warning();
+		QMessageBox::warning(this, INFO_STR, msg_str, QMessageBox::Yes);
+	}
 }
 void AutoTestView::HandleTestCaseResultSave(int sector,int seek,QString value,QColor c)
 {
@@ -1060,7 +1067,7 @@ void AutoTestView::HandleCaseItemWidgetStringUpdate(MessageTVCaseItemWidgetStrin
 ERR_OUT:
 	return;
 }
-void AutoTestView::HandleLogWidgetUpdate(MesageTVLogWidgetUpdate* msg)
+void AutoTestView::HandleLogWidgetUpdate(MessageTVLogWidgetUpdate* msg)
 {
 	auto log_plaintextedit = mparent_widget->findChild<QPlainTextEdit*>(QString("log_plaintextedit"));
 	if (log_plaintextedit == nullptr)return;
@@ -1345,7 +1352,7 @@ void AutoTestView::messagefromtestcase(int cmd, MessageTVBasePtr ptr)
 	break;
 	case MessageToView::BackGroundServiceMsgToLogWidget:
 	{
-		MesageTVLogWidgetUpdate* msg = dynamic_cast<MesageTVLogWidgetUpdate*>(devp);
+		MessageTVLogWidgetUpdate* msg = dynamic_cast<MessageTVLogWidgetUpdate*>(devp);
 		HandleLogWidgetUpdate(msg);
 	}
 		break;

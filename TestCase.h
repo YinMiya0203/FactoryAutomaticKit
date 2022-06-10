@@ -73,6 +73,7 @@ public:
 	bool isPausecase();
 
 	QString GetCommontag(QString key);
+	bool AllVirtualDevice();
 private:
 	int32_t deviceconnectdis(int32_t index,bool isconnect,std::string customerinterfaceid);
 	int32_t devicetestactive(int32_t index);
@@ -81,7 +82,7 @@ private:
 	int32_t TestcasePauseStart(void);
 
 	int32_t HandleTestcase(int sector,int seek);
-	bool AllVirtualDevice();
+
 private:
 	TestcaseBase();
 	TestcaseBase(const TestcaseBase& module) = delete;

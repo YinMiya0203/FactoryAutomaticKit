@@ -6,6 +6,7 @@
 #include <QDesktopWidget>
 #include <QImageReader>
 #include "../TestCase.h"
+#include "AudioEffect.h"
 
 QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QList<QString> res_filler) :
     mCountStartvaluems(0), mcontinuevaluems(0)
@@ -55,32 +56,40 @@ QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QList<QString> 
     m_pTimer = new QTimer(this);
     connect(m_pTimer, &QTimer::timeout, this, &QCountDownDialog::on_timer_timeout);
     m_pTimer->setInterval(mcounterunit);
+    AudioEffect::Warning();
 }
 int32_t QCountDownDialog::ShowResource(QList<QString> res_filler, QVBoxLayout* pVBoxLayout)
 {
     int ret = 0;
     //找出有多少res
-    QString basedir = QFileInfo(TestcaseBase::get_instance()->get_runcasename()).absolutePath();
-    QDir* dir = new QDir(basedir + "/Res/");
-    QStringList filter;
-    filter << res_filler;
-    dir->setNameFilters(filter);
-    mfileInfo = QList<QFileInfo>(dir->entryInfoList(filter));
-    if (GlobalConfig_debugAutoTestView)qDebug("fileInfo size %d dir [%s]/[%s]", mfileInfo.size(), dir->absolutePath().toStdString().c_str(), res_filler.front().toStdString().c_str());
-    if (mfileInfo.size() > 0) {
-        auto res = mfileInfo.first().absoluteFilePath();
-        auto m_resLabel = new QLabel(this);
-        m_resLabel->setObjectName("m_resLabel");
-        QRect screen = QDesktopWidget().screenGeometry();
-        auto targetsize = screen.size() * 2 / 3;
-        auto pixsize = QPixmap(res).size();
-        auto targetscaledsize = pixsize.scaled(
-            targetsize, Qt::KeepAspectRatio);
-        if (GlobalConfig_debugAutoTestView)qDebug("targetscaledsize %d %d", targetscaledsize.width(), targetscaledsize.height());
-        this->setFixedSize(targetscaledsize);
-        pVBoxLayout->addWidget(m_resLabel);
-        PlantResource();
+    mfileInfo.clear();
+    if (res_filler.size()==0) {
+        goto ERROR_OUT;
     }
+    {
+        QString basedir = QFileInfo(TestcaseBase::get_instance()->get_runcasename()).absolutePath();
+        QDir* dir = new QDir(basedir + "/Res/");
+        QStringList filter;
+        filter << res_filler;
+        dir->setNameFilters(filter);
+        mfileInfo = QList<QFileInfo>(dir->entryInfoList(filter));
+        if (GlobalConfig_debugAutoTestView)qDebug("fileInfo size %d dir [%s]/[%s]", mfileInfo.size(), dir->absolutePath().toStdString().c_str(), res_filler.front().toStdString().c_str());
+        if (mfileInfo.size() > 0) {
+            auto res = mfileInfo.first().absoluteFilePath();
+            auto m_resLabel = new QLabel(this);
+            m_resLabel->setObjectName("m_resLabel");
+            QRect screen = QDesktopWidget().screenGeometry();
+            auto targetsize = screen.size() * 2 / 3;
+            auto pixsize = QPixmap(res).size();
+            auto targetscaledsize = pixsize.scaled(
+                targetsize, Qt::KeepAspectRatio);
+            if (GlobalConfig_debugAutoTestView)qDebug("targetscaledsize %d %d", targetscaledsize.width(), targetscaledsize.height());
+            this->setFixedSize(targetscaledsize);
+            pVBoxLayout->addWidget(m_resLabel);
+            PlantResource();
+        }
+    }
+ERROR_OUT:
     return mfileInfo.size();
 }
 void QCountDownDialog::PlantResource()
@@ -116,9 +125,8 @@ int QCountDownDialog::Run(int nvaluems, QString msg)
     return exec();
 }
 void QCountDownDialog::reject() {
-    if (GlobalConfig_debugAutoTestView) {
-        qDebug("res size %d", mfileInfo.size());
-    }
+    if (GlobalConfig_debugAutoTestView)qDebug("res size %d", mfileInfo.size());
+    
     m_pTimer->stop();
     QDialog::reject();
 }
@@ -134,9 +142,8 @@ void QCountDownDialog::on_timer_timeout()
     
     if (mcontinuevaluems >mCountStartvaluems && nead_countdownaccept) {
         m_pTimer->stop();
-        if (GlobalConfig_debugAutoTestView) {
-            qDebug("res size %d", mfileInfo.size());
-        }
+        if (GlobalConfig_debugAutoTestView)qDebug("res size %d", mfileInfo.size());
+        
         if (mfileInfo.size() == 0)this->accept();
         else this->reject();
         return;

@@ -73,9 +73,7 @@ bool TestCaseBGServer::iscasePause()
 void TestCaseBGServer::SetStep(TestStep v) 
 {
 	QMutexLocker locker(&mStepmutex);
-	if (GlobalConfig_debugtestcasebgserver) {
-		qDebug("form %s to %s", StepToString(mRunStep.load()).c_str(), StepToString(v).c_str());
-	}
+	if (GlobalConfig_debugtestcasebgserver) qDebug("form %s to %s", StepToString(mRunStep.load()).c_str(), StepToString(v).c_str());
 	mRunStep = v;
 }
 void TestCaseBGServer::rebasestatus()

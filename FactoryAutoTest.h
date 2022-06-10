@@ -17,6 +17,7 @@ private slots:
     void on_action_about_triggered();
     void on_actionDevice_Driver_triggered();
     void on_action_settings_triggered();
+    void on_action_GlobalConfig_triggered();
 private:
     void setuprootactions();
     Ui::FactoryAutoTestClass ui;

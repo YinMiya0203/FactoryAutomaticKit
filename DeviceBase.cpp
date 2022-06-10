@@ -9,7 +9,7 @@ DeviceBasePtrContainer DeviceBase::mstaticdeviceptrcontainer = {};
 		if (!isVirtualDevice())ret = interior_driver->ioctrl(xxx); \
 		else { \
 			qDebug("enter debug sleep"); \
-			_sleep(1 * 1000); \
+			_sleep(500); \
 			qDebug("leave debug sleep"); \
 			goto ERROR_OUT; \
 		}
@@ -278,10 +278,11 @@ int32_t DeviceBase::testactivesync()
 }
 int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 {
-	if (GlobalConfig_debugdevciedriver)qDebug("index %d customerinterfaceid [%s]",moffset_inlist, customerinterfaceid.c_str());
+	if (GlobalConfig_debugdevcieBase)qDebug("index %d customerinterfaceid [%s]",moffset_inlist, customerinterfaceid.c_str());
 	int ret = 0;
+	std::string tmp = GetInterfaceId();
 	{
-		std::string tmp = GetInterfaceId();
+
 		if (customerinterfaceid.size() > 0 ) {
 			if (InterfaceidSetable()) {
 				tmp = customerinterfaceid;
@@ -297,25 +298,28 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 		else {
 			_sleep(1 * 1000);//for debug 
 		}
-		if (ret == 0) {
-			SetInterfaceIdCustomer(tmp);
-		}
 	}
 	if (ret == 0 && (arslconfgstr.size() > 0 || QString(GetInterfaceId().c_str()).toUpper().contains("ASRL")))
 	{
 		if (!isVirtualDevice())ret = interior_driver->Driversetattribute(masrlconfg);
 	}
+	//testconnect
+	ret = testactivesync();	
 	if (ret ==0) {
 		mdevicestatus.connected = true;
 	}
 	else {
 		mdevicestatus.connected = false;
+		goto ERROR_OUT;
 	}
 	if (QString(GetIdentify().c_str()).toUpper() == "AUTO") {
 		auto msg = new VisaDriverIoctrlBase;
 		msg->cmd = VisaDriverIoctrl::ReadIdentification;
 		auto ptr = VisaDriverIoctrlBasePtr(msg);
 		Readidentification(ptr);
+	}
+	if (mdevicestatus.connected) {
+		SetInterfaceIdCustomer(tmp);
 	}
 ERROR_OUT:
 	return ret;
@@ -326,7 +330,7 @@ int32_t DeviceBase::disconnectasync()
 }
 int32_t DeviceBase::disconnectsync()
 {
-	if (GlobalConfig_debugdevciedriver)qDebug("index %d ", moffset_inlist);
+	if (GlobalConfig_debugdevcieBase)qDebug("index %d ", moffset_inlist);
 	int ret = 0;
 	if (!mdevicestatus.connected)return ret;
 	if(mdevice_class == DeviceClass::DeviceClass_DC_BatterySimulator ||
@@ -405,6 +409,14 @@ int32_t DeviceBase::Handlecmd()
 			auto msg = new MessageTVDeviceUpdate;
 			msg->index = moffset_inlist;
 			msg->icon = DeviceStatusIcon::TestActive;
+			MessageTVBasePtr ptr(msg);
+			emit notifytoView(int(msg->GetCmd()), ptr);
+		}
+		{
+			auto msg = new MessageTVLogWidgetUpdate;
+			msg->index = moffset_inlist;
+			QString status = ret == 0 ? QStringLiteral("正常") : QStringLiteral("失败");
+			msg->msg = QStringLiteral("设备 %2 连接 %1").arg(status).arg(QString(GetNetworklabel().c_str()));
 			MessageTVBasePtr ptr(msg);
 			emit notifytoView(int(msg->GetCmd()), ptr);
 		}
@@ -492,8 +504,11 @@ int32_t DeviceBase::ioctrl(VisaDriverIoctrlBasePtr ptr)
 		break;
 	}
 ERROR_OUT:
-	if (ret != 0) {
+	if (ret == 0) {
 		if(GlobalConfig_debugdevcieBase)qDebug("ret %d cmd %d", ret,cmd);
+	}
+	else {
+		qCritical("cmd %d ret 0x%x  [%s]", cmd, ret, Utility::GetWinErrorText(ret).toStdString().c_str());
 	}
 	return ret;
 }
@@ -504,6 +519,7 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 	if (GlobalConfig_debugdevcieBase)qDebug(" ");
 	if (ptr == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
+		qCritical("Null param");
 		goto ERROR_OUT;
 	}
 	if (mcommuinterface == DriverClass::DriverDMMIVictor) {
@@ -519,6 +535,7 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 	}
 	if (upper_arg->is_read) {
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
+		mptr->commond = command_read;
 		VISA_DEVICE_IOCTRL(mptr)
 		ptr->commond = mptr->commond;
 		if (ret == 0) {

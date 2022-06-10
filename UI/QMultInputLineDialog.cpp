@@ -1,6 +1,7 @@
 #include "QMultInputLineDialog.h"
 #include <QRegExpValidator>
 #include <QRegExp>
+#include "AudioEffect.h"
 
 QMultInputLineDialog::QMultInputLineDialog(QStringList prexlist, const QString& title, const QString& comment, QWidget* parent)
 {
@@ -66,6 +67,7 @@ QMultInputLineDialog::QMultInputLineDialog(QStringList prexlist, const QString& 
 		this->reject();
 		});
 	setLayout(ptopVBoxLayout);
+	AudioEffect::Warning();
 }
 
 int QMultInputLineDialog::Run(void)

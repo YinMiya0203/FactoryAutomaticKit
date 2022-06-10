@@ -261,7 +261,7 @@ public:
 		return raw;
 	};
 };
-class MesageTVLogWidgetUpdate :public MessageTVBase {
+class MessageTVLogWidgetUpdate :public MessageTVBase {
 private:
 	MessageToView cmd = MessageToView::BackGroundServiceMsgToLogWidget;
 public:

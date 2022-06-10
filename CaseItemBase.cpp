@@ -633,7 +633,7 @@ int32_t CaseItemBase::CaseItemManualConfirmHandle(std::string input, int mstep)
 			mmsg->durationms = info->duration_ms;
 		}
 		CaseItemManualConfirmShow(input, showinput);
-		mmsg->msg = QStringLiteral("%1 %2\n%3\n%4").arg(QStringLiteral("请确认")) \
+		mmsg->msg = QStringLiteral("%1 %2\n%3\n%4").arg(QStringLiteral("")) \
 			.arg(showinput) \
 			.arg(QStringLiteral("确认成功请点击 确定 按钮")) \
 			.arg(QStringLiteral("无法确认或确认失败请点击 取消 按钮"));
@@ -856,6 +856,10 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
+	auto duration_ms_limit = msg->duration_ms;
+	if (TestcaseBase::get_instance()->AllVirtualDevice()) {
+		duration_ms_limit = duration_ms_limit > 8 ? 8 : duration_ms_limit;
+	}
 	if (msg->mode.toUpper()!="IMMEDIATE") {
 		qCritical("Mode %s can't support", msg->mode.toStdString().c_str());
 		ret = -ERROR_INVALID_PARAMETER;
@@ -885,7 +889,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					limit[1] *= 1000;
 				}
 				{
-				
+	
 					double taget = upper->current_ma;
 					if (upper->mMeasfunc == DeviceDriverReadQuery::QueryMeasFunc::MeasDCV) {
 						taget = upper->voltage_mv;
@@ -894,14 +898,14 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					if (taget <= limit[1] && taget >=limit[0]) {
 						ret = 0;
 						had_checked = true;
-						if (msg->duration_ms > 0) {
+						if (duration_ms_limit > 0) {
 							qInfo("cost time %d s", QDateTime::currentDateTime().toTime_t() - starttime.toTime_t());
 						}
 					}
 					else {
 						qInfo("value %lf out of rang [%lf/%lf]", taget, limit[0], limit[1]);
 						ret = -ERROR_DATA_NOT_ACCEPTED;
-						if (msg->duration_ms > 0){
+						if (duration_ms_limit > 0){
 							_sleep(1 * 1000);
 							if (GlobalConfig_debugCaseItemBase)qDebug("time: %s",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString().c_str());
 						}
@@ -909,12 +913,12 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					}
 					output = QStringLiteral("实际数值:%1 %2").arg(taget).arg(msg->unit);
 				}
-				if ((msg->duration_ms == 0) ||
-					((QDateTime::currentDateTime().toTime_t() - starttime.toTime_t()) > (msg->duration_ms / 1000))
+				if ((duration_ms_limit == 0) ||
+					((QDateTime::currentDateTime().toTime_t() - starttime.toTime_t()) > (duration_ms_limit / 1000))
 					)
 				{
-					if(msg->duration_ms != 0){
-						qInfo("duration outof rang %d ms", msg->duration_ms);
+					if(duration_ms_limit != 0){
+						qInfo("duration outof rang %d ms", duration_ms_limit);
 						ret = -ERROR_TIMEOUT;
 					}
 					break;
@@ -923,7 +927,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					auto current_time = QDateTime::currentDateTime().toTime_t();
 					if( (mstep >= 0) && ((current_time-tologwidgettime)>=5))
 					{
-						auto msg = new MesageTVLogWidgetUpdate;
+						auto msg = new MessageTVLogWidgetUpdate;
 						msg->msg = QStringLiteral("测试步骤 %1 第 %2 项 已经花费 %3 s ...\r\n").arg(moffset_inlist)
 							.arg(mstep).arg(current_time - starttime.toTime_t());
 						MessageTVBasePtr mptr(msg);
