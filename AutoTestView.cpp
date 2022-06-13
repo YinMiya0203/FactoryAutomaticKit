@@ -153,7 +153,7 @@ int32_t AutoTestView::setuptestcaseView(QWidget* parent)
 	table->horizontalHeader()->setVisible(false);
 	table->verticalHeader()->setVisible(false);
 	table->setEditTriggers(QAbstractItemView::NoEditTriggers);//不可编辑
-
+	table->setSelectionMode(QAbstractItemView::NoSelection);//不可手动选中
 	//Get info for testcase
 	int total_step = TestcaseBase::get_instance()->GettestcaseStepcnt();
 	int current_row = 0;
@@ -1015,10 +1015,18 @@ void AutoTestView::HandleCaseItemWidgetStatus(MessageTVCaseItemWidgetStatus* msg
 		if(tctablewidget) {
 			auto item = tctablewidget->item(row, colum);
 			if (item) {
-				item->setBackgroundColor(color);
-				if(!TestCaseResultSaveICMP::get_instance()->isSaveAsTable())
-				{
-					HandleTestCaseResultSave(msg->sector, msg->seek, item->text(), color);
+				if (msg->is_focus) {
+
+					//tctablewidget->setCurrentItem(item);
+					//item->setSelected(true);
+					color = QColor(0, 120, 215);
+					item->setBackgroundColor(color);
+				}else{
+					item->setBackgroundColor(color);
+					if(!TestCaseResultSaveICMP::get_instance()->isSaveAsTable())
+					{
+						HandleTestCaseResultSave(msg->sector, msg->seek, item->text(), color);
+					}
 				}
 			}
 		}

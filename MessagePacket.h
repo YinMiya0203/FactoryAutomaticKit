@@ -228,6 +228,7 @@ private:
 	MessageToView cmd = MessageToView::TestCaseItemStatus;
 public:
 	bool is_success=false;
+	bool is_focus = false;
 	int sector=0;
 	int seek=0;
 	MessageToView GetCmd() { return cmd; };
@@ -238,6 +239,7 @@ public:
 		raw.append(";sector:"); raw.append(std::to_string(sector));
 		raw.append(";seek:"); raw.append(std::to_string(seek));
 		raw.append(";succ:"); raw.append(std::to_string(is_success));
+		raw.append(";focus:"); raw.append(std::to_string(is_focus));
 		return raw;
 	};
 };

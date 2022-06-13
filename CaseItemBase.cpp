@@ -211,6 +211,14 @@ int32_t CaseItemBase::Process(int mstep)
 			ret = error_casesectorend;
 			break;
 		}
+		{
+			auto msg = new MessageTVCaseItemWidgetStatus;
+			msg->is_focus = true;//֪ͨui
+			msg->sector = moffset_inlist;
+			msg->seek = mstep;
+			MessageTVBasePtr mptr(msg);
+			emit notifytoView(int(msg->GetCmd()), mptr);
+		}
 		ret = Getitemhandle(mstep);
 		
 	} while (0);
