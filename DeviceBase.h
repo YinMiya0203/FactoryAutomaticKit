@@ -108,7 +108,7 @@ private:
 	int32_t ReadQuery_1999(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadQuery_1997(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr);
-
+	int32_t SystemLocalRemote(bool is_local=true);
 private:
 	std::string  identifyorig;
 	std::string  identifycustomer;

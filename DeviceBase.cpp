@@ -350,6 +350,9 @@ int32_t DeviceBase::disconnectsync()
 		ret = SourceVoltageAmplitude(mptrsv);
 	
 	}
+	if (mcommuinterface==DriverClass::DriverSCPI) {
+		ret = SystemLocalRemote(true);
+	}
 	if (!isVirtualDevice()) ret= interior_driver->Driverclose();
 	if (ret == 0) {
 		mdevicestatus.connected = false;
@@ -961,6 +964,29 @@ int32_t DeviceBase::ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr)
 	}
 ERROR_OUT:
 		return ret;
+}
+int32_t DeviceBase::SystemLocalRemote(bool is_local)
+{
+	int ret = 0;
+	if (mcommuinterface == DriverClass::DriverDMMIVictor) {
+		qInfo(" driver %d unsupport", mcommuinterface);
+		ret = 0;
+		goto ERROR_OUT;
+	}
+	{
+		std::string command = ":SYSTem:";
+		if (is_local) {
+			command.append("LOCal");
+		}
+		else {
+			command.append("REMote");
+		}
+		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
+		mptr->commond = command;
+		VISA_DEVICE_IOCTRL(mptr)
+	}
+ERROR_OUT:
+	return ret;
 }
 int32_t DeviceBase::ReadQuery_1997(VisaDriverIoctrlBasePtr ptr)
 {
