@@ -16,6 +16,23 @@ QString Utility::GetWinErrorText(int32_t errcode) {
 	//printf("errcode %x ¥ÌŒÛ√Ë ˆ£∫%s", errcode, pmsg);
 	return QString::fromLocal8Bit(pmsg);
 }
+qint64 Utility::GetFileSize_B(QString path)
+{
+	qint64 total_size =0;
+	QDir dir(path);
+	foreach(auto fileinfo,dir.entryInfoList(QDir::Files)) {
+		total_size += fileinfo.size();
+	}
+
+	foreach(auto subDir,dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot)) {
+		total_size += GetFileSize_B(path+QDir::separator() + subDir);
+	}
+	return total_size;
+}
+qint64 Utility::GetFileSize_KB(QString path)
+{
+	return GetFileSize_B(path)/1024;
+}
 int32_t Utility::NewFile(QString value,bool ishidden)
 {
 	int ret=0;

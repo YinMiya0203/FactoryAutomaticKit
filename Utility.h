@@ -16,5 +16,7 @@ public:
 	static const QString buildDateTime(QString prex="");
 	static void OutputDebugPrintf(const char* format, ...);
 	static QString GetWinErrorText(int32_t errcode);
+	static qint64 GetFileSize_B(QString path);
+	static qint64 GetFileSize_KB(QString path);
 };
 

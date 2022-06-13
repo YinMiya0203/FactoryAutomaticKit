@@ -3,6 +3,7 @@
 #include <memory>
 #include "Utility.h"
 #include "MessagePacket.h"
+#include "workController.h"
 
 #define GSVERSION_M	"0"
 #define GSVERSION_S	"0"
@@ -52,11 +53,18 @@ public:
 	void SetCurrentOp(QString val);
 	QString GetCurrentOp();
 	bool IsSettingParamLoad();
+
+	QString Getbgsizemsg();
 private:
 	GlobalSettings();
+	int32_t mbgworkloop();
 	static GlobalSettingsPtr __instance;
 	SettingsParam msettingsparam;
 	QString mCurrentOp;
 	bool msettingparamload = false;
+	ThreadworkControllerPtr  mautorunthread = nullptr;
+	int32_t mlogmaxsize_K = 250 * 1024;
+	int32_t mresultmaxsize_K = 500 * 1024;
+	QString bgsizemsg = "";
 };
 

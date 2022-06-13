@@ -1239,12 +1239,19 @@ void AutoTestView::on_devicetestactivepb_clicked()
 		emit messagetodevice(int(MessageFromView::TestactiveDevice), packetptr);
 	}
 }
+void AutoTestView::HandleBGDiskSpace()
+{
+	if (GLOBALSETTINGSINSTANCE->Getbgsizemsg().size()>0) {
+		QMessageBox::warning(NULL, WARN_STR, GLOBALSETTINGSINSTANCE->Getbgsizemsg());
+	}
+}
 void AutoTestView::on_test_start_pb_clicked()
 {
 	QPushButton* rb = qobject_cast<QPushButton*>(sender());
 	if (!rb) {
 		rb = mparent_widget->findChild<QPushButton*>(QString("test_start_pb"));
 	}
+	HandleBGDiskSpace();
 	if (TestcaseBase::get_instance()->InterfaceidSetable()) {
 		QMessageBox::warning(NULL,WARN_STR,QStringLiteral("请先连接设备"));
 		return;
@@ -1289,6 +1296,7 @@ void AutoTestView::on_test_termin_pb_clicked()
 	//先判断下状态
 	bool isrun = TestcaseBase::get_instance()->isRuncase();
 	if (GlobalConfig_debugAutoTestView)qDebug("is_run %d",isrun);
+	HandleBGDiskSpace();
 	if(isrun){
 		auto packet = new MessageFVBase;
 		packet->cmd = MessageFromView::TestCaseTermin;

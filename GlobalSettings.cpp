@@ -62,9 +62,18 @@ bool GlobalSettings::IsSettingParamLoad()
 {
 	return msettingparamload;
 }
+QString GlobalSettings::Getbgsizemsg()
+{
+	return bgsizemsg;
+}
 GlobalSettings::GlobalSettings()
 {
 	LoadDefaultSettings();
+	//开始统计日志，数据占用空间
+	{
+		ThreadworkControllerPtr ptr(new ThreadworkController(std::bind(&GlobalSettings::mbgworkloop, this)));
+		mautorunthread = ptr;
+	}
 }
 QString GlobalSettings::GetLogDirLocation() {
 	return msettingsparam.GetVaildLogDir();
@@ -106,7 +115,34 @@ bool GlobalSettings::isUserRoot()
 {
 	return msettingsparam.is_root;
 };
-
+int32_t GlobalSettings::mbgworkloop()
+{
+	QString logdir = GetLogDirLocation();
+	QString resultdir = GetTestCaseResultDirLocation();
+	bgsizemsg = "";
+	{
+		auto starttime = QDateTime::currentDateTime().toTime_t();
+		qint64 resultsize = Utility::GetFileSize_KB(resultdir);
+		qint64 logsize = Utility::GetFileSize_KB(logdir);
+		qInfo("Result dir [%s] size %lld KB,Log dir [%s] size %lld KB,cost %lld S",
+			resultdir.toStdString().c_str(),
+			resultsize,
+			logdir.toStdString().c_str(),
+			logsize,
+			QDateTime::currentDateTime().toTime_t()-starttime);
+		if (logsize > mlogmaxsize_K) {
+			bgsizemsg.append(QStringLiteral("日志目录 %1 达到 %2 KB,请删除过时的不需要的文件\n").
+			arg(logdir.toStdString().c_str()).
+			arg(logsize));
+		}
+		if (resultsize > mresultmaxsize_K) {
+			bgsizemsg.append(QStringLiteral("测试结果数据 %1 达到 %2 KB,请删除过时的不需要的文件\n").
+				arg(resultdir.toStdString().c_str()).
+				arg(resultsize));
+		}
+	}
+	return 0;
+}
 int32_t GlobalSettings::SettingsParam::load(QString path)
 {
 	int ret = 0;
