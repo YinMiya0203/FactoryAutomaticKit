@@ -529,11 +529,13 @@ int32_t AutoTestView::setupsettingView(QWidget* parent)
 			TestCastcycleStatusWidgetFresh();
 			});
 	}
+	{
 	auto label_status = new QLabel();
 	label_status->setObjectName("label_status");
 	setting_layout->addWidget(label_status, row_offset++, 0, 1, total_colum);
 	//setting_layout-
 	label_status->setStyleSheet("#label_status{background-color:green;}");
+	}
 	AutoTestSettingWidgetFresh();
 	return ret;
 }
@@ -730,7 +732,7 @@ bool AutoTestView::TestCastcycleStatusWidgetFresh(QLabel* label)
 		mlabel = mparent_widget->findChild<QLabel*>(QString("label_cyclestatus"));
 	}
 	if (mlabel == nullptr)goto ERR_OUT;
-	mlabel->setText(QStringLiteral("已成功:%1 \n失败: %2 \n终止 %3").arg(msettings.success_cnt).arg(msettings.fail_cnt) \
+	mlabel->setText(QStringLiteral("已成功:%1 \n失败: %2 \n用户终止: %3").arg(msettings.success_cnt).arg(msettings.fail_cnt) \
 		.arg(msettings.usertermin_cnt));
 	mlabel->setVisible(msettings.is_cycle);
 ERR_OUT:
@@ -897,7 +899,7 @@ void AutoTestView::HandleTestCaseOneShot(MessageTVBGStatus* msg)
 	else {
 		msettings.fail_cnt++;
 	}
-	auto status_label = mparent_widget->findChild<QPushButton*>(QString("label_status"));
+	auto status_label = mparent_widget->findChild<QLabel*>(QString("label_status"));
 	if (status_label) {
 		if (issuccess || isusertermin) {
 			status_label->setStyleSheet("#label_status{background-color:green;}");
@@ -905,6 +907,9 @@ void AutoTestView::HandleTestCaseOneShot(MessageTVBGStatus* msg)
 		else {
 			status_label->setStyleSheet("#label_status{background-color:red;}");
 		}
+	}
+	else {
+		qCritical("null QLabel label_status");
 	}
 	TestCaseBGWidgetFresh();
 	AutoTestSettingWidgetFresh();
@@ -1250,6 +1255,11 @@ void AutoTestView::on_test_start_pb_clicked()
 	if (!TestcaseBase::get_instance()->isRuncase()) {
 		HandleLogWidgetUpdate();
 		TestCaseTableWidgetFresh();
+		auto status_label = mparent_widget->findChild<QLabel*>(QString("label_status"));
+		if (status_label) {
+			//刷为蓝色 
+			status_label->setStyleSheet("#label_status{background-color:#0078D7;}");
+		}
 	}
 	if(GLOBALSETTINGSINSTANCE->isUserRoot()) {
 		QList<int> active = {};

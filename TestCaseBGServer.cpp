@@ -258,6 +258,13 @@ int32_t TestCaseBGServer::mbgworkloop()
 		}
 		else {
 			qInfo("leave loop mRunStep %d result %d", mRunStep.load(), result);
+			{
+				auto msg = new MessageTVBGStatus;
+				msg->issuccess = false;
+				msg->isusertermin = (mRunStep.load()== TestStep::UserTermin);
+				MessageTVBasePtr mptr(msg);
+				emit notifytoView(int(msg->GetCmd()), mptr);
+			}
 			break;
 		}
 	} while (mautorunthread->isthreadkeeprun());
