@@ -20,6 +20,7 @@ enum class DeviceClass {
 	DeviceClass_DC_BatterySimulator,
 	DeviceClass_digit_multimeter,
 };
+
 typedef struct DeviceStatus_t {
 	bool connected=false;
 	bool output = false;
@@ -108,7 +109,15 @@ private:
 	int32_t ReadQuery_1999(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadQuery_1997(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr);
+
+	int32_t EntryFuction(VisaDriverIoctrlBasePtr ptr);
+	DeviceWorkFunc CheckDeviceWorkFunc(QString input);
+	DeviceWorkFunc CheckDeviceWorkFunc(std::string input);
+
 	int32_t SystemLocalRemote(bool is_local=true);
+	void SetDeviceStatusIsconnected(bool);
+	void InitDeviceClassType();
+	DeviceClass CheckDeviceClassDC();
 private:
 	std::string  identifyorig;
 	std::string  identifycustomer;
@@ -120,7 +129,7 @@ private:
 	//int32_t maxWVA = 8;
 	int moffset_inlist;
 	QString scpi_version;
-	DeviceClass mdevice_class;
+	DeviceClass mdevice_class=DeviceClass::DeviceClass_Unknow;
 	DeviceStatus_t mdevicestatus;
 	
 	DriverClass mcommuinterface;

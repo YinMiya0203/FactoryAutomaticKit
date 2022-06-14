@@ -28,7 +28,14 @@ enum class VisaDriverIoctrl
 	SourceVoltage,
 	SourceCurrentLimit,
 	ReadQuery,
+	WorkFunction,
 	Io_max,
+};
+enum class DeviceWorkFunc {
+	Unkown,
+	POWer,//Power supply
+	TEST,//Battery test
+	SIMulator //Battery simulator
 };
 extern QStringList VisaDriverIoctrlList();
 class VisaDriverIoctrlBase
@@ -193,6 +200,24 @@ public:
 		raw.append(" voltage_mv:"); raw.append(std::to_string(voltage_mv));
 		raw.append(" ativetime_ms:"); raw.append(std::to_string(ativetime_ms));
 		raw.append(" channel:"); raw.append(std::to_string(channel));
+		return raw;
+	};
+};
+class DeviceDriverWorkFunction :public VisaDriverIoctrlBase
+{
+protected:
+	VisaDriverIoctrl cmd = VisaDriverIoctrl::WorkFunction;
+public:
+	bool is_read = true;
+	DeviceWorkFunc wfunctions = DeviceWorkFunc::Unkown;
+	VisaDriverIoctrl GetCmd() { return cmd; };
+	std::string to_string() {
+		std::string raw;
+		raw.append("Cmd:"); raw.append(std::to_string(int(cmd)));
+		raw.append(" commond:"); raw.append(commond);
+		raw.append(" result:"); raw.append(result);
+		raw.append(" func:"); raw.append(std::to_string(int(wfunctions)));
+		raw.append(" is_read:"); raw.append(std::to_string(is_read));
 		return raw;
 	};
 };

@@ -407,6 +407,7 @@ int32_t AutoTestView::setdeviceupiteminterface(QWidget* dev_widget, DeviceInfo_t
 		int last_row_offset = 0;
 		devinfo_layout->addWidget(label_iden, last_row_offset++, 0, 1, 1);
 		auto label_interface = new QLabel();
+		label_interface->setObjectName(QString("label_interface%1").arg(cntoffset));
 		label_interface->setText(QString("%1 %2").arg(QStringLiteral("连接方式")).arg(dev.interfaceid.c_str()));
 		devinfo_layout->addWidget(label_interface, last_row_offset, 0, 1, 1);
 		label_interface->setWordWrap(true);
@@ -1216,6 +1217,16 @@ void AutoTestView::on_deviceconectpb_clicked()
 		}
 		else {
 			packet->isconnect = true;
+			if (!isauto) {
+			//重新复制customer interfaceid
+			auto label_str = mparent_widget->findChild<QLabel*>(QString("label_interface%1").arg(index));
+			if (label_str==nullptr) {
+				qCritical("null label_interface %d",index);
+			}else{
+				auto str_label = label_str->text();
+				packet->customerinterfaceid = str_label.right(str_label.size() - QStringLiteral("连接方式 ").size()).toStdString();
+			}
+			}
 		}
 		rb->setEnabled(false);
 		emit messagetodevice(int(MessageFromView::ConnectDisDevice), packetptr);

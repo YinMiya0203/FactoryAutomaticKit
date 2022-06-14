@@ -56,6 +56,31 @@ bool strcasecmp(const char* s1, const char* s2) {
 	return QString::compare(QString(s1), QString(s2), Qt::CaseInsensitive);
 
 }
+DeviceClass DeviceBase::CheckDeviceClassDC()
+{
+	auto default_type = DeviceClass::DeviceClass_DC;
+	auto netid = QString(GetNetworklabel().c_str()).toUpper().split("/");
+	foreach(auto str,netid) {
+		if (str.size()>1&&(str.at(0)=='A') ){
+			default_type = DeviceClass::DeviceClass_DC_BatterySimulator;
+			break;
+		}
+	}
+	return default_type;
+}
+void DeviceBase::InitDeviceClassType()
+{
+	if (mcommuinterface == DriverClass::DriverSCPI) {
+		interior_driver = NiDeviceDriverBasePtr(new VisaDriver);
+		
+		mdevice_class = CheckDeviceClassDC();
+	}
+	else {
+		interior_driver = NiDeviceDriverBasePtr(new VictorDMMIDriver);
+		mdevice_class = DeviceClass::DeviceClass_digit_multimeter;
+		interior_driver->SetCmdPostfix("\r\n");
+	}
+}
 DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string id, std::string confg,std::string maxva, DriverClass driverclass):
 	moffset_inlist(offset),identifyorig(iden),networklabel(net),interfaceidorig(id), arslconfgstr(confg), mcommuinterface(driverclass)
 {
@@ -104,18 +129,10 @@ DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string
 		}
 	}
 	scpi_version = "";
-	if (mcommuinterface == DriverClass::DriverSCPI) {
-		interior_driver = NiDeviceDriverBasePtr(new VisaDriver);
-		mdevice_class = DeviceClass::DeviceClass_DC;
-	}
-	else {
-		interior_driver = NiDeviceDriverBasePtr(new VictorDMMIDriver);
-		mdevice_class = DeviceClass::DeviceClass_digit_multimeter;
-		interior_driver->SetCmdPostfix("\r\n");
-	}
+	InitDeviceClassType();
 	interior_driver->SetIndexInList(moffset_inlist);
 	mdevicestatus.output = false;
-	mdevicestatus.connected = false;
+	SetDeviceStatusIsconnected(false);
 	interfaceidcustomer.clear();
 	FVcontainer.clear();
 
@@ -299,6 +316,9 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 			_sleep(1 * 1000);//for debug 
 		}
 	}
+	if (ret != 0/*&& mcommuinterface != DriverClass::DriverDMMIVictor*/) {
+		qCritical("index %d interfaceid [%s] open fail", moffset_inlist, tmp.c_str());
+	}
 	if (ret == 0 && (arslconfgstr.size() > 0 || QString(GetInterfaceId().c_str()).toUpper().contains("ASRL")))
 	{
 		if (!isVirtualDevice())ret = interior_driver->Driversetattribute(masrlconfg);
@@ -306,10 +326,10 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 	//testconnect
 	ret = testactivesync();	
 	if (ret ==0) {
-		mdevicestatus.connected = true;
+		SetDeviceStatusIsconnected(true);
 	}
 	else {
-		mdevicestatus.connected = false;
+		SetDeviceStatusIsconnected(false);
 		goto ERROR_OUT;
 	}
 	if (QString(GetIdentify().c_str()).toUpper() == "AUTO") {
@@ -321,6 +341,14 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 	if (mdevicestatus.connected) {
 		SetInterfaceIdCustomer(tmp);
 	}
+	if (DeviceClass::DeviceClass_DC_BatterySimulator==mdevice_class) {
+		auto msg = new DeviceDriverWorkFunction;
+		msg->is_read = false;
+		msg->wfunctions = DeviceWorkFunc::POWer;
+		auto ptr = VisaDriverIoctrlBasePtr(msg);
+		EntryFuction(ptr);
+	}
+	GetDeviceSCPIVersion();
 ERROR_OUT:
 	if (!mdevicestatus.connected) {
 		if (!isVirtualDevice())ret = interior_driver->Driverclose();
@@ -334,6 +362,10 @@ ERROR_OUT:
 int32_t DeviceBase::disconnectasync()
 {
 	return connectasync(false);
+}
+void DeviceBase::SetDeviceStatusIsconnected(bool val) 
+{
+	mdevicestatus.connected = val;
 }
 int32_t DeviceBase::disconnectsync()
 {
@@ -355,10 +387,10 @@ int32_t DeviceBase::disconnectsync()
 	}
 	if (!isVirtualDevice()) ret= interior_driver->Driverclose();
 	if (ret == 0) {
-		mdevicestatus.connected = false;
+		SetDeviceStatusIsconnected(false);
 	}
 	else {
-		mdevicestatus.connected = true;
+		SetDeviceStatusIsconnected(true);
 	}
 	//clean customerinterfaceid
 	SetInterfaceIdCustomer("");
@@ -814,6 +846,83 @@ int32_t DeviceBase::GetSystemERRorCount(VisaDriverIoctrlBasePtr ptr)
 ERROR_OUT:
 	return ret;
 }
+int32_t DeviceBase::EntryFuction(VisaDriverIoctrlBasePtr ptr)
+{
+	int ret = 0;
+	bool need_set=false;
+	QString command = ":ENTRy:FUNCtion";
+	if (mdevice_class != DeviceClass::DeviceClass_DC_BatterySimulator) {
+		qInfo(" Deviceclass %d unsupport", mdevice_class);
+		ret = 0;
+		goto ERROR_OUT;
+	}
+	if (ptr == nullptr) {
+		ret = -ERROR_INVALID_PARAMETER;
+		goto ERROR_OUT;
+	}
+	DeviceDriverWorkFunction* upper_arg = dynamic_cast<DeviceDriverWorkFunction*>(ptr.get());
+	if (upper_arg == nullptr) {
+		qCritical("invaild upper_arg");
+		ret = -ERROR_INVALID_PARAMETER;
+		goto ERROR_OUT;
+	}
+	//read first
+	{
+		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
+		mptr->commond = (command+"?").toStdString();
+		VISA_DEVICE_IOCTRL(mptr)
+		ptr->commond = mptr->commond;
+		if (ret == 0) {
+			if (mptr->result.size() <= 0) {
+				ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
+				goto ERROR_OUT;
+			}
+			upper_arg->result = mptr->result;
+			auto func_value = CheckDeviceWorkFunc(mptr->result);
+			if (upper_arg->wfunctions!=DeviceWorkFunc::Unkown && func_value!= upper_arg->wfunctions) {
+				need_set = true;
+			}
+		}
+	}
+	if (need_set && upper_arg->wfunctions!=DeviceWorkFunc::Unkown) {
+		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
+		QString tmp = upper_arg->wfunctions == DeviceWorkFunc::POWer ? "POW" :
+			upper_arg->wfunctions == DeviceWorkFunc::TEST ? "TEST" :
+			upper_arg->wfunctions == DeviceWorkFunc::SIMulator ? "SIM" :
+			"";
+		mptr->commond = (command + " " + tmp).toStdString();
+		VISA_DEVICE_IOCTRL(mptr)
+		ptr->commond.append(mptr->commond);
+		if (ret == 0) {
+			upper_arg->result.append(mptr->result);
+		}
+	}
+	
+ERROR_OUT:
+	return ret;
+}
+DeviceWorkFunc DeviceBase::CheckDeviceWorkFunc(QString input)
+{
+	auto default_workfunc = DeviceWorkFunc::Unkown;
+	if (input.left(QString("POW").size())=="POW") {
+		default_workfunc = DeviceWorkFunc::POWer;
+		goto ERROR_OUT;
+	}
+	if (input.left(QString("TEST").size()) == "TEST") {
+		default_workfunc = DeviceWorkFunc::TEST;
+		goto ERROR_OUT;
+	}
+	if (input.left(QString("SIM").size()) == "SIM") {
+		default_workfunc = DeviceWorkFunc::SIMulator;
+		goto ERROR_OUT;
+	}
+ERROR_OUT:
+	return default_workfunc;
+}
+DeviceWorkFunc DeviceBase::CheckDeviceWorkFunc(std::string input)
+{
+	return CheckDeviceWorkFunc(QString(input.c_str()));
+}
 int32_t DeviceBase::ReadQuery(VisaDriverIoctrlBasePtr ptr)
 {
 	if(mcommuinterface == DriverClass::DriverSCPI){
@@ -867,7 +976,7 @@ int32_t DeviceBase::ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr)
 			VISA_DEVICE_IOCTRL(mptr)
 			ptr->commond = mptr->commond;
 			ptr->result = mptr->result;
-			if (ret == VI_ERROR_TMO) {
+			if (ret == -ERROR_TIMEOUT) {
 				need_ins = true;
 			}
 			if (ret == 0) {
@@ -1100,13 +1209,12 @@ ERROR_OUT:
 }
 QString DeviceBase::GetDeviceSCPIVersion()
 {
-	QString result;
+	QString result="";
 	if (scpi_version.size() > 0) {
 		result = scpi_version;
 		goto ERROR_OUT;
 	}
 	int ret = 0;
-	if (result.size() > 0)goto ERROR_OUT;
 	{
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
 		mptr->commond = "SYST:VERS?";

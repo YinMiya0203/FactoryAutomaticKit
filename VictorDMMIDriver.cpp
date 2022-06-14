@@ -54,7 +54,7 @@ int32_t VictorDMMIDriver::device_rst()
     mptr->commond = "#*RST";
     ret = ioctrl(mptr);
     //可能有ack，可能没有
-    if (ret == VI_ERROR_TMO) {
+    if (ret == -ERROR_TIMEOUT) {
         ret = 0;
     }
     return ret;
@@ -73,6 +73,7 @@ int32_t VictorDMMIDriver::device_online()
             ret = ioctrl(mptr);
             //由于rst后必须有ack
             if (ret == 0) {
+                Sleep(1 * 1000);//wait rst
                 if (mptr->result.size()==0) {
                     ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
                 }

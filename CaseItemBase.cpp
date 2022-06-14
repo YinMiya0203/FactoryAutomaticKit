@@ -909,12 +909,13 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					if (taget <= limit[1] && taget >=limit[0]) {
 						ret = 0;
 						had_checked = true;
-						if (duration_ms_limit > 0) {
-							qInfo("cost time %d s", QDateTime::currentDateTime().toTime_t() - starttime.toTime_t());
+						auto used_time = QDateTime::currentDateTime().toTime_t() - starttime.toTime_t();
+						if (duration_ms_limit > 0 && used_time >5) {
+							qInfo("cost time %d s", used_time);
 						}
 					}
 					else {
-						qInfo("value %lf out of rang [%lf/%lf]", taget, limit[0], limit[1]);
+						qDebug("value %lf out of rang [%lf/%lf]", taget, limit[0], limit[1]);
 						ret = -ERROR_DATA_NOT_ACCEPTED;
 						if (duration_ms_limit > 0){
 							_sleep(1 * 1000);

@@ -118,7 +118,7 @@ int32_t NiDeviceDriverBase::Driveropen(std::string res)
             ret = -ERROR_PATH_NOT_FOUND;
             goto ERR_OUT;
         }
-        if (!isResourceVaild(res)) {
+        if (res.size()==0||!isResourceVaild(res)) {
             ret = -ERROR_PATH_NOT_FOUND;
             goto ERR_OUT;
         }
@@ -190,8 +190,9 @@ int32_t NiDeviceDriverBase::write(VisaDriverIoctrlWrite* arg)
         if (status < VI_SUCCESS) {
             ViChar		mdescbuffer[64] = { 0 };
             viStatusDesc(vi, status, mdescbuffer);
+            qCritical("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
             qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
-            ret = -ERROR_TIMEOUT;
+            if (status == VI_ERROR_TMO)ret = -ERROR_TIMEOUT;
             goto ERR_OUT;
         }
     }
@@ -222,8 +223,9 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
         if (status < VI_SUCCESS) {
             ViChar		mdescbuffer[64] = { 0 };
             viStatusDesc(vi, status, mdescbuffer);
+            qCritical("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
             qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
-            ret = -ERROR_TIMEOUT;
+            if (status == VI_ERROR_TMO)ret = -ERROR_TIMEOUT;
             goto ERR_OUT; 
         }
         memset(cmdbuffer, 0, sizeof(cmdbuffer));
@@ -231,8 +233,10 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
         if (status < VI_SUCCESS) {
             ViChar		mdescbuffer[64] = { 0 };
             viStatusDesc(vi, status, mdescbuffer);
+            qCritical("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
             qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
-            ret = -ERROR_TIMEOUT;
+
+            if(status== VI_ERROR_TMO)ret = -ERROR_TIMEOUT;
             goto ERR_OUT;
         }
         arg->result = QString(cmdbuffer).trimmed().toStdString();
