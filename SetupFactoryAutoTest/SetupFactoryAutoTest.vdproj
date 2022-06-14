@@ -1479,7 +1479,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_F1C75CEE27EA45BC81562E5D3BF1092A"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:E:\\Program Files (x86)\\[Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -1605,7 +1605,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SetupFactoryAutoTest"
         "ProductCode" = "8:{798C44D2-220D-4EAD-9D2C-AA8D5B1E0634}"
-        "PackageCode" = "8:{17DCEA46-0BF3-4862-BE7D-7FE683241ED6}"
+        "PackageCode" = "8:{20B55F92-6921-4186-81AF-AE680B1F24E9}"
         "UpgradeCode" = "8:{9BF24265-30A2-49DE-A374-E971ECAF0096}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
