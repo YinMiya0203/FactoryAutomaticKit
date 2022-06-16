@@ -32,7 +32,7 @@ enum class VisaDriverIoctrl
 	Io_max,
 };
 enum class DeviceWorkFunc {
-	Unkown,
+	ENTRy,//enter startup screen
 	POWer,//Power supply
 	TEST,//Battery test
 	SIMulator //Battery simulator
@@ -209,7 +209,7 @@ protected:
 	VisaDriverIoctrl cmd = VisaDriverIoctrl::WorkFunction;
 public:
 	bool is_read = true;
-	DeviceWorkFunc wfunctions = DeviceWorkFunc::Unkown;
+	DeviceWorkFunc wfunctions = DeviceWorkFunc::ENTRy;
 	VisaDriverIoctrl GetCmd() { return cmd; };
 	std::string to_string() {
 		std::string raw;

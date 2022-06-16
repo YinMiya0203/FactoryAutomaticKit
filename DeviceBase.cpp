@@ -879,12 +879,12 @@ int32_t DeviceBase::EntryFuction(VisaDriverIoctrlBasePtr ptr)
 			}
 			upper_arg->result = mptr->result;
 			auto func_value = CheckDeviceWorkFunc(mptr->result);
-			if (upper_arg->wfunctions!=DeviceWorkFunc::Unkown && func_value!= upper_arg->wfunctions) {
+			if (upper_arg->wfunctions!=DeviceWorkFunc::ENTRy && func_value!= upper_arg->wfunctions) {
 				need_set = true;
 			}
 		}
 	}
-	if (need_set && upper_arg->wfunctions!=DeviceWorkFunc::Unkown) {
+	if (need_set && upper_arg->wfunctions!=DeviceWorkFunc::ENTRy) {
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
 		QString tmp = upper_arg->wfunctions == DeviceWorkFunc::POWer ? "POW" :
 			upper_arg->wfunctions == DeviceWorkFunc::TEST ? "TEST" :
@@ -903,7 +903,10 @@ ERROR_OUT:
 }
 DeviceWorkFunc DeviceBase::CheckDeviceWorkFunc(QString input)
 {
-	auto default_workfunc = DeviceWorkFunc::Unkown;
+	auto default_workfunc = DeviceWorkFunc::ENTRy;
+	if (input.left(QString("ENTR").size()) == "ENTR") {
+		goto ERROR_OUT;
+	}
 	if (input.left(QString("POW").size())=="POW") {
 		default_workfunc = DeviceWorkFunc::POWer;
 		goto ERROR_OUT;
