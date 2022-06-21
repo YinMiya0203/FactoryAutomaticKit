@@ -12,7 +12,7 @@
 #include <memory>
 #define NIDD_VERSION_M	"0"
 #define NIDD_VERSION_S	"1"
-#define NIDD_VERSION_P	"1"
+#define NIDD_VERSION_P	"2"
 #define NIDD_VERSION NIDD_VERSION_M "." NIDD_VERSION_S "." NIDD_VERSION_P
 typedef std::list<std::string> Resourcecontainer;
 typedef struct asrlconfg_t {
@@ -21,6 +21,11 @@ typedef struct asrlconfg_t {
 	uint8_t parity = VI_ASRL_PAR_NONE;
 	uint8_t stop_bits = 2;
 	uint8_t flow_control = VI_ASRL_FLOW_NONE;
+public:
+	QString to_string() {
+		return QString::asprintf("Set Attribute %d/%d/%d/%d/%d", baud_rate, data_bits, stop_bits,
+			parity, flow_control);
+	};
 }xxx;
 enum class DriverClass {
 	DriverSCPI,
@@ -38,7 +43,7 @@ public:
 	bool isResourceVaild(std::string res);
 	int32_t ioctrl(VisaDriverIoctrlBasePtr ptr = nullptr);
 	int32_t Driveropen(std::string res);
-	virtual int32_t Driversetattribute(const asrlconfg_t config);
+	virtual int32_t Driversetattribute(asrlconfg_t config);
 	virtual int32_t Driverclose();
 	virtual std::string GetCmdPostfix();
 	void SetIndexInList(int value);

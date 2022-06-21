@@ -28,7 +28,7 @@ class VictorDMMIDriver :
 public:
 	//int32_t Driveropen(std::string res);
 	int32_t Driverclose();
-	int32_t Driversetattribute(const asrlconfg_t config);
+	int32_t Driversetattribute(asrlconfg_t config);
 private:
 	int32_t device_online();
 	int32_t device_rst();

@@ -2,7 +2,7 @@
 #include "VisaDriver.h"
 #include "winerror.h"
 #include <exception>
-int32_t VictorDMMIDriver::Driversetattribute(const asrlconfg_t config)
+int32_t VictorDMMIDriver::Driversetattribute(asrlconfg_t config)
 {
     int ret = 0;
     ViStatus status = VI_SUCCESS;
@@ -10,13 +10,17 @@ int32_t VictorDMMIDriver::Driversetattribute(const asrlconfg_t config)
     ret = NiDeviceDriverBase::Driversetattribute(config);
     if (ret == 0) {
         //status |= viSetAttribute(vi, VI_ATTR_ASRL_END_OUT, VI_ASRL_END_TERMCHAR);
+        status |= viSetAttribute(vi, VI_ATTR_TMO_VALUE, 4000);
         status |= viSetAttribute(vi, VI_ATTR_TERMCHAR_EN, 1);
         if (status != VI_SUCCESS) {
             ret = status;
-        }
+        }else
         {
             ret = device_online();
         }
+    }
+    else {
+        qCritical("NiDeviceDriverBase::Driversetattribute %s fail", config.to_string().toStdString().c_str());
     }
 ERROR_OUT:
     return ret;
@@ -66,7 +70,7 @@ int32_t VictorDMMIDriver::device_online()
     int ret = 0;
     do {
         ret = device_rst();
-        Sleep(5*1000);//wait rst
+        Sleep(3*1000);//wait rst
         {
             VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
             mptr->commond = "#*ONL";
@@ -78,6 +82,7 @@ int32_t VictorDMMIDriver::device_online()
                     ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
                 }
             }
+            //Sleep(3 * 1000);//wait rst
         }
     } while (0);
     return ret;

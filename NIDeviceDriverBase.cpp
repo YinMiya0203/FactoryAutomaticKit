@@ -62,7 +62,7 @@ bool NiDeviceDriverBase::isResourceVaild(std::string res)
     }
     return ret;
 }
-int32_t NiDeviceDriverBase::Driversetattribute(const asrlconfg_t config)
+int32_t NiDeviceDriverBase::Driversetattribute(asrlconfg_t config)
 {
     int ret = 0;
     ViStatus status;
@@ -75,8 +75,7 @@ int32_t NiDeviceDriverBase::Driversetattribute(const asrlconfg_t config)
         qCritical("driver not open");
         goto ERR_OUT;
     }
-    if (GlobalConfig_debugdevciedriver)qDebug("Set Attribute %d/%d/%d/%d/%d", config.baud_rate, config.data_bits, config.stop_bits,
-        config.parity, config.flow_control);
+    if (GlobalConfig_debugdevciedriver)qDebug("%s",config.to_string().toStdString().c_str());
     status = viSetAttribute(vi, VI_ATTR_ASRL_BAUD, config.baud_rate);
     status |= viSetAttribute(vi, VI_ATTR_ASRL_DATA_BITS, config.data_bits);
     status |= viSetAttribute(vi, VI_ATTR_ASRL_END_IN, config.stop_bits);
@@ -191,7 +190,7 @@ int32_t NiDeviceDriverBase::write(VisaDriverIoctrlWrite* arg)
             ViChar		mdescbuffer[64] = { 0 };
             viStatusDesc(vi, status, mdescbuffer);
             qCritical("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
-            qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
+            qCritical("Desc status 0x%x [%s]", status, QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
             if (status == VI_ERROR_TMO)ret = -ERROR_TIMEOUT;
             goto ERR_OUT;
         }
@@ -224,7 +223,7 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
             ViChar		mdescbuffer[64] = { 0 };
             viStatusDesc(vi, status, mdescbuffer);
             qCritical("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
-            qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
+            qCritical("Desc 0x%x [%s]", status, QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
             if (status == VI_ERROR_TMO)ret = -ERROR_TIMEOUT;
             goto ERR_OUT; 
         }
@@ -234,7 +233,7 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
             ViChar		mdescbuffer[64] = { 0 };
             viStatusDesc(vi, status, mdescbuffer);
             qCritical("index %d command [%s%s]", moffset_inlist, arg->commond.c_str(), GetCmdPostfix().c_str());
-            qCritical("Desc [%s]", QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
+            qCritical("Desc 0x%x [%s]", status, QString::fromLocal8Bit(mdescbuffer).toStdString().c_str());
 
             if(status== VI_ERROR_TMO)ret = -ERROR_TIMEOUT;
             goto ERR_OUT;
