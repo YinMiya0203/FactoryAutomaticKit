@@ -50,7 +50,8 @@ QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QList<QString> 
         connect(okBtn, &QPushButton::clicked, this, [this]() {
             m_pTimer->stop();
             this->accept();
-            });   
+            });
+        okBtn->setFocus();
     }
 
     m_pTimer = new QTimer(this);

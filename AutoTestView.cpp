@@ -1027,6 +1027,7 @@ void AutoTestView::HandleCaseItemWidgetStatus(MessageTVCaseItemWidgetStatus* msg
 					//item->setSelected(true);
 					color = QColor(0, 120, 215);
 					item->setBackgroundColor(color);
+					tctablewidget->setCurrentItem(item);
 				}else{
 					item->setBackgroundColor(color);
 					if(!TestCaseResultSaveICMP::get_instance()->isSaveAsTable())
