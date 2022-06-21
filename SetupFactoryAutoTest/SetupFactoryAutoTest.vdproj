@@ -69,6 +69,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_302BD53B04DE419EAF6DF724ADFA6170"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_35C522ECB9854307968B999266E00BF5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -593,6 +599,26 @@
             "TargetName" = "8:qt_ca.qm"
             "Tag" = "8:"
             "Folder" = "8:_3EE3DE5FAF9C4F1CA7C44F02AC6FA0D9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_302BD53B04DE419EAF6DF724ADFA6170"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588\\A588_充电测试_测试案例_V31.ini"
+            "TargetName" = "8:A588_充电测试_测试案例_V31.ini"
+            "Tag" = "8:"
+            "Folder" = "8:_F1FC523FACFD4AB0835692679078E82A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1479,7 +1505,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_F1C75CEE27EA45BC81562E5D3BF1092A"
             {
-            "DefaultLocation" = "8:E:\\Program Files (x86)\\[Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:D:\\Program Files (x86)\\[Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
