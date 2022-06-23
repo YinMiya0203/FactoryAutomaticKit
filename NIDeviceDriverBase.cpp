@@ -66,6 +66,7 @@ int32_t NiDeviceDriverBase::Driversetattribute(asrlconfg_t config)
 {
     int ret = 0;
     ViStatus status;
+    QMutexLocker locker(&mdrivermutex);
 #ifdef VIRTUAL_DEVICE
     return ret;
 #endif
@@ -94,7 +95,7 @@ int32_t NiDeviceDriverBase::Driveropen(std::string res)
 {
     int ret = 0;
     ViStatus status = VI_SUCCESS;
-
+    QMutexLocker locker(&mdrivermutex);
     if (vi) {
         qCritical("had opened");
         status = VI_ERROR_FILE_ACCESS;
@@ -138,6 +139,7 @@ ERR_OUT:
 int32_t NiDeviceDriverBase::Driverclose()
 {
     int32_t ret = 0;
+    QMutexLocker locker(&mdrivermutex);
     OutputDebugStringA("NiDeviceDriverBase::Driverclose()");
 #ifdef VIRTUAL_DEVICE
     return ret;

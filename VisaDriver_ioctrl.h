@@ -202,6 +202,16 @@ public:
 		raw.append(" channel:"); raw.append(std::to_string(channel));
 		return raw;
 	};
+	QString ShowStatus() {
+		QString vstr = QString::asprintf("%0.3lf", voltage_mv > 1000 ? (voltage_mv / 1000) : voltage_mv);
+		QString vunint = voltage_mv > 1000 ? "V" : "mV";
+
+		QString Istr = QString::asprintf("%0.3lf", current_ma > 1000 ? (current_ma / 1000) : current_ma);
+		QString Iunint = current_ma > 1000 ? "A" : "mA";
+
+		return QString("V: %1 %2	I: %3 %4").arg(vstr).arg(vunint).arg(Istr).arg(Iunint);
+
+	}
 };
 class DeviceDriverWorkFunction :public VisaDriverIoctrlBase
 {

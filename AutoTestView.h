@@ -68,6 +68,7 @@ private:
 	const int getMainViewGridColum() { return 12; };
 
 	void DeviceWidgetFresh(int32_t index, MessageTVDeviceUpdate *msg = nullptr);
+	void DeviceOutputStatusWidgetFresh(int32_t index, MessageTVDeviceUpdate* msg=nullptr);
 	void DeviceConnectWdigetFresh(int32_t index, QPushButton* pb = nullptr);
 	void DeviceActiveWdigetFresh(int32_t index, QPushButton* pb = nullptr);
 	bool TestCastStartPauseWidgetFresh(QPushButton* pb, bool);
@@ -89,6 +90,7 @@ private:
 	void HandleDeviceScanWidgetUpdate(MessageTVHardWareDeviceRes* msg = nullptr);
 	void HandleLogWidgetUpdate(MessageTVLogWidgetUpdate* msg = nullptr);
 	void HandleBGDiskSpace();
+
 
 	void HandleTestCaseResultSave(int sector, int seek, QString value, QColor c);
 	void HandleTestCaseResultSave();

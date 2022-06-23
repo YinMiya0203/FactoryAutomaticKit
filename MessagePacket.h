@@ -42,8 +42,7 @@ enum class DeviceStatusIcon {
 	Unknown,
 	Connect,
 	OnOff,
-	Voltage,
-	Current,
+	Voltage_Current,
 	TestActive,
 };
 enum class TestStep {
@@ -102,6 +101,7 @@ private:
 public:
 	DeviceStatusIcon icon = DeviceStatusIcon::Unknown;
 	MessageToView GetCmd() { return cmd; };
+	QString payload = "";
 	virtual std::string to_string() {
 		std::string raw;
 		raw.append("Cmd:"); raw.append(std::to_string(int(cmd)));

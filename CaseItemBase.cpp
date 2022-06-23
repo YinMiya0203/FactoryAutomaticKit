@@ -793,7 +793,9 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
-
+	int hadset_cnt = 0;
+	int maxretry = 2;
+RECHECK:
 	{
 		auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverSourceVoltage);
 		DeviceDriverSourceVoltage* upper = dynamic_cast<DeviceDriverSourceVoltage*>(mptrrq.get());
@@ -809,6 +811,10 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 			//set current
 			//先设置Current再设置Voltage 再on 是CV
 			//先设置Voltage再设置Current 再on 是CC
+			if (hadset_cnt >= maxretry) {
+				qWarning("hadset_cnt %d now %d mv target %d mv", hadset_cnt, upper->voltage_mv, msg->voltage_mv);
+			}
+			hadset_cnt++;
 			{
 				DeviceStatus_t st;
 				int32_t default_currentlimit_ma = 1.5 * 1000;
@@ -849,20 +855,52 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 				ret = -ERROR_DEVICE_UNREACHABLE;
 				goto ERROR_OUT;
 			}
-
+		}
+		else {
+			if (hadset_cnt < 1)goto SET_OUT;
+			else goto ERROR_OUT;
+		}
+		if (hadset_cnt > maxretry) {//maxretry
+			qCritical("hadset_cnt %d ,ignore unsafe", hadset_cnt);
+			goto ERROR_OUT;
 		}
 	}
-	//set out
+SET_OUT:
+	//set out;先读
+	if(msg->voltage_mv !=0) {
+
+		
+#if 0	//默认设置
+		bool need_setoutput = false;
+		{
+			auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverOutputState);
+			DeviceDriverOutputState* upper = dynamic_cast<DeviceDriverOutputState*>(mptrsv.get());
+			upper->is_read = true;
+			ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrsv);
+			if (ret != 0) {
+				qCritical("IOCTRL DeviceDriverOutputState set %d fail", upper->onoff);
+				ret = -ERROR_DEVICE_UNREACHABLE;
+				goto ERROR_OUT;
+			}
+			need_setoutput = upper->onoff != true;
+		}
+		if(need_setoutput) 
+#endif
 	{
-		auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverOutputState);
-		DeviceDriverOutputState* upper = dynamic_cast<DeviceDriverOutputState*>(mptrsv.get());
-		upper->is_read = false;
-		upper->onoff = true;
-		ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrsv);
-		if (ret != 0) {
-			qCritical("IOCTRL DeviceDriverOutputState set %d fail", upper->onoff);
-			ret = -ERROR_DEVICE_UNREACHABLE;
-			goto ERROR_OUT;
+			auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverOutputState);
+			DeviceDriverOutputState* upper = dynamic_cast<DeviceDriverOutputState*>(mptrsv.get());
+			upper->is_read = false;
+			upper->onoff = true;
+			ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrsv);
+			if (ret != 0) {
+				qCritical("IOCTRL DeviceDriverOutputState set %d fail", upper->onoff);
+				ret = -ERROR_DEVICE_UNREACHABLE;
+				goto ERROR_OUT;
+			}
+		}
+		if(hadset_cnt!=0){
+			Utility::Sleep(10);//default sourcedelay 0.001 s
+			goto RECHECK;//有设置过要重新check 他好像不应该读这个，应该读那个query
 		}
 	}
 ERROR_OUT:
@@ -894,7 +932,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 				DeviceDriverReadQuery* upper = dynamic_cast<DeviceDriverReadQuery*>(mptrrq.get());
 				if (msg->networklabel.front() == 'V') {
 					upper->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCV;
-				}else if (msg->networklabel.front()=='I'|| msg->networklabel.front() == 'A') {
+				}else if (msg->networklabel.front()=='I') {
 					upper->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCI;
 				}
 				ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrrq);

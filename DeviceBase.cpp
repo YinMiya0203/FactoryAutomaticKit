@@ -61,7 +61,7 @@ DeviceClass DeviceBase::CheckDeviceClassDC()
 	auto default_type = DeviceClass::DeviceClass_DC;
 	auto netid = QString(GetNetworklabel().c_str()).toUpper().split("/");
 	foreach(auto str,netid) {
-		if (str.size()>1&&(str.at(0)=='A') ){
+		if (str.size()>1&&(str.at(0) == 'I') ){
 			default_type = DeviceClass::DeviceClass_DC_BatterySimulator;
 			break;
 		}
@@ -131,7 +131,7 @@ DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string
 	scpi_version = "";
 	InitDeviceClassType();
 	interior_driver->SetIndexInList(moffset_inlist);
-	mdevicestatus.output = false;
+	SetDeviceStatusOutput(false);
 	SetDeviceStatusIsconnected(false);
 	interfaceidcustomer.clear();
 	FVcontainer.clear();
@@ -286,7 +286,7 @@ int32_t DeviceBase::testactivesync()
 		if (type == 'V') {
 			cmd->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCV;
 		}
-		else if (type == 'I' || type == 'A') {
+		else if (type == 'I') {
 			cmd->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCI;
 		}
 		return ioctrl(ptr);
@@ -318,6 +318,7 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 	}
 	if (ret != 0/*&& mcommuinterface != DriverClass::DriverDMMIVictor*/) {
 		qCritical("index %d interfaceid [%s] open fail", moffset_inlist, tmp.c_str());
+		goto ERROR_OUT;
 	}
 	if (ret == 0 && (arslconfgstr.size() > 0 || QString(GetInterfaceId().c_str()).toUpper().contains("ASRL")))
 	{
@@ -349,6 +350,7 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 		EntryFuction(ptr);
 	}
 	GetDeviceSCPIVersion();
+	setupwatchthread();
 ERROR_OUT:
 	if (!mdevicestatus.connected) {
 		if (!isVirtualDevice())ret = interior_driver->Driverclose();
@@ -417,6 +419,7 @@ Resourcecontainer DeviceBase::FindResourcecontainer()
 	emit notifytoView(int(msg->GetCmd()), ptr);
 	return tmp;
 }
+
 int32_t DeviceBase::Handlecmd()
 {
 	int ret = 0;
@@ -475,13 +478,85 @@ ERR_OUT:
 void DeviceBase::setupworkthread()
 {
 	if (msgthread == nullptr) {
-		ThreadworkControllerPtr ptr(new ThreadworkController(std::bind(&DeviceBase::threadloop, this)));
+		ThreadworkControllerPtr ptr(new ThreadworkController(std::bind(&DeviceBase::threadloopMsg, this)));
 		msgthread = ptr;
 	}
 }
+void DeviceBase::SetDeviceStatusOutput(bool val)
+{
+	//qDebug("set output devicestatus %d",val);
+	mdevicestatus.output = val;
+	if (devicestatusthread) {
+		WORKTHREADWAIT(devicestatusthread).notify_all();
+	}
+}
+void DeviceBase::setupwatchthread()
+{
+	if (devicestatusthread == nullptr) {
+		ThreadworkControllerPtr ptr(new ThreadworkController(std::bind(&DeviceBase::threadloopStatus, this)));
+		devicestatusthread = ptr;
+	}
+}
+int32_t DeviceBase::threadloopStatus()
+{
+	int ret = 0;
+	QMutexLocker locker(&WORKTHREADMUTEX(devicestatusthread));
+	unsigned long shortsleeptime = 800;
+	unsigned long sleeptime = shortsleeptime;
+	bool hadclearmsg = false;
+	do {
+		auto result = WORKTHREADWAIT(devicestatusthread).wait(&WORKTHREADMUTEX(devicestatusthread), 3 * 1000);
+		//qDebug("wait timtout %d",result);
+		if (GlobalConfig_debugdevcieBase)qDebug("devicestatusthread leave wait ");
+		//qDebug("mdevicestatus.output %d lastmdevicestatus_output %d", mdevicestatus.output, lastmdevicestatus_output);
+		while( (devicestatusthread->isthreadkeeprun()) && 
+			(mdevicestatus.output == true)) 
+		{
+			{
+				Utility::Sleep(sleeptime);
+				auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverReadQuery);
+				DeviceDriverReadQuery* upper = dynamic_cast<DeviceDriverReadQuery*>(mptrrq.get());
+				if (mcommuinterface == DriverClass::DriverDMMIVictor) {
+						upper->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCV;
+				}
+				ret = ioctrl(mptrrq);
+				if (ret != 0) {
+					qCritical("IOCTRL DeviceDriverReadQuery fail");
+					ret = -ERROR_DEVICE_UNREACHABLE;
+					goto ERROR_OUT;
+				}
+				else {
+					hadclearmsg = false;
+					auto msg = new MessageTVDeviceUpdate;
+					msg->index = moffset_inlist;
+					msg->icon = DeviceStatusIcon::Voltage_Current;
+					msg->payload = upper->ShowStatus();
+					MessageTVBasePtr ptr(msg);
+					emit notifytoView(int(msg->GetCmd()), ptr);
+					sleeptime = shortsleeptime;
+				}
+			}
 
+		}//end while
+		//清除buf
+		if(!hadclearmsg) {
+			qDebug("notice null");
+				auto msg = new MessageTVDeviceUpdate;
+				msg->index = moffset_inlist;
+				msg->icon = DeviceStatusIcon::Voltage_Current;
+				msg->payload = " ";
+				MessageTVBasePtr ptr(msg);
+				emit notifytoView(int(msg->GetCmd()), ptr);
+				hadclearmsg = true;
+		}
+	ERROR_OUT:
+		sleeptime = 3 * 1000;
+	}while(devicestatusthread->isthreadkeeprun());
+	if (GlobalConfig_debugdevcieBase)qDebug("devicestatusthread leave");
+	return ret;
+}
 #if 1
-int32_t DeviceBase::threadloop()
+int32_t DeviceBase::threadloopMsg()
 {
 	QMutexLocker locker(&WORKTHREADMUTEX(msgthread));
 
@@ -504,6 +579,7 @@ int32_t DeviceBase::threadloop()
 int32_t DeviceBase::ioctrl(VisaDriverIoctrlBasePtr ptr)
 {
 	int ret = 0;
+	QMutexLocker locker(&mdevicemutex);
 #if 0 //有一些clean 命令完全不需要参数
 	if (ptr == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
@@ -616,7 +692,7 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 			VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
 			std::string command = ":OUTPut";
 			if (upper_arg->onoff) {
-				command.append(" 1");
+				command.append(" 1");			
 			}
 			else {
 				command.append(" 0");
@@ -624,6 +700,13 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 			mptr->commond = command;
 			VISA_DEVICE_IOCTRL(mptr)
 			ptr->commond = mptr->commond;
+			if ( (upper_arg->onoff==true) && 
+				(ret==0)) {
+				SetDeviceStatusOutput(true);
+			}
+			else {
+				SetDeviceStatusOutput(false);
+			}
 		}
 	
 ERROR_OUT:
@@ -665,7 +748,7 @@ int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 				ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
 				goto ERROR_OUT;
 			}
-			upper_arg->current_ma = atoi(mptr->result.c_str()) * 1000;
+			upper_arg->current_ma = int(atof(mptr->result.c_str()) * 1000);
 		}
 	}
 	else {
@@ -712,6 +795,7 @@ int32_t DeviceBase::SourceVoltageAmplitude(VisaDriverIoctrlBasePtr ptr)
 	if (upper_arg->is_read)
 	{
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
+		upper_arg->voltage_mv = 0;
 		command = ":SOURce";
 		if (upper_arg->channel >= 0) {
 			command.append(std::to_string(upper_arg->channel));
@@ -726,7 +810,8 @@ int32_t DeviceBase::SourceVoltageAmplitude(VisaDriverIoctrlBasePtr ptr)
 				ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
 				goto ERROR_OUT;
 			}
-			upper_arg->voltage_mv = atoi(mptr->result.c_str()) * 1000;
+			upper_arg->voltage_mv = int(atof(mptr->result.c_str()) * 1000);
+			//qDebug("str %s %d", mptr->result.c_str(), upper_arg->voltage_mv);
 		}
 	}
 	else {
@@ -754,6 +839,7 @@ int32_t DeviceBase::SourceVoltageAmplitude(VisaDriverIoctrlBasePtr ptr)
 ERROR_OUT:
 	return ret;
 }
+
 int32_t DeviceBase::Readidentification(VisaDriverIoctrlBasePtr ptr)
 {
 	std::string command = "*IDN?";

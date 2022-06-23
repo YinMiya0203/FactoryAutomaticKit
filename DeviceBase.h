@@ -77,7 +77,7 @@ public:
 	}
 	DeviceInfo_t GetDeviceInfo();
 	static bool checkingParam(QSettings* settings, DeviceBaseSettingMap &settingmap);
-	int32_t threadloop();
+	int32_t threadloopMsg();
 	//ÊÂ¼þ
 	int32_t connectasync(bool isconnect = true, std::string customerinterfaceid = {});
 	int32_t disconnectasync();
@@ -95,10 +95,15 @@ public:
 	bool isVirtualDevice() {
 		return QString(interfaceidorig.c_str()).toUpper() == "VIRTUAL";
 	}
+	//watchthread
+	int32_t threadloopStatus();
 private:
 	int32_t Handlecmd();
 	void setupworkthread();
 
+	void setupwatchthread();
+	
+	void SetDeviceStatusOutput(bool val);
 	int32_t Readidentification(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadSystemERRor(VisaDriverIoctrlBasePtr ptr);
 	int32_t GetSystemERRorCount(VisaDriverIoctrlBasePtr ptr);
@@ -131,11 +136,13 @@ private:
 	QString scpi_version;
 	DeviceClass mdevice_class=DeviceClass::DeviceClass_Unknow;
 	DeviceStatus_t mdevicestatus;
-	
+	QMutex mdevicemutex;
+
 	DriverClass mcommuinterface;
 	NiDeviceDriverBasePtr interior_driver=nullptr;
 	CMDFVContainer FVcontainer;
 	ThreadworkControllerPtr msgthread = nullptr;
+	ThreadworkControllerPtr devicestatusthread = nullptr;
 	static DeviceBasePtrContainer mstaticdeviceptrcontainer;
 };
 

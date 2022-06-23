@@ -348,40 +348,17 @@ int32_t AutoTestView::setdeviceupiteminterface(QWidget* dev_widget, DeviceInfo_t
 	//device class 
 	//disable 
 	//if (dev.deviceclass == DeviceClass::DeviceClass_Unknow) 
-	if(false)
+	if(true)
 	{
-		//V
+		//VI str
 		int colum_offset = 0;
 		int label_span = 1;
 		int value_span = totalcolum - label_span;
-		auto label_v = new QLabel();
-		Qt::Alignment flag = Qt::Alignment();
-		label_v->setText("V");
-		devitem_layout->addWidget(label_v, row_offset, colum_offset, 1, label_span, flag);
-		label_v->setFont(QFont("Microsoft YaHei UI", 20, QFont::Bold));
-#if 1
-		colum_offset += label_span;
 		auto label_vvalue = new QLabel();
-		label_vvalue->setText("0.0 V");
-		label_vvalue->setObjectName(QString("dev%1_Vvalue").arg(cntoffset));
+		label_vvalue->setObjectName(QString("dev%1_VIvalue").arg(cntoffset));
 		label_vvalue->setFont(QFont("Microsoft YaHei UI", 15, QFont::Bold));
-		devitem_layout->addWidget(label_vvalue, row_offset++, colum_offset, 1, value_span, Qt::AlignCenter);
-#endif
-		colum_offset = 0;
-		//A
-		auto label_A = new QLabel();
-		label_A->setText("A");
-		devitem_layout->addWidget(label_A, row_offset, colum_offset, 1, label_span, flag);
-
-		label_A->setFont(QFont("Microsoft YaHei UI", 20, QFont::Bold));
-#if 1
-		colum_offset += label_span;
-		auto label_Avalue = new QLabel();
-		label_Avalue->setText("0.0 A");
-		label_Avalue->setObjectName(QString("dev%1_Avalue").arg(cntoffset));
-		label_Avalue->setFont(QFont("Microsoft YaHei UI", 15, QFont::Bold));
-		devitem_layout->addWidget(label_Avalue, row_offset++, colum_offset, 1, value_span, Qt::AlignCenter);
-#endif
+		devitem_layout->addWidget(label_vvalue, row_offset++, colum_offset, 1, totalcolum, Qt::AlignCenter);
+		DeviceOutputStatusWidgetFresh(cntoffset);
 	}
 
 	{
@@ -785,6 +762,20 @@ bool AutoTestView::eventFilter(QObject* watched, QEvent* event)
 	}
 	return !stopevnt?QWidget::eventFilter(watched, event): stopevnt;
 }
+void AutoTestView::DeviceOutputStatusWidgetFresh(int32_t index, MessageTVDeviceUpdate* msg)
+{
+	//find label;
+	auto value_label = mparent_widget->findChild<QLabel*>(QString("dev%1_VIvalue").arg(index));
+	QString showmsg = "";
+	if (value_label == nullptr) {
+		qCritical("value_label dev%d_VIvalue null",index);
+		return;
+	}
+	if (msg != nullptr) {
+		showmsg = msg->payload;
+	}
+	value_label->setText(showmsg);
+}
 void AutoTestView::DeviceConnectWdigetFresh(int32_t index, QPushButton* pb)
 {
 	DeviceStatus_t status;
@@ -856,6 +847,9 @@ void AutoTestView::DeviceWidgetFresh(int32_t index, MessageTVDeviceUpdate* msg)
 			break;
 		case DeviceStatusIcon::TestActive:
 			AudioEffect::TestActive();
+			break;
+		case DeviceStatusIcon::Voltage_Current:
+			DeviceOutputStatusWidgetFresh(index,msg);
 			break;
 		default:
 			qCritical("icon %d unknown", icon);
