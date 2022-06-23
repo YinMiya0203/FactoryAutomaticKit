@@ -33,6 +33,10 @@ qint64 Utility::GetFileSize_KB(QString path)
 {
 	return GetFileSize_B(path)/1024;
 }
+void Utility::Sleep(unsigned long _Duration)
+{
+	_sleep(_Duration);
+}
 int32_t Utility::NewFile(QString value,bool ishidden)
 {
 	int ret=0;

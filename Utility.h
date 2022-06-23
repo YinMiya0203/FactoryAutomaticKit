@@ -18,5 +18,6 @@ public:
 	static QString GetWinErrorText(int32_t errcode);
 	static qint64 GetFileSize_B(QString path);
 	static qint64 GetFileSize_KB(QString path);
+	static void Sleep(unsigned long _Duration);
 };
 

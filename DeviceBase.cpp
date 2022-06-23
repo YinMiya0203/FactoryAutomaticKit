@@ -9,7 +9,7 @@ DeviceBasePtrContainer DeviceBase::mstaticdeviceptrcontainer = {};
 		if (!isVirtualDevice())ret = interior_driver->ioctrl(xxx); \
 		else { \
 			qDebug("enter debug sleep"); \
-			_sleep(500); \
+			Utility::Sleep(500); \
 			qDebug("leave debug sleep"); \
 			goto ERROR_OUT; \
 		}
@@ -313,7 +313,7 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 		}
 		if(!isVirtualDevice())ret = interior_driver->Driveropen(tmp);
 		else {
-			_sleep(1 * 1000);//for debug 
+			Utility::Sleep(1 * 1000);//for debug 
 		}
 	}
 	if (ret != 0/*&& mcommuinterface != DriverClass::DriverDMMIVictor*/) {
@@ -683,8 +683,8 @@ int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 		upper_arg->result = mptr->result;
 		if (GetDeviceSCPIVersion() < SCPI_VERSION_1999) {
 			//ºÏÀí±¨´í
-			if (GlobalConfig_debugdevcieBase)qDebug("force sleep");
-			_sleep(2000);
+			if (GlobalConfig_debugdevcieBase)qDebug("less SCPI_VERSION_1999 force sleep");
+			Utility::Sleep(2000);
 		}
 	}
 ERROR_OUT:
@@ -1024,7 +1024,7 @@ int32_t DeviceBase::ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr)
 			ptr->commond.append(mptr->commond);
 			ptr->result.append(mptr->result);
 			if (ret == 0) {
-				Sleep(3 * 1000);
+				Utility::Sleep(3 * 1000);
 			}
 			else if (ret != 0) {
 				goto ERROR_OUT;

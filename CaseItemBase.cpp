@@ -604,7 +604,7 @@ int32_t CaseItemBase::CaseItemDelaymsHandle(std::string input, int mstep)
 
 	}
 	else {
-		Sleep(delayms);
+		Utility::Sleep(delayms);
 		ret = 0;
 	}
 	return ret;
@@ -918,7 +918,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 						qDebug("value %lf out of rang [%lf/%lf]", taget, limit[0], limit[1]);
 						ret = -ERROR_DATA_NOT_ACCEPTED;
 						if (duration_ms_limit > 0){
-							_sleep(1 * 1000);
+							Utility::Sleep(1000);
 							if (GlobalConfig_debugCaseItemBase)qDebug("time: %s",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toStdString().c_str());
 						}
 
