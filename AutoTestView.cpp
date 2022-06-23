@@ -690,6 +690,7 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 					}
 					else {
 						auto color = witem->backgroundColor();
+						color.setRgb(0, 0, 0);
 						color.setAlpha(0);
 						witem->setBackgroundColor(color);
 					}

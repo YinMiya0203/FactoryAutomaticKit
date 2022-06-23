@@ -309,11 +309,11 @@ int32_t ResultFileInfo::FormatTable(QTableWidget* tableWidget, QString prex,QStr
 
 				//if (item == nullptr) { td_raw = "<td>"; goto NULL_ITEM; }
 				if(/*row == 0*/true) {
-					auto color = item->backgroundColor().name();
+					auto color = item->backgroundColor();
 
-					if (color != "#000000") {
+					if (color.alpha()!=0) {
 						td_raw = QString::asprintf("<td rowspan=\"%d\" colspan=\"%d\" bgcolor=\"%s\" width=\"%d%%\">", row_span, col_span,
-							color.toStdString().c_str(), rect_list[col]);
+							color.name().toStdString().c_str(), rect_list[col]);
 					}
 					else {
 						td_raw = QString::asprintf("<td rowspan=\"%d\" colspan=\"%d\" width=\"%d%%\">", row_span, col_span, rect_list[col]);
