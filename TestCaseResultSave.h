@@ -26,6 +26,7 @@ private:
 
 	QFile mfile;
 	int32_t mfilledcnt = 0;
+	int32_t mfailedcnt = 0;
 	QString mStartPrex = "NULL";
 	QString mcurrentprex = "NULL";
 	QDateTime mStarttime;

@@ -75,7 +75,7 @@ int32_t TestCaseResultSaveICMP::SyncToDisk()
 }
 
 ResultFileInfo::ResultFileInfo(QString prex):
-	mfilledcnt(0)
+	mfilledcnt(0), mfailedcnt(0)
 {
 	if(GlobalConfig_debugTestCaseResultSave)qDebug(" %p", this);
 
@@ -93,14 +93,15 @@ ResultFileInfo::~ResultFileInfo()
 		auto mtime = QDateTime::currentDateTime();
 		QString current_dir = mtime.toString(TIMESTR_STYLE_YMD);
 		QString Log_dir = mcurrentlogdir;
-		QString raw_log_file = QString("%1/%7/%2-%3_%4-%5_%6-Result.html").	\
+		QString raw_log_file = QString("%1/%7/%2-%3_%4-%5_T%6-F%8.html").	\
 			arg(Log_dir).	\
 			arg(mStarttime.toString("hhmmss")).	\
 			arg(mtime.toString("hhmmss")).	\
 			arg(mStartPrex).	\
 			arg(mcurrentprex).	\
 			arg(mfilledcnt). \
-			arg(current_dir);
+			arg(current_dir). \
+			arg(mfailedcnt);
 		FillEnd(raw_log_file);
 		mfile.rename(raw_log_file);
 		mfile.close();
@@ -311,9 +312,12 @@ int32_t ResultFileInfo::FormatTable(QTableWidget* tableWidget, QString prex,QStr
 				if(/*row == 0*/true) {
 					auto color = item->backgroundColor();
 
-					if (color.alpha()!=0) {
+					if (color.name()!="#000000") {
 						td_raw = QString::asprintf("<td rowspan=\"%d\" colspan=\"%d\" bgcolor=\"%s\" width=\"%d%%\">", row_span, col_span,
 							color.name().toStdString().c_str(), rect_list[col]);
+						if (color.name()=="#ff0000") {
+							mfailedcnt++;
+						}
 					}
 					else {
 						td_raw = QString::asprintf("<td rowspan=\"%d\" colspan=\"%d\" width=\"%d%%\">", row_span, col_span, rect_list[col]);
