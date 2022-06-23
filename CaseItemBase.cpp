@@ -447,7 +447,12 @@ ERROR_OUT:
 IniInfoBasePtr CaseItemBase::PassconditionWithNetworkId(QString input_str, QString& output)
 {
 	IniInfoBasePtr ptr = nullptr;
-	QRegularExpression re("(?<networklabel>\\w+)/(?<mode>\\w+)/[(](?<rangmin>" PURE_FLOAT_RE ")(?<rangminunit>\\w+)/(?<rangmax>" PURE_FLOAT_RE ")(?<rangmaxunit>\\w+)[)]/(?<duration>" PURE_UINT_RE ")(?<durationunit>\\w+)");
+	//QRegularExpression re("(?<networklabel>\\w+)/(?<mode>\\w+)/[(](?<rangmin>" PURE_FLOAT_RE ")(?<rangminunit>\\w+)/(?<rangmax>" PURE_FLOAT_RE ")(?<rangmaxunit>\\w+)[)]/(?<duration>" PURE_UINT_RE ")(?<durationunit>\\w+)");
+	QRegularExpression re("(?<networklabel>\\w+)/"
+		"(?<mode>\\w+)/"
+		"[(](?<rangmin>" PURE_FLOAT_RE ")(?<rangminunit>\\w+)[|]?(?<variance_min>" PURE_FLOAT_RE ")?/"
+		"(?<rangmax>" PURE_FLOAT_RE ")(?<rangmaxunit>\\w+)[|]?(?<variance_max>" PURE_FLOAT_RE ")?[)]/"
+		"(?<duration>" PURE_UINT_RE ")(?<durationunit>\\w+)");
 	QRegularExpressionMatch match = re.match(input_str);
 	if (match.hasMatch()) {
 		auto info = new NetworkLabelPassconditionBase;
@@ -458,6 +463,10 @@ IniInfoBasePtr CaseItemBase::PassconditionWithNetworkId(QString input_str, QStri
 
 			QString rangminunit = match.captured("rangminunit");
 			QString rangmaxunit = match.captured("rangmaxunit");
+			QString variance_min = match.captured("variance_min");
+			auto variance_minv = variance_min.toFloat();
+			QString variance_max = match.captured("variance_max");
+			auto variance_maxv = variance_max.toFloat();
 			//qDebug("rangminunit %s ", rangminunit.toStdString().c_str());
 			//qDebug("rangmaxunit %s ", rangmaxunit.toStdString().c_str());
 
@@ -487,8 +496,8 @@ IniInfoBasePtr CaseItemBase::PassconditionWithNetworkId(QString input_str, QStri
 				}
 			}
 #endif
-			info->rangmin_m = match.captured("rangmin").toDouble() * uintmin;
-			info->rangmax_m = match.captured("rangmax").toDouble() * uintmax;
+			info->rangmin_m = match.captured("rangmin").toDouble() * uintmin * (1+variance_minv);
+			info->rangmax_m = match.captured("rangmax").toDouble() * uintmax * (1+variance_maxv);
 			info->unit = unit;
 			//qDebug("rangmin %s %lf ", match.captured("rangmin").toStdString().c_str(), info->rangmin_m);
 			//qDebug("rangmax %s %lf unit[%s]", match.captured("rangmax").toStdString().c_str(), info->rangmax_m, unit.toStdString().c_str());
@@ -792,7 +801,7 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 		//读取当前电压
 		ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrrq);
 		if (ret != 0) {
-			qCritical("IOCTRL DeviceDriverReadQuery fail");
+			qCritical("IOCTRL DeviceDriverSourceVoltage fail");
 			ret = -ERROR_DEVICE_UNREACHABLE;
 			goto ERROR_OUT;
 		}
