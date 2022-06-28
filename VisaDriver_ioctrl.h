@@ -186,7 +186,7 @@ protected:
 	VisaDriverIoctrl cmd = VisaDriverIoctrl::ReadQuery;
 public:
 	QueryMeasFunc mMeasfunc= QueryMeasFunc::MeasDCV;
-	double current_ma = 0;
+	double current_ma = 0xffffffff;
 	double voltage_mv = 0;
 	double ativetime_ms = 0;
 	int32_t channel = -1;
@@ -208,8 +208,10 @@ public:
 
 		QString Istr = QString::asprintf("%0.3lf", current_ma > 1000 ? (current_ma / 1000) : current_ma);
 		QString Iunint = current_ma > 1000 ? "A" : "mA";
-
-		return QString("V: %1 %2	I: %3 %4").arg(vstr).arg(vunint).arg(Istr).arg(Iunint);
+		if(0xffffffff!= current_ma)
+			return QString("V: %1 %2	I: %3 %4").arg(vstr).arg(vunint).arg(Istr).arg(Iunint);
+		else
+			return QString("V: %1 %2").arg(vstr).arg(vunint);
 
 	}
 };

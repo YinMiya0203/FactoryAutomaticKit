@@ -35,7 +35,9 @@ qint64 Utility::GetFileSize_KB(QString path)
 }
 void Utility::Sleep(unsigned long _Duration)
 {
+	//qDebug("enter  %d ms",_Duration);
 	_sleep(_Duration);
+	//qDebug("leaver");
 }
 int32_t Utility::NewFile(QString value,bool ishidden)
 {

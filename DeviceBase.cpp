@@ -3,6 +3,7 @@
 #include "visa.h"
 #include <winerror.h>
 #include <QRegularExpression>
+#define USER_WATCH
 DeviceBasePtrContainer DeviceBase::mstaticdeviceptrcontainer = {};
 
 #define VISA_DEVICE_IOCTRL(xxx) \
@@ -492,10 +493,15 @@ void DeviceBase::SetDeviceStatusOutput(bool val)
 }
 void DeviceBase::setupwatchthread()
 {
+#ifdef USER_WATCH
 	if (devicestatusthread == nullptr) {
 		ThreadworkControllerPtr ptr(new ThreadworkController(std::bind(&DeviceBase::threadloopStatus, this)));
 		devicestatusthread = ptr;
 	}
+	if (mcommuinterface==DriverClass::DriverDMMIVictor) {
+		WORKTHREADWAIT(devicestatusthread).notify_all();
+	}
+#endif
 }
 int32_t DeviceBase::threadloopStatus()
 {
@@ -510,7 +516,7 @@ int32_t DeviceBase::threadloopStatus()
 		if (GlobalConfig_debugdevcieBase)qDebug("devicestatusthread leave wait ");
 		//qDebug("mdevicestatus.output %d lastmdevicestatus_output %d", mdevicestatus.output, lastmdevicestatus_output);
 		while( (devicestatusthread->isthreadkeeprun()) && 
-			(mdevicestatus.output == true)) 
+			(mdevicestatus.output == true || mcommuinterface == DriverClass::DriverDMMIVictor))
 		{
 			{
 				Utility::Sleep(sleeptime);
@@ -700,12 +706,17 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 			mptr->commond = command;
 			VISA_DEVICE_IOCTRL(mptr)
 			ptr->commond = mptr->commond;
+
 			if ( (upper_arg->onoff==true) && 
 				(ret==0)) {
 				SetDeviceStatusOutput(true);
 			}
 			else {
 				SetDeviceStatusOutput(false);
+			}
+			if ((GetDeviceSCPIVersion() < SCPI_VERSION_1999)) {
+				//E3640A 特性
+				Utility::Sleep(800);
 			}
 		}
 	
@@ -767,7 +778,7 @@ int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 		if (GetDeviceSCPIVersion() < SCPI_VERSION_1999) {
 			//合理报错
 			if (GlobalConfig_debugdevcieBase)qDebug("less SCPI_VERSION_1999 force sleep");
-			Utility::Sleep(2000);
+			Utility::Sleep(1000);
 		}
 	}
 ERROR_OUT:
@@ -1213,7 +1224,7 @@ int32_t DeviceBase::ReadQuery_1997(VisaDriverIoctrlBasePtr ptr)
 				goto ERROR_OUT;
 			}
 			upper_arg->result = mptr->result;
-			upper_arg->voltage_mv = QString(mptr->result.c_str()).toDouble();
+			upper_arg->voltage_mv = QString(mptr->result.c_str()).toDouble()*1000;
 		}
 	}
 	{
@@ -1232,7 +1243,7 @@ int32_t DeviceBase::ReadQuery_1997(VisaDriverIoctrlBasePtr ptr)
 			}
 			upper_arg->result.append(", ");
 			upper_arg->result.append(mptr->result);
-			upper_arg->current_ma = QString(mptr->result.c_str()).toDouble();
+			upper_arg->current_ma = QString(mptr->result.c_str()).toDouble() * 1000;
 		}
 	}
 ERROR_OUT:
@@ -1303,6 +1314,10 @@ QString DeviceBase::GetDeviceSCPIVersion()
 		result = scpi_version;
 		goto ERROR_OUT;
 	}
+	if (mcommuinterface != DriverClass::DriverSCPI) {
+		if (GlobalConfig_debugdevcieBase)qDebug("device %d not support",moffset_inlist);
+		goto ERROR_OUT;
+	}
 	int ret = 0;
 	{
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
@@ -1315,7 +1330,7 @@ QString DeviceBase::GetDeviceSCPIVersion()
 			}
 			result = QString(mptr->result.c_str());
 			scpi_version = result;
-			if (GlobalConfig_debugdevcieBase)qDebug("device %d SCPI %s",moffset_inlist, mptr->result.c_str());
+			qDebug("device %d SCPI %s",moffset_inlist, mptr->result.c_str());
 		}
 	}
 ERROR_OUT:
