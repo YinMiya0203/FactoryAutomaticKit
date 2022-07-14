@@ -26,11 +26,12 @@ FactoryAutoTestMain::FactoryAutoTestMain(QWidget *parent)
     ui.statusBar->addWidget(statuslabel);
     statuslabel->setText(MESSAGE_YAHAH);
 #endif
-    this->setWindowTitle("FactoryAutomation");
+    this->setWindowTitle(QString("FactoryAutomation %1").arg(GLOBALSETTINGSINSTANCE->GetFixtureTag()));
     setuprootactions();
 
     main_widget = new QWidget(this);
     main_widget->setObjectName("AutoTestView");
+    //main_widget->setStyleSheet("AutoTestView{background-image:url(:/res/image/bg.jpg)}");
     mainview = new AutoTestView(main_widget);
     
     setCentralWidget(main_widget);
@@ -42,7 +43,7 @@ bool FactoryAutoTestMain::eventFilter(QObject* watched, QEvent* event)
     if (event->type()== QEvent::MouseButtonPress) {
         if(GlobalConfig_debugFactoryAutoTest)qDebug("type %d", event->type());
     }
-
+    
     return QMainWindow::eventFilter(watched, event);
 }
 

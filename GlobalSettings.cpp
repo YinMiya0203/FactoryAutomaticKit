@@ -66,6 +66,16 @@ QString GlobalSettings::Getbgsizemsg()
 {
 	return bgsizemsg;
 }
+void GlobalSettings::SetFixtureTag(QString val)
+{
+	if (mfixture_tag.size() == 0) mfixture_tag = val;
+	else
+		qWarning("Can't repeat set fixture_tag");
+}
+QString GlobalSettings::GetFixtureTag()
+{
+	return mfixture_tag;
+}
 GlobalSettings::GlobalSettings()
 {
 	LoadDefaultSettings();

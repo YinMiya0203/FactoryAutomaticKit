@@ -17,6 +17,12 @@
    <iconset resource="FactoryAutoTest.qrc">
     <normaloff>:/res/image/machine.ico</normaloff>:/res/image/machine.ico</iconset>
   </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

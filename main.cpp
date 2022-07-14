@@ -11,6 +11,7 @@
 #include <iostream>
 #include <QDir>
 #include <sstream>
+#include <QStyleFactory>
 static QString log_file="";
 static QString GetLogfile(bool update=false) {
     if (log_file.size()==0|| update) {
@@ -115,15 +116,10 @@ ERR_OUT:
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QApplication::setStyle("windows");
-    static QSharedMemory* shareMem = new QSharedMemory("yahha");
-    if(!shareMem->create(1)) {
-        //创建失败
-        QMessageBox::critical(NULL, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("已有打开应用"), QMessageBox::Yes);
-        qApp->quit();
-        return -1;
-    }
-
+    QApplication::setStyle("Windows");
+    //windowsvista,Windows,Fusion
+    //qDebug("keys %s",QStyleFactory::keys().join(",").toStdString().c_str());
+    // a.setStyleSheet("border-image:url(:/res/image/bg.jpg)");
     qInstallMessageHandler(logMessageOutputQt5);
 
     LoginDlg dlg;
@@ -138,6 +134,19 @@ int main(int argc, char *argv[])
             return -1;
         }
 #endif
+        {
+            QString application_name = QString("FactoryAuotTest_%1").arg(GLOBALSETTINGSINSTANCE->GetFixtureTag());
+            static QSharedMemory* shareMem = new QSharedMemory(application_name.toStdString().c_str());
+            if (!shareMem->create(1)) {
+                //创建失败
+                QMessageBox::critical(NULL, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("已有打开应用"), QMessageBox::Yes);
+                qApp->quit();
+                return -1;
+            }
+        }
+        if (GLOBALSETTINGSINSTANCE->GetFixtureTag()!="A") {
+            QApplication::setStyle("Fusion");
+        }
         FactoryAutoTestMain w; //注意顺序
         w.show();
         a.exec();

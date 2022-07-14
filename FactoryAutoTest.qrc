@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>res/image/loading.gif</file>
         <file>res/image/machine.ico</file>
+        <file>res/image/Abg.png</file>
+        <file>res/image/Bbg.png</file>
     </qresource>
 </RCC>

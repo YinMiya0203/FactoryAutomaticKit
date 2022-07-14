@@ -68,6 +68,7 @@ void LoginDlg::on_pushButton_clicked()
 		qInfo("Open %s", fileName.toStdString().c_str());
 
 		GLOBALSETTINGSINSTANCE->SetCurrentOp(op);
+		GLOBALSETTINGSINSTANCE->SetFixtureTag(ui.fixture_comboBox->currentText());
 		accept();
 	}
 

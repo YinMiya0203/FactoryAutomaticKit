@@ -55,6 +55,9 @@ public:
 	bool IsSettingParamLoad();
 
 	QString Getbgsizemsg();
+
+	void SetFixtureTag(QString val);
+	QString GetFixtureTag();
 private:
 	GlobalSettings();
 	int32_t mbgworkloop();
@@ -66,5 +69,6 @@ private:
 	int32_t mlogmaxsize_K = 250 * 1024;
 	int32_t mresultmaxsize_K = 500 * 1024;
 	QString bgsizemsg = "";
+	QString mfixture_tag = "";
 };
 

@@ -121,7 +121,12 @@ int32_t AutoTestView::setuplogView(QWidget* parent)
 	QPalette winp = parent->palette(); //»ñÈ¡parentµÄpalette
 	p.setColor(QPalette::Active, QPalette::Base, winp.background().color());
 	p.setColor(QPalette::Inactive, QPalette::Base, winp.background().color());
+	//log_plaintextedit->setAutoFillBackground(true);
+	//p.setBrush(QPalette::Background, QBrush(mpm));
 	log_plaintextedit->setPalette(p);
+	QString css = QString("border-image: url(:/res/image/%1bg.png);").arg(GLOBALSETTINGSINSTANCE->GetFixtureTag());
+	log_plaintextedit->setStyleSheet(css);
+
 	return ret;
 }
 int32_t AutoTestView::setuptestcaseView(QWidget* parent)
