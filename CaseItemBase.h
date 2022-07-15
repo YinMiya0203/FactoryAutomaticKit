@@ -108,6 +108,7 @@ class NetworkLabelPassconditionBase :public NetworkLabelInfoBase
 {
 public:
 	int32_t duration_ms = 0;
+	bool keep_wait_ability = false;
 	QString mode="";
 	QString unit = ""; //A or V
 	double rangmin_m=0.0;

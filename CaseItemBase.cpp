@@ -504,9 +504,14 @@ IniInfoBasePtr CaseItemBase::PassconditionWithNetworkId(QString input_str, QStri
 
 		}
 		{
-			int duration_ms = match.captured("durationunit").toUpper().compare("MS") == 0 ? 1 : 1000;
+			auto duration_str = match.captured("durationunit").toUpper().split('_');
+			int duration_ms = duration_str[0].compare("MS") == 0 ? 1 : 1000;
 			duration_ms *= match.captured("duration").toInt();
 			info->duration_ms = duration_ms;
+			info->keep_wait_ability = false;
+			if (duration_str.size()>1 && duration_str[1].compare("W") == 0) {
+				info->keep_wait_ability = true;
+			}
 			//qDebug("duration_ms %d [%s][%s]", duration_ms, match.captured("duration").toStdString().c_str(),match.captured("durationunit").toStdString().c_str());
 
 		}
@@ -907,6 +912,9 @@ SET_OUT:
 ERROR_OUT:
 	return ret;
 }
+/*
+* 获取当前数据
+*/
 int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, NetworkLabelPassconditionBase* msg, int32_t mstep)
 {
 	int ret = 0;
@@ -977,11 +985,34 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 					((QDateTime::currentDateTime().toTime_t() - starttime.toTime_t()) > (duration_ms_limit / 1000))
 					)
 				{
-					if(duration_ms_limit != 0){
-						qInfo("duration outof rang %d ms", duration_ms_limit);
-						ret = -ERROR_TIMEOUT;
+					bool keep_wait = false;
+					if (duration_ms_limit != 0) {	
+						qInfo("duration outof rang %d ms keep_wait_ability %d", duration_ms_limit, msg->keep_wait_ability);
+						//query user Whether to wait
+						if (msg->keep_wait_ability) {
+							auto mmsg = new MessageTVCaseConfirmDialog;
+							mmsg->resource.clear();
+							mmsg->durationms = 5 * 1000;
+							mmsg->msg = QStringLiteral("%1 %2\n%3\n%4").arg(QStringLiteral("查询状态超时,是否继续等待10s")) \
+								.arg("") \
+								.arg(QStringLiteral("确认请点击 确定 按钮")) \
+								.arg(QStringLiteral("放弃请点击 取消 按钮"));
+							MessageTVBasePtr ptr(mmsg);
+							emit notifytoView(int(mmsg->GetCmd()), ptr);
+							QMutexLocker locker(&(mmsg->mutex));
+							mmsg->mwait.wait(&(mmsg->mutex));
+							if (GlobalConfig_debugCaseItemBase)qDebug(" result 0x%x", mmsg->buttonclicked);
+							if (mmsg->buttonclicked == QMessageBox::StandardButton::Yes ||
+								mmsg->buttonclicked == QDialog::Accepted) {
+								keep_wait = true;
+								duration_ms_limit += 10 * 1000;
+							}
+						}
 					}
-					break;
+					if (!keep_wait) {
+						ret = -ERROR_TIMEOUT;
+						break;
+					}
 				}
 				else {
 					auto current_time = QDateTime::currentDateTime().toTime_t();
