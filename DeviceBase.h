@@ -15,10 +15,12 @@
 #define TESTCASE_VERSION TESTCASE_VERSION_M "." TESTCASE_VERSION_S "." TESTCASE_VERSION_P
 #define SCPI_VERSION_1999	"1999.0"
 enum class DeviceClass {
-	DeviceClass_Unknow =0,//no special
 	DeviceClass_DC,
 	DeviceClass_DC_BatterySimulator,
-	DeviceClass_digit_multimeter,
+	DeviceClass_Digit_Multimeter,
+	DeviceClass_Relay_Switch,
+
+	DeviceClass_Unknow,//no special
 };
 
 typedef struct DeviceStatus_t {
@@ -41,6 +43,7 @@ typedef struct DeviceInfo_t {
 #define INTERFACEID_STRING "interfaceid"
 #define ASRLBDPSF_STRING	"asrlbdpsf"
 #define MAXPOWERWVA		"maxvA"
+#define INITIALMESA	"initialmesa"
 #define COMMUINTERFACE "commuinterface"
 class DeviceBase;
 typedef std::shared_ptr<DeviceBase> DeviceBasePtr;
@@ -58,7 +61,9 @@ public:
 	DeviceBase() = delete;
 	~DeviceBase();
 	static DeviceBasePtr get_instance(QSettings* settings,int);
-	DeviceBase(int offset,std::string identify, std::string networklabel, std::string interfaceid, std::string arslconfg="", std::string maxva="", DriverClass driverclass= DriverClass::DriverSCPI);
+	DeviceBase(int offset,std::string identify, std::string networklabel, std::string interfaceid, std::string arslconfg="", std::string maxva="", 
+		std::string initialmesa="",
+		DriverClass driverclass= DriverClass::DriverSCPI);
 	static QString GetVersion() {
 		
 		return QString("%1 [%2]").arg("DeviceBase").arg(TESTCASE_VERSION);
@@ -123,6 +128,8 @@ private:
 	void SetDeviceStatusIsconnected(bool);
 	void InitDeviceClassType();
 	DeviceClass CheckDeviceClassDC();
+
+	int32_t InitialMese(QString qinitialmesa);
 private:
 	std::string  identifyorig;
 	std::string  identifycustomer;
@@ -130,6 +137,7 @@ private:
 	std::string interfaceidorig;
 	std::string interfaceidcustomer;
 	std::string arslconfgstr;
+	std::string initialmesa;
 	asrlconfg_t masrlconfg;
 	//int32_t maxWVA = 8;
 	int moffset_inlist;

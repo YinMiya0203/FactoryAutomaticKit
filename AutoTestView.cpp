@@ -1,21 +1,20 @@
-
-#include "AutoTestView.h"
+Ôªø#include "AutoTestView.h"
 #include "ui_GlobalStr.h"
 #include "UI_style.h"
 //#include "Sound.h"
 #include "TextEditDelegate.h"
-#include <QMessageBox>
+//#include <QMessageBox>
 #include <QMultInputLineDialog.h>
 #include <QComboBox>
 #include <QMovie>
 #include "TestCaseResultSave.h"
 #include "AudioEffect.h"
-//#include "SliderButton.h"
+#include "UI_Utility.h"
 #define SHOW_LOGWIDGET
 AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 {
 	auto parent_layout = new QGridLayout;
-
+	
 	main_widget->setLayout(parent_layout);
 	qInfo("Ver: %s",GetVerionInfo().toStdString().c_str());
 	//ui.setupUi(this);
@@ -33,11 +32,12 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 		setuptitleView(title_widget);
 		title_widget->setStyleSheet(QString::fromUtf8("#title_widget{border:1px groove gray}"));
 	}
+	int device_view_columspan = 0;
 	{
 		auto device_widget = new QWidget(this);
 		int device_view_row = row_offset, device_view_colum = 0;
 		int device_view_rowspan = 10;
-		int device_view_columspan = 9;
+		device_view_columspan = getMainViewGridColum()*3/4;
 		total_col += device_view_columspan;
 		device_widget->setObjectName("device_widget");
 
@@ -49,10 +49,10 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 	}
 	{
 		auto setting_widget = new QWidget;
-		int setting_view_row = row_offset, setting_view_colum = 9;
+		int setting_view_row = row_offset, setting_view_colum = device_view_columspan;
 		int setting_view_rowspan = 10;
 		row_offset += setting_view_rowspan;
-		int setting_view_columspan = 3;
+		int setting_view_columspan = getMainViewGridColum() - device_view_columspan;
 		total_col += setting_view_columspan;
 		setting_widget->setObjectName("setting_widget");
 		setting_widget->setStyleSheet(QString::fromUtf8("#setting_widget{border:1px groove gray}"));
@@ -64,7 +64,7 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 		int tctable_view_row = row_offset, tctable_view_colum = 0;
 		int tctable_view_rowspan = 20;
 #ifdef SHOW_LOGWIDGET
-		int tctable_view_columspan = 9;
+		int tctable_view_columspan = device_view_columspan;
 #else
 		int tctable_view_columspan = total_col;
 #endif
@@ -76,9 +76,9 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 #ifdef SHOW_LOGWIDGET	//hide log widget
 	{
 		auto log_widget = new QWidget;
-		int log_view_row = row_offset, log_view_colum = 9;
+		int log_view_row = row_offset, log_view_colum = device_view_columspan;
 		int log_view_rowspan = 20;
-		int log_view_columspan = 3;
+		int log_view_columspan = getMainViewGridColum() - device_view_columspan;;
 		row_offset += log_view_rowspan;
 		log_widget->setObjectName("log_widget");
 		log_widget->setStyleSheet(QString::fromUtf8("#log_widget{border:1px groove gray}"));
@@ -92,7 +92,7 @@ AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 QString AutoTestView::GetVerionInfo()
 {
 	QString versions;
-	versions.append(QString("%1\n").arg(Utility::buildDateTime(QStringLiteral("±‡“Î ±º‰:"))));
+	versions.append(QString("%1\n").arg(Utility::buildDateTime(QStringLiteral("ÁºñËØëÊó∂Èó¥:"))));
 	versions.append(QString("%1\n").arg(GlobalSettings::GetVersion()));
 	versions.append(QString("%1\n").arg(DeviceBase::GetVersion()));
 	versions.append(QString("%1\n").arg(CaseItemBase::GetVersion()));
@@ -108,6 +108,7 @@ AutoTestView::~AutoTestView()
 	//sync result result ptr
 	//
 }
+
 int32_t AutoTestView::setuplogView(QWidget* parent)
 {
 	int32_t ret = 0;
@@ -117,16 +118,18 @@ int32_t AutoTestView::setuplogView(QWidget* parent)
 	log_layout->addWidget(log_plaintextedit, 0, 0, 1, 1);
 	log_plaintextedit->setObjectName("log_plaintextedit");
 	log_plaintextedit->setReadOnly(true);
+#if 0
 	QPalette p = log_plaintextedit->palette();
-	QPalette winp = parent->palette(); //ªÒ»°parentµƒpalette
+	QPalette winp = parent->palette(); //Ëé∑ÂèñparentÁöÑpalette
 	p.setColor(QPalette::Active, QPalette::Base, winp.background().color());
 	p.setColor(QPalette::Inactive, QPalette::Base, winp.background().color());
-	//log_plaintextedit->setAutoFillBackground(true);
-	//p.setBrush(QPalette::Background, QBrush(mpm));
-	log_plaintextedit->setPalette(p);
+
 	QString css = QString("border-image: url(:/res/image/%1bg.png);").arg(GLOBALSETTINGSINSTANCE->GetFixtureTag());
 	log_plaintextedit->setStyleSheet(css);
 
+	log_plaintextedit->setPalette(p);
+#endif
+	UI_Utility::SetFixtureBorderImage(log_plaintextedit);
 	return ret;
 }
 int32_t AutoTestView::setuptestcaseView(QWidget* parent)
@@ -146,7 +149,7 @@ int32_t AutoTestView::setuptestcaseView(QWidget* parent)
 
 
 #if 1
-	//table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);    //xœ»◊‘  ”¶øÌ∂»
+	//table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);    //xÂÖàËá™ÈÄÇÂ∫îÂÆΩÂ∫¶
 	//table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
 	//table->resizeRowsToContents();
@@ -157,8 +160,8 @@ int32_t AutoTestView::setuptestcaseView(QWidget* parent)
 
 	table->horizontalHeader()->setVisible(false);
 	table->verticalHeader()->setVisible(false);
-	table->setEditTriggers(QAbstractItemView::NoEditTriggers);//≤ªø…±‡º≠
-	table->setSelectionMode(QAbstractItemView::NoSelection);//≤ªø… ÷∂Ø—°÷–
+	table->setEditTriggers(QAbstractItemView::NoEditTriggers);//‰∏çÂèØÁºñËæë
+	table->setSelectionMode(QAbstractItemView::NoSelection);//‰∏çÂèØÊâãÂä®ÈÄâ‰∏≠
 	//Get info for testcase
 	int total_step = TestcaseBase::get_instance()->GettestcaseStepcnt();
 	int current_row = 0;
@@ -232,7 +235,7 @@ int32_t AutoTestView::setupdeviceView(QWidget* parent)
 		dev_widget->setObjectName(QString("%1%2").arg("dev_widget").arg(cntoffset));
 		dev_layout->addWidget(dev_widget, 0, columoffset++, 1, 1);
 		QPalette pal(dev_widget->palette());
-		//…Ë÷√±≥æ∞ª“…´£¨Œ¥¡¨Ω”
+		//ËÆæÁΩÆËÉåÊôØÁÅ∞Ëâ≤ÔºåÊú™ËøûÊé•
 		pal.setColor(QPalette::Background, Qt::lightGray);
 		dev_widget->setAutoFillBackground(true);
 		dev_widget->setPalette(pal);
@@ -255,7 +258,7 @@ int32_t AutoTestView::DeleteView(QWidget* dev_widget)
 		QLayoutItem* child;
 		while ((child = old_laylout->takeAt(0)) != 0)
 		{
-			//setParentŒ™NULL£¨∑¿÷π…æ≥˝÷Æ∫ÛΩÁ√Ê≤ªœ˚ ß
+			//setParent‰∏∫NULLÔºåÈò≤Ê≠¢Âà†Èô§‰πãÂêéÁïåÈù¢‰∏çÊ∂àÂ§±
 			if (child->widget())
 			{
 				child->widget()->setParent(NULL);
@@ -281,7 +284,7 @@ int32_t AutoTestView::setdeviceupitem_auto(QWidget* dev_widget, DeviceInfo_t dev
 	connect_pb->setObjectName(QString("devscan%1_connect_pb").arg(cntoffset));
 	connect_pb->setVisible(false);
 	connect(connect_pb, SIGNAL(clicked()), this, SLOT(on_deviceconectpb_clicked()));
-	connect_pb->setText(QStringLiteral("¡¨Ω”"));
+	connect_pb->setText(QStringLiteral("ËøûÊé•"));
 
 	auto networkid_label = new QLabel;
 	devitem_layout->addWidget(networkid_label, 2, 0, 1, 2);
@@ -304,7 +307,7 @@ int32_t AutoTestView::setdeviceupitem_auto(QWidget* dev_widget, DeviceInfo_t dev
 	auto scandevice_pb = new QPushButton;
 	devitem_layout->addWidget(scandevice_pb, 0, 0, 1, 2);
 	scandevice_pb->setObjectName(QString("devscandevcie_%1_pb").arg(cntoffset));
-	scandevice_pb->setText(QStringLiteral("…®√Ë…Ë±∏"));
+	scandevice_pb->setText(QStringLiteral("Êâ´ÊèèËÆæÂ§á"));
 	scandevice_pb->setStyleSheet("QPushButton{background-color:green;}");
 
 	auto loadinganima_label = new QLabel;
@@ -324,7 +327,7 @@ int32_t AutoTestView::setdeviceupitem_auto(QWidget* dev_widget, DeviceInfo_t dev
 		loadinganima_label->setVisible(true);
 		loadinganima_label->setScaledContents(false);
 		loadinganima_label->setAlignment(Qt::AlignCenter);
-		loadinganima_label->setStyleSheet("QLabel {background-color:transparent;}");//…Ë÷√lable±≥æ∞Õ∏√˜
+		loadinganima_label->setStyleSheet("QLabel {background-color:transparent;}");//ËÆæÁΩÆlableËÉåÊôØÈÄèÊòé
 		m_Move->start();
 		
 		auto scandevmsg = new MessageFVFindDeviceRes;
@@ -352,7 +355,6 @@ int32_t AutoTestView::setdeviceupiteminterface(QWidget* dev_widget, DeviceInfo_t
 	//label_network->setStyleSheet(QString::fromUtf8("QLabel{border:1px groove gray}"));
 	//device class 
 	//disable 
-	//if (dev.deviceclass == DeviceClass::DeviceClass_Unknow) 
 	if(true)
 	{
 		//VI str
@@ -383,14 +385,14 @@ int32_t AutoTestView::setdeviceupiteminterface(QWidget* dev_widget, DeviceInfo_t
 		devinfo_widget->setLayout(devinfo_layout);
 
 		auto label_iden = new QLabel();
-		label_iden->setText(QString("%1 %2").arg(QStringLiteral("…Ë±∏√˚≥∆")).arg(dev.identify.c_str()));
+		label_iden->setText(QString("%1 %2").arg(QStringLiteral("ËÆæÂ§áÂêçÁß∞")).arg(dev.identify.c_str()));
 		label_iden->setWordWrap(true);
 		label_iden->setAlignment(Qt::AlignTop);
 		int last_row_offset = 0;
 		devinfo_layout->addWidget(label_iden, last_row_offset++, 0, 1, 1);
 		auto label_interface = new QLabel();
 		label_interface->setObjectName(QString("label_interface%1").arg(cntoffset));
-		label_interface->setText(QString("%1 %2").arg(QStringLiteral("¡¨Ω”∑Ω Ω")).arg(dev.interfaceid.c_str()));
+		label_interface->setText(QString("%1 %2").arg(QStringLiteral("ËøûÊé•ÊñπÂºè")).arg(dev.interfaceid.c_str()));
 		devinfo_layout->addWidget(label_interface, last_row_offset, 0, 1, 1);
 		label_interface->setWordWrap(true);
 		label_interface->setAlignment(Qt::AlignTop);
@@ -404,11 +406,11 @@ int32_t AutoTestView::setdeviceupiteminterface(QWidget* dev_widget, DeviceInfo_t
 		auto connect_pb = new QPushButton(this);
 		connect_pb->installEventFilter(this);
 		connect_pb->setObjectName(QString("dev%1_connect_pb").arg(cntoffset));
-		connect_pb->setText(QStringLiteral("¡¨Ω”"));
-#else	//Ã´≥Û¡À
+		connect_pb->setText(QStringLiteral("ËøûÊé•"));
+#else	//Â§™‰∏ë‰∫Ü
 		auto connect_pb = new SliderButton;
 		connect_pb->setObjectName(QString("dev%1_connect_pb").arg(cntoffset));
-		//connect_box->setText(QStringLiteral("¡¨Ω”"));
+		//connect_box->setText(QStringLiteral("ËøûÊé•"));
 
 #endif
 		last_row_offset = 0;
@@ -418,7 +420,7 @@ int32_t AutoTestView::setdeviceupiteminterface(QWidget* dev_widget, DeviceInfo_t
 
 		auto testactvie_pb = new QPushButton(this);
 		testactvie_pb->setObjectName(QString("dev%1_testactive_pb").arg(cntoffset));
-		testactvie_pb->setText(QStringLiteral("ºÏ≤‚¡¨Ω”"));
+		testactvie_pb->setText(QStringLiteral("Ê£ÄÊµãËøûÊé•"));
 		testactvie_pb->installEventFilter(this);
 		DeviceActiveWdigetFresh(cntoffset, testactvie_pb);
 		devctr_layout->addWidget(testactvie_pb, last_row_offset, 0, 1, 1);
@@ -436,7 +438,7 @@ int32_t AutoTestView::setupsettingView(QWidget* parent)
 	parent->setLayout(setting_layout);
 	int row_offset = 0;
 	int total_colum = 3;
-	auto cycle_option = new QCheckBox(QStringLiteral("—≠ª∑≤‚ ‘"));
+	auto cycle_option = new QCheckBox(QStringLiteral("Âæ™ÁéØÊµãËØï"));
 	cycle_option->installEventFilter(this);
 	cycle_option->setObjectName("cycle_option");
 	connect(cycle_option, &QCheckBox::stateChanged, this, [this](int value) {
@@ -460,7 +462,7 @@ int32_t AutoTestView::setupsettingView(QWidget* parent)
 	//boardsn
 		auto boardsn_lineedit = new QLineEdit;
 		setting_layout->addWidget(boardsn_lineedit, row_offset, 1, 1, 1);
-		boardsn_lineedit->setPlaceholderText(QStringLiteral("≤‚ ‘∞Â±‡∫≈"));
+		boardsn_lineedit->setPlaceholderText(QStringLiteral("ÊµãËØïÊùøÁºñÂè∑"));
 		QRegExp rx("^[a-zA-Z]*\\d+");
 		boardsn_lineedit->setValidator(new QRegExpValidator(rx));
 		boardsn_lineedit->setObjectName("test_boardsn");
@@ -473,7 +475,7 @@ int32_t AutoTestView::setupsettingView(QWidget* parent)
 		cycleintervalbox->setObjectName("cycleinterval_box");
 		cycleintervalbox->setMinimum(5);
 		cycleintervalbox->setSuffix(" S");
-		cycleintervalbox->setPrefix(QStringLiteral("—≠ª∑º‰∏Ù"));
+		cycleintervalbox->setPrefix(QStringLiteral("Âæ™ÁéØÈó¥Èöî"));
 		cycleintervalbox->setValue(msettings.cycleintervalsecond);
 		cycleintervalbox->installEventFilter(this);
 		cycleintervalbox->setSingleStep(5);
@@ -500,7 +502,7 @@ int32_t AutoTestView::setupsettingView(QWidget* parent)
 		auto test_clean_cyclecnt_pb = new QPushButton;
 		test_clean_cyclecnt_pb->setObjectName("test_clean_cyclecnt_pb");
 		setting_layout->addWidget(test_clean_cyclecnt_pb, row_offset++, total_colum - 1, 1, 1);
-		test_clean_cyclecnt_pb->setText(QStringLiteral("«Â≥˝¿˙ ∑ ˝æ›"));
+		test_clean_cyclecnt_pb->setText(QStringLiteral("Ê∏ÖÈô§ÂéÜÂè≤Êï∞ÊçÆ"));
 		test_clean_cyclecnt_pb->installEventFilter(this);
 		TestCastcycleStatusCleanWidgetFresh(test_clean_cyclecnt_pb);
 		connect(test_clean_cyclecnt_pb, &QPushButton::clicked, this, [this]() {
@@ -564,7 +566,7 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 		if (GlobalConfig_debugAutoTestView)qDebug(" ");
 #if 1
 		QPalette p = table->palette();
-		QPalette winp = mparent_widget->palette(); //ªÒ»°parentµƒpalette
+		QPalette winp = mparent_widget->palette(); //Ëé∑ÂèñparentÁöÑpalette
 		p.setColor(QPalette::Active, QPalette::Base, winp.background().color());
 		p.setColor(QPalette::Inactive, QPalette::Base, winp.background().color());
 		table->setPalette(p);
@@ -603,7 +605,7 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 					if (rowspan > 1 || columspan > 1)table->setSpan(row, colum, rowspan, columspan);
 					table->setItem(row, colum, witem);
 					witem->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-					witem->setText(QStringLiteral("≤Ÿ◊˜≤Ω÷Ë"));
+					witem->setText(QStringLiteral("Êìç‰ΩúÊ≠•È™§"));
 				}
 			}
 			{
@@ -615,7 +617,7 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 					if (rowspan > 1 || columspan > 1)table->setSpan(row, colum, rowspan, columspan);
 					table->setItem(row, colum, witem);
 					witem->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-					witem->setText(QStringLiteral("≤‚ ‘ ˝æ›"));
+					witem->setText(QStringLiteral("ÊµãËØïÊï∞ÊçÆ"));
 				}
 			}
 		}
@@ -648,7 +650,7 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 		}
 		{
 			//flow
-			//À˚±È¿˙caseitem°£ªÒ»°Œª÷√øøAutoTestCaseitemView
+			//‰ªñÈÅçÂéÜcaseitem„ÄÇËé∑Âèñ‰ΩçÁΩÆÈù†AutoTestCaseitemView
 			auto item = mtcitemcontainer[stepindex];
 			int total = TestcaseBase::get_instance()->Gettestcaseitemstotal(stepindex);
 			int max_colum = 0;
@@ -656,7 +658,7 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 			for (int i = 0; i < total; i++) {
 				int32_t row, colum, rowspan, columspan = 0;
 				ret = item->GetcurrentCursorRect(row, colum, rowspan, columspan);
-				//∫œ∑® ˝æ›
+				//ÂêàÊ≥ïÊï∞ÊçÆ
 				if (ret == 0) {
 					if (max_colum < colum) { 
 						if (stepindex==0) {
@@ -682,12 +684,12 @@ bool AutoTestView::TestCaseTableWidgetFresh(QTableWidget* pb)
 					auto textEditer = table->itemDelegateForColumn(colum); 
 					if (textEditer==nullptr) {
 						textEditer = new TextEditDelegate;
-						//∏¯±Ì∏Ò…Ë÷√¥˙¿Ì
+						//ÁªôË°®Ê†ºËÆæÁΩÆ‰ª£ÁêÜ
 						table->setItemDelegateForColumn(colum, textEditer);
 					}
 
 					{
-						table->resizeRowToContents(row);//––
+						table->resizeRowToContents(row);//Ë°å
 					}
 				}
 				item->CursorNext();
@@ -716,7 +718,7 @@ bool AutoTestView::TestCastcycleStatusWidgetFresh(QLabel* label)
 		mlabel = mparent_widget->findChild<QLabel*>(QString("label_cyclestatus"));
 	}
 	if (mlabel == nullptr)goto ERR_OUT;
-	mlabel->setText(QStringLiteral("“—≥…π¶:%1 \n ß∞‹: %2 \n”√ªß÷’÷π: %3").arg(msettings.success_cnt).arg(msettings.fail_cnt) \
+	mlabel->setText(QStringLiteral("Â∑≤ÊàêÂäü:%1 \nÂ§±Ë¥•: %2 \nÁî®Êà∑ÁªàÊ≠¢: %3").arg(msettings.success_cnt).arg(msettings.fail_cnt) \
 		.arg(msettings.usertermin_cnt));
 	mlabel->setVisible(msettings.is_cycle);
 ERR_OUT:
@@ -726,7 +728,7 @@ bool AutoTestView::TestCastStartTerminWidgetFresh(QPushButton* pb,bool isruncase
 {
 	bool ret = true;
 	if (pb == nullptr)return false;
-	pb->setText(QStringLiteral("÷’÷π≤‚ ‘"));
+	pb->setText(QStringLiteral("ÁªàÊ≠¢ÊµãËØï"));
 	if (!isruncase) {
 		pb->setStyleSheet("QPushButton{background-color:gray;}");
 	}
@@ -741,11 +743,11 @@ bool AutoTestView::TestCastStartPauseWidgetFresh(QPushButton* pb, bool isruncase
 	bool ret = true;
 	if (pb == nullptr)return false;
 	if (!isruncase) {
-		pb->setText(QStringLiteral("ø™ º≤‚ ‘"));
+		pb->setText(QStringLiteral("ÂºÄÂßãÊµãËØï"));
 		pb->setStyleSheet("QPushButton{background-color:gray;}");
 	}
 	else {
-		pb->setText(QStringLiteral("‘›Õ£≤‚ ‘"));
+		pb->setText(QStringLiteral("ÊöÇÂÅúÊµãËØï"));
 		pb->setStyleSheet("QPushButton{background-color:green;}");
 	}
 	pb->setEnabled(true);
@@ -763,7 +765,7 @@ bool AutoTestView::eventFilter(QObject* watched, QEvent* event)
 		}
 	}
 	if (stopevnt) {
-		QMessageBox::warning(this, WARN_STR, QStringLiteral("’˝‘⁄≤‚ ‘÷–£¨«Îœ»Õ£÷π≤‚ ‘"), QMessageBox::Yes);
+		QSPMessageBox::warning(this, WARN_STR, QStringLiteral("Ê≠£Âú®ÊµãËØï‰∏≠ÔºåËØ∑ÂÖàÂÅúÊ≠¢ÊµãËØï"), QMessageBox::Yes);
 	}
 	return !stopevnt?QWidget::eventFilter(watched, event): stopevnt;
 }
@@ -888,13 +890,13 @@ void AutoTestView::HandleTestCaseOneShot(MessageTVBGStatus* msg)
 		issuccess = msg->issuccess;
 		isusertermin = msg->isusertermin;
 	}
-	QString msg_str=QStringLiteral("±æ¬÷≤‚ ‘ ß∞‹");
+	QString msg_str=QStringLiteral("Êú¨ËΩÆÊµãËØïÂ§±Ë¥•");
 	if (issuccess ) {
-		msg_str = QStringLiteral("±æ¬÷≤‚ ‘’˝≥£");
+		msg_str = QStringLiteral("Êú¨ËΩÆÊµãËØïÊ≠£Â∏∏");
 		msettings.success_cnt++;
 	}
 	else if (isusertermin){
-		msg_str = QStringLiteral("±æ¬÷≤‚ ‘”√ªß÷’÷π");
+		msg_str = QStringLiteral("Êú¨ËΩÆÊµãËØïÁî®Êà∑ÁªàÊ≠¢");
 		msettings.usertermin_cnt++;
 	}
 	else {
@@ -924,7 +926,7 @@ void AutoTestView::HandleTestCaseOneShot(MessageTVBGStatus* msg)
 	}
 	else {
 		//AudioEffect::Warning();
-		QMessageBox::warning(this, INFO_STR, msg_str, QMessageBox::Yes);
+		QSPMessageBox::warning(this, INFO_STR, msg_str, QMessageBox::Yes);
 	}
 }
 void AutoTestView::HandleTestCaseResultSave(int sector,int seek,QString value,QColor c)
@@ -944,7 +946,7 @@ void AutoTestView::CycleTestHandle()
 {
 	if (msettings.is_cycle) {
 		QCountDownDialog* dlg = new QCountDownDialog(this,2);
-		QString msg = QStringLiteral("«Î‘⁄µπº∆ ±ÕÍ≥…«∞,∏¸ªª±ª≤‚ ‘÷˜∞Â \n≤¢∞¥ »∑»œ ∞¥≈•");
+		QString msg = QStringLiteral("ËØ∑Âú®ÂÄíËÆ°Êó∂ÂÆåÊàêÂâç,Êõ¥Êç¢Ë¢´ÊµãËØï‰∏ªÊùø \nÂπ∂Êåâ Á°ÆËÆ§ ÊåâÈíÆ");
 		int res = dlg->Run(msettings.cycleintervalsecond*1000, msg);
 		if (GlobalConfig_debugAutoTestView)qDebug("dlg res %d", res);
 		if (res == QDialog::Accepted) {
@@ -968,7 +970,7 @@ void AutoTestView::HandleCaseNoticeDialog(MessageTVCaseNoticeDialog* msg)
 {
 
 	if (msg == nullptr)return;
-	QMessageBox::StandardButton result = QMessageBox::information(this, INFO_STR, msg->msg, QMessageBox::Yes);
+	QMessageBox::StandardButton result = QSPMessageBox::information(this, INFO_STR, msg->msg, QMessageBox::Yes);
 	msg->mwait.notify_all();
 	if (GlobalConfig_debugAutoTestView)qDebug("result 0x%x", result);
 }
@@ -977,7 +979,7 @@ void AutoTestView::HandleCaseConfirmDialog(MessageTVCaseConfirmDialog* msg)
 	if (msg == nullptr)return;
 	QMessageBox::StandardButton result;
 	if(msg->resource.size()==0){
-		result = QMessageBox::question(this, INFO_STR, msg->msg);
+		result = QSPMessageBox::question(this, INFO_STR, msg->msg);
 	}
 	else {
 		QCountDownDialog * dlg = new QCountDownDialog(NULL, 2, msg->resource);
@@ -1069,7 +1071,7 @@ void AutoTestView::HandleCaseItemWidgetStringUpdate(MessageTVCaseItemWidgetStrin
 					QString raw = QString("%1\n%2").arg(item->text()).arg(msg->msg);
 					item->setText(raw);
 				}
-				tctablewidget->resizeRowToContents(row);//––
+				tctablewidget->resizeRowToContents(row);//Ë°å
 			}
 			else {
 				qCritical("null item");
@@ -1219,13 +1221,13 @@ void AutoTestView::on_deviceconectpb_clicked()
 		else {
 			packet->isconnect = true;
 			if (!isauto) {
-			//÷ÿ–¬∏¥÷∆customer interfaceid
+			//ÈáçÊñ∞Â§çÂà∂customer interfaceid
 			auto label_str = mparent_widget->findChild<QLabel*>(QString("label_interface%1").arg(index));
 			if (label_str==nullptr) {
 				qCritical("null label_interface %d",index);
 			}else{
 				auto str_label = label_str->text();
-				packet->customerinterfaceid = str_label.right(str_label.size() - QStringLiteral("¡¨Ω”∑Ω Ω ").size()).toStdString();
+				packet->customerinterfaceid = str_label.right(str_label.size() - QStringLiteral("ËøûÊé•ÊñπÂºè ").size()).toStdString();
 			}
 			}
 		}
@@ -1254,7 +1256,7 @@ void AutoTestView::on_devicetestactivepb_clicked()
 void AutoTestView::HandleBGDiskSpace()
 {
 	if (GLOBALSETTINGSINSTANCE->Getbgsizemsg().size()>0) {
-		QMessageBox::warning(NULL, WARN_STR, GLOBALSETTINGSINSTANCE->Getbgsizemsg());
+		QSPMessageBox::warning(NULL, WARN_STR, GLOBALSETTINGSINSTANCE->Getbgsizemsg());
 	}
 }
 void AutoTestView::on_test_start_pb_clicked()
@@ -1265,7 +1267,7 @@ void AutoTestView::on_test_start_pb_clicked()
 	}
 	HandleBGDiskSpace();
 	if (TestcaseBase::get_instance()->InterfaceidSetable()) {
-		QMessageBox::warning(NULL,WARN_STR,QStringLiteral("«Îœ»¡¨Ω”…Ë±∏"));
+		QSPMessageBox::warning(NULL,WARN_STR,QStringLiteral("ËØ∑ÂÖàËøûÊé•ËÆæÂ§á"));
 		return;
 	}
 	auto packet = new MessageFVBase;
@@ -1276,7 +1278,7 @@ void AutoTestView::on_test_start_pb_clicked()
 		TestCaseTableWidgetFresh();
 		auto status_label = mparent_widget->findChild<QLabel*>(QString("label_status"));
 		if (status_label) {
-			//À¢Œ™¿∂…´ 
+			//Âà∑‰∏∫ËìùËâ≤ 
 			status_label->setStyleSheet("#label_status{background-color:#0078D7;}");
 		}
 	}
@@ -1305,7 +1307,7 @@ void AutoTestView::on_test_start_pb_clicked()
 void AutoTestView::on_test_termin_pb_clicked()
 {
 	QPushButton* rb = qobject_cast<QPushButton*>(sender());
-	//œ»≈–∂œœ¬◊¥Ã¨
+	//ÂÖàÂà§Êñ≠‰∏ãÁä∂ÊÄÅ
 	bool isrun = TestcaseBase::get_instance()->isRuncase();
 	if (GlobalConfig_debugAutoTestView)qDebug("is_run %d",isrun);
 	HandleBGDiskSpace();

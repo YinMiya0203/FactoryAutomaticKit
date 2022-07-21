@@ -17,7 +17,9 @@
 #include "TestCase.h"
 #include "QCountDownDialog.h"
 #include <QInputDialog>
-
+#include <QImage>
+#include <QPainter>
+#include "QSPMessageBox.h"
 #if 0
 typedef struct BoardSN_t {
 	QString prex;
@@ -52,7 +54,6 @@ public slots:
 	void messagefromtestcase(int, MessageTVBasePtr);
 signals:
 	void messagetodevice(int ,MessageFVBasePtr);
-
 private:
 	int32_t setuptitleView(QWidget* parent);
 	int32_t setupdeviceView(QWidget* parent);
@@ -65,7 +66,7 @@ private:
 	int32_t DeleteView(QWidget* dev_widget);
 	void RegisterSignalTotestcase();
 	const int getMainViewGridRow() { return 22; };
-	const int getMainViewGridColum() { return 12; };
+	const int getMainViewGridColum() { return 3*4; };
 
 	void DeviceWidgetFresh(int32_t index, MessageTVDeviceUpdate *msg = nullptr);
 	void DeviceOutputStatusWidgetFresh(int32_t index, MessageTVDeviceUpdate* msg=nullptr);

@@ -7,7 +7,7 @@
 #include <QImageReader>
 #include "../TestCase.h"
 #include "AudioEffect.h"
-
+#include "UI_Utility.h"
 QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QList<QString> res_filler) :
     mCountStartvaluems(0), mcontinuevaluems(0)
 {
@@ -58,6 +58,7 @@ QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QList<QString> 
     connect(m_pTimer, &QTimer::timeout, this, &QCountDownDialog::on_timer_timeout);
     m_pTimer->setInterval(mcounterunit);
     AudioEffect::Warning();
+    UI_Utility::SetFixtureBorderImage(this, QPalette::Window,30);
 }
 int32_t QCountDownDialog::ShowResource(QList<QString> res_filler, QVBoxLayout* pVBoxLayout)
 {

@@ -30,6 +30,7 @@ private:
 	QString mStartPrex = "NULL";
 	QString mcurrentprex = "NULL";
 	QDateTime mStarttime;
+	QString mfixture_tag = "";
 #ifdef SAVEASTABLE
 	int32_t Maxfill = 50;
 #else

@@ -16,7 +16,8 @@ static QString log_file="";
 static QString GetLogfile(bool update=false) {
     if (log_file.size()==0|| update) {
         auto mtime = QDateTime::currentDateTime();
-        log_file = QString("%1/%2/%3.%4").arg(GLOBALSETTINGSINSTANCE->GetLogDirLocation(), mtime.toString("yyyy-MM-dd"), mtime.toString("hh-mm-ss"), "log");
+        log_file = QString("%1/%2/%5-%3.%4").arg(GLOBALSETTINGSINSTANCE->GetLogDirLocation(), 
+            mtime.toString("yyyy-MM-dd"), mtime.toString("hh-mm-ss"), "log",GLOBALSETTINGSINSTANCE->GetFixtureTag());
         Utility::NewDir(QFileInfo(log_file).absolutePath());
         qInfo("FactoryAutoTest %s\n", GetLogfile().toLocal8Bit().constData());
         //printf("FactoryAutoTest %s\n", GetLogfile().toLocal8Bit().constData());

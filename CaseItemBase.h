@@ -198,6 +198,9 @@ public:
 	int32_t Process(int mstep);
 	caseitem_type Getitemtype(int mstep);
 	bool isCaseIgnore();
+	static int32_t FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPreconditionBase* msg = nullptr);
+	//static int32_t FunctionQueryCurrentKit(int32_t dev_id, QString& output, NetworkLabelPassconditionBase* msg = nullptr, int32_t mstep = -1);
+	static int32_t GetMaxCurrentLimitMA(QString input, int32_t voltage_mv = 0);
 signals:
 	void notifytoView(int, MessageTVBasePtr);
 private:
@@ -220,21 +223,17 @@ private:
 	int32_t CaseItemPreconditionShow(std::string input, ShowString& output);
 	int32_t CaseItemPassconditionShow(std::string input, ShowString& output);
 
-	//QStringList translation_slash(std::string input);
-	IniInfoBasePtr translation_slash_smart(std::string input, QString &output, caseitem_class type= caseitem_class::Unknown);
-	IniInfoBasePtr PassconditionWithNetworkId(QString input, QString& output);
-	IniInfoBasePtr ManualConfirmWithRes(QString input, QString& output);
-	IniInfoBasePtr PreconditionWithNetworkId(QString input, QString& output);
+
 
 	//int32_t translation_slash(std::string input, ShowString& output);
 	void RegisterHandles(PCaseItemHandles);
 	void RegisterShows(PCaseItemShows);
 	int32_t Getitemhandle(int mstep);
 
-	int32_t FunctionSetVoltageOut(int32_t dev_id,NetworkLabelPreconditionBase* msg = nullptr);
+	//int32_t FunctionSetVoltageOut(int32_t dev_id,NetworkLabelPreconditionBase* msg = nullptr);
 	int32_t FunctionQueryCurrent(int32_t dev_id,QString &output, NetworkLabelPassconditionBase* msg = nullptr, int32_t mstep=-1);
 	
-	int32_t GetMaxCurrentLimitMA(QString input,int32_t voltage_mv=0);
+	//int32_t GetMaxCurrentLimitMA(QString input,int32_t voltage_mv=0);
 	CaseItemContainer mcaseitems;
 	CaseItemHandles mcaseitemhandles;
 	CaseItemShows  mcaseItemshows;

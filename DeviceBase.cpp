@@ -3,6 +3,7 @@
 #include "visa.h"
 #include <winerror.h>
 #include <QRegularExpression>
+#include "NaturalLang.h"
 #define USER_WATCH
 DeviceBasePtrContainer DeviceBase::mstaticdeviceptrcontainer = {};
 
@@ -33,8 +34,13 @@ DeviceBasePtr DeviceBase::get_instance(QSettings* settings,int offset)
 	mmap.clear();
 	if (checkingParam(settings, mmap) != true)return NULL;
 	std::string maxva = "8";
+	std::string initialmesa = "";
 	if (mmap.find(QString(MAXPOWERWVA)) != mmap.end()) {
 		maxva = mmap[QString(MAXPOWERWVA)];
+	}
+	
+	if (mmap.find(QString(INITIALMESA)) != mmap.end()) {
+		initialmesa = mmap[QString(INITIALMESA)];
 	}
 	DriverClass mdriverclass= DriverClass::DriverSCPI;
 	if (mmap.find(QString(COMMUINTERFACE)) != mmap.end()) {
@@ -49,6 +55,7 @@ DeviceBasePtr DeviceBase::get_instance(QSettings* settings,int offset)
 		mmap[QString(INTERFACEID_STRING)],
 		mmap[QString(ASRLBDPSF_STRING)],
 		maxva,
+		initialmesa,
 		mdriverclass));
 	mstaticdeviceptrcontainer.push_back(ptr);
 	return ptr;
@@ -66,6 +73,10 @@ DeviceClass DeviceBase::CheckDeviceClassDC()
 			default_type = DeviceClass::DeviceClass_DC_BatterySimulator;
 			break;
 		}
+		if (str.size() > 1 && (str.at(0) == 'S')) {
+			default_type = DeviceClass::DeviceClass_Relay_Switch;
+			break;
+		}
 	}
 	return default_type;
 }
@@ -78,12 +89,14 @@ void DeviceBase::InitDeviceClassType()
 	}
 	else {
 		interior_driver = NiDeviceDriverBasePtr(new VictorDMMIDriver);
-		mdevice_class = DeviceClass::DeviceClass_digit_multimeter;
+		mdevice_class = DeviceClass::DeviceClass_Digit_Multimeter;
 		interior_driver->SetCmdPostfix("\r\n");
 	}
 }
-DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string id, std::string confg,std::string maxva, DriverClass driverclass):
-	moffset_inlist(offset),identifyorig(iden),networklabel(net),interfaceidorig(id), arslconfgstr(confg), mcommuinterface(driverclass)
+DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string id, std::string confg,std::string maxva, std::string initial_mesa, DriverClass driverclass):
+	moffset_inlist(offset),identifyorig(iden),networklabel(net),interfaceidorig(id), arslconfgstr(confg),
+	initialmesa(initial_mesa),
+	mcommuinterface(driverclass)
 {
 	int band, stopbits, databits;
 	char parity[8], flow_ctr[8];
@@ -275,7 +288,7 @@ int32_t DeviceBase::testactiveasync()
 
 int32_t DeviceBase::testactivesync()
 {
-	if (mdevice_class !=DeviceClass::DeviceClass_digit_multimeter) {
+	if (mdevice_class !=DeviceClass::DeviceClass_Digit_Multimeter) {
 		auto cmd = new DeviceDriverOutputState;
 		VisaDriverIoctrlBasePtr ptr(cmd);
 		return ioctrl(ptr);
@@ -293,6 +306,32 @@ int32_t DeviceBase::testactivesync()
 		return ioctrl(ptr);
 	}
 	
+}
+int32_t DeviceBase::InitialMese(QString qinitialmesa)
+{
+	int ret = 0;
+	if (DeviceClass::DeviceClass_DC_BatterySimulator == mdevice_class) {
+		auto msg = new DeviceDriverWorkFunction;
+		msg->is_read = false;
+		msg->wfunctions = DeviceWorkFunc::POWer;
+		auto ptr = VisaDriverIoctrlBasePtr(msg);
+		EntryFuction(ptr);
+	}
+	if (mdevice_class<= DeviceClass::DeviceClass_DC_BatterySimulator) {
+		//initial 
+		if (qinitialmesa.size()!=0) {
+			QString output = "";
+			auto ptr = NaturalLang::translation_slash_smart(qinitialmesa.toStdString(), output, caseitem_class::Precondition);
+			NetworkLabelPreconditionBase* info = dynamic_cast<NetworkLabelPreconditionBase*>(ptr.get());
+			if (info == nullptr) {
+				ret = -ERROR_INVALID_PARAMETER;
+				goto ERR_OUT;
+			}
+			ret = CaseItemBase::FunctionSetVoltageOut(moffset_inlist, info);
+		}
+	}
+ERR_OUT:
+	return ret;
 }
 int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 {
@@ -343,13 +382,7 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 	if (mdevicestatus.connected) {
 		SetInterfaceIdCustomer(tmp);
 	}
-	if (DeviceClass::DeviceClass_DC_BatterySimulator==mdevice_class) {
-		auto msg = new DeviceDriverWorkFunction;
-		msg->is_read = false;
-		msg->wfunctions = DeviceWorkFunc::POWer;
-		auto ptr = VisaDriverIoctrlBasePtr(msg);
-		EntryFuction(ptr);
-	}
+	InitialMese(QString(initialmesa.c_str()));
 	GetDeviceSCPIVersion();
 	setupwatchthread();
 ERROR_OUT:

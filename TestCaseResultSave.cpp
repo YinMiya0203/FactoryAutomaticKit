@@ -37,7 +37,7 @@ int32_t TestCaseResultSaveICMP::Save(int sector, int seek, QString prex, QString
 		return mresultfile->Fill(sector,seek,prex, value,c);
 	}
 	if (mresultfile->isFull() ){
-		mresultfile = NULL;
+		SyncToDisk();
 		mresultfile = std::shared_ptr<ResultFileInfo>(new ResultFileInfo(prex));
 
 		return mresultfile->Fill(sector, seek, prex, value, c);
@@ -59,7 +59,7 @@ int32_t TestCaseResultSaveICMP::Save(QTableWidget* table, QString prex)
 		return mresultfile->Fill(table, prex);
 	}
 	if (mresultfile->isFull()) {
-		mresultfile = NULL;
+		SyncToDisk();
 		mresultfile = std::shared_ptr<ResultFileInfo>(new ResultFileInfo(prex));
 
 		return mresultfile->Fill(table, prex);
@@ -70,7 +70,12 @@ ERROR_OUT:
 }
 int32_t TestCaseResultSaveICMP::SyncToDisk()
 {
-	mresultfile.reset();;
+	if(mresultfile!=nullptr){
+		mresultfile.reset();
+		mresultfile = nullptr;
+		Utility::Sleep(500);
+	}
+	Utility::OutputDebugPrintf("SyncToDisk");
 	return 0;
 }
 
@@ -93,7 +98,7 @@ ResultFileInfo::~ResultFileInfo()
 		auto mtime = QDateTime::currentDateTime();
 		QString current_dir = mtime.toString(TIMESTR_STYLE_YMD);
 		QString Log_dir = mcurrentlogdir;
-		QString raw_log_file = QString("%1/%7/%2-%3_%4-%5_T%6-F%8.html").	\
+		QString raw_log_file = QString("%1/%7/%9-%2-%3_%4-%5_T%6-F%8.html").	\
 			arg(Log_dir).	\
 			arg(mStarttime.toString("hhmmss")).	\
 			arg(mtime.toString("hhmmss")).	\
@@ -101,9 +106,14 @@ ResultFileInfo::~ResultFileInfo()
 			arg(mcurrentprex).	\
 			arg(mfilledcnt). \
 			arg(current_dir). \
-			arg(mfailedcnt);
+			arg(mfailedcnt). \
+			arg(mfixture_tag);
 		FillEnd(raw_log_file);
-		mfile.rename(raw_log_file);
+		mfile.flush();
+		bool result = mfile.rename(raw_log_file);
+		if (!result) {
+			qCritical("~ResultFileInfo reaname %s fail", raw_log_file.toStdString().c_str());
+		}
 		mfile.close();
 	}
 }
@@ -151,12 +161,14 @@ int32_t ResultFileInfo::Fill(int sector, int seek, QString prex, QString value, 
 			ret = -ERROR_INVALID_PARAMETER;
 			goto ERROR_OUT;
 		}
+		mfilledcnt++;
+		mcurrentprex = prex;
 		QTextStream mstream(&mfile);
+		raw_out.append(QString("<text> Result: total %1 ; fail %2 </text><br>\n").arg(mfilledcnt).arg(mfailedcnt));
 		mstream << raw_out << endl;
 	}
 
-	mfilledcnt++;
-	mcurrentprex = prex;
+
 ERROR_OUT:
 
 	return ret;
@@ -184,13 +196,13 @@ int32_t ResultFileInfo::Fill(QTableWidget* table, QString prex)
 			ret = -ERROR_INVALID_PARAMETER;
 			goto ERROR_OUT;
 		}
+		mfilledcnt++;
+		mcurrentprex = prex;
 		nstream << raw_out << endl;
 		nstream << "</table>" << endl;
-
+		nstream << QString("<text> Result: total %1 ; fail %2 </text><br>").arg(mfilledcnt).arg(mfailedcnt) << endl;;
 	}
 
-	mfilledcnt++;
-	mcurrentprex = prex;
 ERROR_OUT:
 	if (ret != 0) {
 		qCritical("ret 0x % x",ret);
@@ -256,6 +268,7 @@ ERROR_OUT:
 int32_t ResultFileInfo::FormatTable(QTableWidget* tableWidget, QString prex,QString& output)
 {
 	int ret = 0;
+	int onetable_fail = 0;
 	output.clear();
 	if (mfile.fileName().size() <= 0 || !mfile.isOpen()) {
 		//qDebug("empty file");
@@ -316,7 +329,7 @@ int32_t ResultFileInfo::FormatTable(QTableWidget* tableWidget, QString prex,QStr
 						td_raw = QString::asprintf("<td rowspan=\"%d\" colspan=\"%d\" bgcolor=\"%s\" width=\"%d%%\">", row_span, col_span,
 							color.name().toStdString().c_str(), rect_list[col]);
 						if (color.name()=="#ff0000") {
-							mfailedcnt++;
+							onetable_fail++;
 						}
 					}
 					else {
@@ -344,6 +357,7 @@ int32_t ResultFileInfo::FormatTable(QTableWidget* tableWidget, QString prex,QStr
 		}
 	}
 ERROR_OUT:
+	if (onetable_fail != 0)mfailedcnt += 1;
 	return ret;
 }
 
@@ -355,7 +369,9 @@ int32_t ResultFileInfo::SetupNewfile()
 	QString current_name = mStarttime.toString(TIMESTR_STYLE_hsm);
 	QString Log_dir = GLOBALSETTINGSINSTANCE->GetTestCaseResultDirLocation();
 	mcurrentlogdir = Log_dir;
-	QString raw_log_file = QString("%1/%2/.%3-tmp.html").arg(Log_dir).arg(current_dir).arg(current_name);
+	QString raw_log_file = QString("%1/%2/.%4-%3-tmp.html").arg(Log_dir).arg(current_dir).arg(current_name).	\
+		arg(GLOBALSETTINGSINSTANCE->GetFixtureTag());
+	mfixture_tag = GLOBALSETTINGSINSTANCE->GetFixtureTag();
 	mfile.setFileName(raw_log_file);
 	qInfo("raw_log_file %s", raw_log_file.toStdString().c_str());
 	Utility::NewDir(QFileInfo(raw_log_file).absolutePath());

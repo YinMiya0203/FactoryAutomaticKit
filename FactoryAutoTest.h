@@ -20,6 +20,7 @@ private slots:
     void on_action_GlobalConfig_triggered();
 private:
     void setuprootactions();
+    void WindowGeometry();
     Ui::FactoryAutoTestClass ui;
     AutoTestView* mainview=nullptr;
     QWidget* main_widget = nullptr;

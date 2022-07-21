@@ -115,6 +115,15 @@
     <ClCompile Include="UI\QGlobalConfigDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UI\QSPMessageBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UI_Utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NaturalLang.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LoginDlg.h">
@@ -150,6 +159,9 @@
     <QtMoc Include="UI\QDeviceDriverRunDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="UI\QSPMessageBox.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="LoginDlg.ui">
@@ -160,7 +172,7 @@
     </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ui_GlobalStr.h">
+    <ClInclude Include="UI\ui_GlobalStr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GlobalSettings.h">
@@ -218,6 +230,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AudioEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UI_Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NaturalLang.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
