@@ -241,6 +241,7 @@ int32_t NiDeviceDriverBase::read(VisaDriverIoctrlRead* arg)
             goto ERR_OUT;
         }
         arg->result = QString(cmdbuffer).trimmed().toStdString();
+        if (GlobalConfig_debugdevciedriver)qInfo("index %d read [%s]", moffset_inlist, arg->result.c_str());
     }
 ERR_OUT:
     if (ret != 0) {

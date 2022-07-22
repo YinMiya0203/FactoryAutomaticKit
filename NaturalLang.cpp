@@ -70,6 +70,14 @@ IniInfoBasePtr NaturalLang::PreconditionWithNetworkId(QString input_str, QString
 ERROR_OUT:
 	return ptr;
 }
+int NaturalLang::NetworkLabelChannel(QString val)
+{
+	int channel = -1;
+	if (val.split("_").size() > 1) {
+		channel = val.split("_").at(1).toInt();
+	}
+	return channel;
+}
 IniInfoBasePtr NaturalLang::ManualConfirmWithRes(QString input_str, QString& output)
 {
 	IniInfoBasePtr ptr = nullptr;

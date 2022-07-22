@@ -7,5 +7,6 @@ public:
 	static IniInfoBasePtr PassconditionWithNetworkId(QString input, QString& output);
 	static IniInfoBasePtr ManualConfirmWithRes(QString input, QString& output);
 	static IniInfoBasePtr PreconditionWithNetworkId(QString input, QString& output);
+	static int NetworkLabelChannel(QString val);
 };
 

@@ -497,7 +497,8 @@ int32_t CaseItemBase::CaseItemManualConfirmHandle(std::string input, int mstep)
 		mmsg->mwait.wait(&(mmsg->mutex));
 		if (GlobalConfig_debugCaseItemBase)qDebug(" result 0x%x",mmsg->buttonclicked);
 		if (mmsg->buttonclicked == QMessageBox::StandardButton::Yes||
-			mmsg->buttonclicked== QDialog::Accepted) {
+			mmsg->buttonclicked== QDialog::Accepted||
+			mmsg->buttonclicked == QMessageBox::StandardButton::Ok) {
 			ret = 0;
 		}
 		else {
@@ -627,6 +628,7 @@ int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPrecondi
 {
 	//set voltage;check current limit;check output on
 	int ret = 0;
+	int channel = NaturalLang::NetworkLabelChannel(msg->networklabel);
 	if (msg == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
@@ -637,6 +639,7 @@ RECHECK:
 	{
 		auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverSourceVoltage);
 		DeviceDriverSourceVoltage* upper = dynamic_cast<DeviceDriverSourceVoltage*>(mptrrq.get());
+		upper->channel = channel;
 		upper->is_read = true;
 		//读取当前电压
 		ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrrq);
@@ -663,6 +666,7 @@ RECHECK:
 				if (GlobalConfig_debugCaseItemBase)qDebug("default_currentlimit_ma %d  mv %d maxWVAStr %s", default_currentlimit_ma, msg->voltage_mv, st.maxWVAStr.toStdString().c_str());
 				auto mptrcl = VisaDriverIoctrlBasePtr(new DeviceDriverSourceCurrentLimit);
 				DeviceDriverSourceCurrentLimit* upper = dynamic_cast<DeviceDriverSourceCurrentLimit*>(mptrcl.get());
+				upper->channel = channel;
 				upper->is_read = true;
 				ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrcl);
 				if (ret != 0) {
@@ -686,6 +690,7 @@ RECHECK:
 			//set voltage
 			auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverSourceVoltage);
 			DeviceDriverSourceVoltage* upper = dynamic_cast<DeviceDriverSourceVoltage*>(mptrsv.get());
+			upper->channel = channel;
 			upper->is_read = false;
 			upper->voltage_mv = msg->voltage_mv;
 			ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrsv);
@@ -728,6 +733,7 @@ SET_OUT:
 	{
 			auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverOutputState);
 			DeviceDriverOutputState* upper = dynamic_cast<DeviceDriverOutputState*>(mptrsv.get());
+			upper->channel = channel;
 			upper->is_read = false;
 			upper->onoff = true;
 			ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, mptrsv);
@@ -753,6 +759,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 {
 	int ret = 0;
 	output.clear();
+	int channel = NaturalLang::NetworkLabelChannel(msg->networklabel);
 	if (msg == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
@@ -773,6 +780,7 @@ int32_t CaseItemBase::FunctionQueryCurrent(int32_t dev_id, QString &output, Netw
 			do{
 				auto mptrrq = VisaDriverIoctrlBasePtr(new DeviceDriverReadQuery);
 				DeviceDriverReadQuery* upper = dynamic_cast<DeviceDriverReadQuery*>(mptrrq.get());
+				upper->channel = channel;
 				if (msg->networklabel.front() == 'V') {
 					upper->mMeasfunc = DeviceDriverReadQuery::QueryMeasFunc::MeasDCV;
 				}else if (msg->networklabel.front()=='I') {

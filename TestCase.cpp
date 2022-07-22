@@ -169,8 +169,9 @@ int32_t TestcaseBase::GetDeviceId(std::string networkid, int32_t& id)
 	int mcounterunit = 0;
 	if (networkid.size() <= 0)goto ERR_OUT;
 	foreach(auto item, mdevice_list) {
+		auto raw = QString(networkid.c_str()).toUpper().split("_").at(0);
 		auto label = QString(item->GetNetworklabel().c_str()).toUpper();
-		if (label.split('/').contains(QString(networkid.c_str()).toUpper())) {
+		if (label.split('/').contains(raw)) {
 			id = mcounterunit;
 			ret = 0;
 			break;

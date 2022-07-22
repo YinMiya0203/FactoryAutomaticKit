@@ -88,7 +88,7 @@ public:
 	};
 };
 typedef std::shared_ptr<VisaDriverIoctrlWrite> VisaDriverIoctrlWritePtr;
-
+//system
 class DeviceDriverReadSystemErrorCount :public VisaDriverIoctrlBase
 {
 protected:
@@ -106,7 +106,25 @@ public:
 	};
 };
 typedef std::shared_ptr<DeviceDriverReadSystemErrorCount> DeviceDriverReadSystemErrorCountPtr;
-
+class DeviceDriverWorkFunction :public VisaDriverIoctrlBase
+{
+protected:
+	VisaDriverIoctrl cmd = VisaDriverIoctrl::WorkFunction;
+public:
+	bool is_read = true;
+	DeviceWorkFunc wfunctions = DeviceWorkFunc::ENTRy;
+	VisaDriverIoctrl GetCmd() { return cmd; };
+	std::string to_string() {
+		std::string raw;
+		raw.append("Cmd:"); raw.append(std::to_string(int(cmd)));
+		raw.append(" commond:"); raw.append(commond);
+		raw.append(" result:"); raw.append(result);
+		raw.append(" func:"); raw.append(std::to_string(int(wfunctions)));
+		raw.append(" is_read:"); raw.append(std::to_string(is_read));
+		return raw;
+	};
+};
+//physics
 class DeviceDriverOutputState :public VisaDriverIoctrlBase
 {
 protected:
@@ -203,33 +221,19 @@ public:
 		return raw;
 	};
 	QString ShowStatus() {
+		QString raw = "";
 		QString vstr = QString::asprintf("%0.3lf", voltage_mv > 1000 ? (voltage_mv / 1000) : voltage_mv);
 		QString vunint = voltage_mv > 1000 ? "V" : "mV";
 
 		QString Istr = QString::asprintf("%0.3lf", current_ma > 1000 ? (current_ma / 1000) : current_ma);
 		QString Iunint = current_ma > 1000 ? "A" : "mA";
-		if(0xffffffff!= current_ma)
-			return QString("V: %1 %2	I: %3 %4").arg(vstr).arg(vunint).arg(Istr).arg(Iunint);
+		if (channel != -1)
+			raw.append(QString(" CH%1").arg(channel));
+		if (0xffffffff != current_ma)
+			raw.append(QString("V: %1 %2	I: %3 %4").arg(vstr).arg(vunint).arg(Istr).arg(Iunint));
 		else
-			return QString("V: %1 %2").arg(vstr).arg(vunint);
+			raw.append(QString("V: %1 %2").arg(vstr).arg(vunint));
+		return raw;
 
 	}
-};
-class DeviceDriverWorkFunction :public VisaDriverIoctrlBase
-{
-protected:
-	VisaDriverIoctrl cmd = VisaDriverIoctrl::WorkFunction;
-public:
-	bool is_read = true;
-	DeviceWorkFunc wfunctions = DeviceWorkFunc::ENTRy;
-	VisaDriverIoctrl GetCmd() { return cmd; };
-	std::string to_string() {
-		std::string raw;
-		raw.append("Cmd:"); raw.append(std::to_string(int(cmd)));
-		raw.append(" commond:"); raw.append(commond);
-		raw.append(" result:"); raw.append(result);
-		raw.append(" func:"); raw.append(std::to_string(int(wfunctions)));
-		raw.append(" is_read:"); raw.append(std::to_string(is_read));
-		return raw;
-	};
 };

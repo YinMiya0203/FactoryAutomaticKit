@@ -4,7 +4,9 @@
 #include <winerror.h>
 #include <QRegularExpression>
 #include "NaturalLang.h"
+#ifndef UI_DEBUG
 #define USER_WATCH
+#endif
 DeviceBasePtrContainer DeviceBase::mstaticdeviceptrcontainer = {};
 
 #define VISA_DEVICE_IOCTRL(xxx) \
@@ -310,6 +312,9 @@ int32_t DeviceBase::testactivesync()
 int32_t DeviceBase::InitialMese(QString qinitialmesa)
 {
 	int ret = 0;
+	if (DriverClass::DriverSCPI == mcommuinterface) {
+		SystemLocalRemote(false);
+	}
 	if (DeviceClass::DeviceClass_DC_BatterySimulator == mdevice_class) {
 		auto msg = new DeviceDriverWorkFunction;
 		msg->is_read = false;
@@ -317,6 +322,7 @@ int32_t DeviceBase::InitialMese(QString qinitialmesa)
 		auto ptr = VisaDriverIoctrlBasePtr(msg);
 		EntryFuction(ptr);
 	}
+	GetDeviceSCPIVersion();
 	if (mdevice_class<= DeviceClass::DeviceClass_DC_BatterySimulator) {
 		//initial 
 		if (qinitialmesa.size()!=0) {
@@ -330,6 +336,7 @@ int32_t DeviceBase::InitialMese(QString qinitialmesa)
 			ret = CaseItemBase::FunctionSetVoltageOut(moffset_inlist, info);
 		}
 	}
+
 ERR_OUT:
 	return ret;
 }
@@ -364,6 +371,7 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 	{
 		if (!isVirtualDevice())ret = interior_driver->Driversetattribute(masrlconfg);
 	}
+	InitialMese(QString(initialmesa.c_str()));
 	//testconnect
 	ret = testactivesync();	
 	if (ret ==0) {
@@ -382,8 +390,7 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 	if (mdevicestatus.connected) {
 		SetInterfaceIdCustomer(tmp);
 	}
-	InitialMese(QString(initialmesa.c_str()));
-	GetDeviceSCPIVersion();
+
 	setupwatchthread();
 ERROR_OUT:
 	if (!mdevicestatus.connected) {
@@ -673,6 +680,7 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 {
 	int ret = 0;
 	std::string command_read = ":OUTPut?";
+		
 	if (GlobalConfig_debugdevcieBase)qDebug(" ");
 	if (ptr == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
@@ -689,6 +697,10 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 		qCritical("invaild upper_arg");
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
+	}
+	if (upper_arg->channel != -1) {
+		//hand channel
+		command_read =(QString("INSTrument:NSELect %1;SOURce:CHANnel:OUTPut?").arg(upper_arg->channel).toStdString());
 	}
 	if (upper_arg->is_read) {
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
@@ -729,12 +741,24 @@ int32_t DeviceBase::SourceOutputState(VisaDriverIoctrlBasePtr ptr)
 	}
 	else {
 			VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
-			std::string command = ":OUTPut";
-			if (upper_arg->onoff) {
-				command.append(" 1");			
+			//开要强开，关自身通道
+			std::string command = "";
+
+			if (upper_arg->channel != -1) {
+				//hand channel
+				if (upper_arg->onoff) {
+					command = ":OUTPut 1";
+				}
+				command.append(QString(";INSTrument:NSELect %1;SOURce:CHANnel:OUTPut %2").arg(upper_arg->channel).arg(upper_arg->onoff).toStdString());
 			}
 			else {
-				command.append(" 0");
+				command = ":OUTPut";
+				if (upper_arg->onoff) {
+					command.append(" 1");
+				}
+				else {
+					command.append(" 0");
+				}
 			}
 			mptr->commond = command;
 			VISA_DEVICE_IOCTRL(mptr)
@@ -759,7 +783,7 @@ ERROR_OUT:
 int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 {
 	int ret = 0;
-	std::string command;
+	std::string command="";
 	if (ptr == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
@@ -775,13 +799,15 @@ int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
+	if (upper_arg->channel != -1) {
+		//hand channel
+		command = (QString("INSTrument:NSELect %1;").arg(upper_arg->channel).toStdString());
+	}
 	if (upper_arg->is_read) 
 	{
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
-		command = ":SOURce";
-		if (upper_arg->channel >= 0) {
-			command.append(std::to_string(upper_arg->channel));
-		}
+		command.append(":SOURce");
+
 		command.append(":CURRent?");
 		mptr->commond = command;
 		VISA_DEVICE_IOCTRL(mptr)
@@ -797,10 +823,8 @@ int32_t DeviceBase::SourceCurrentAmplitude(VisaDriverIoctrlBasePtr ptr)
 	}
 	else {
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
-		command = ":SOURce";
-		if (upper_arg->channel >= 0) {
-			command.append(std::to_string(upper_arg->channel));
-		}
+		command.append(":SOURce");
+
 		command.append(":CURRent ");
 		float current_A = (float)upper_arg->current_ma / 1000;
 		command.append(std::to_string(current_A));
@@ -820,7 +844,7 @@ ERROR_OUT:
 int32_t DeviceBase::SourceVoltageAmplitude(VisaDriverIoctrlBasePtr ptr)
 {
 	int ret = 0;
-	std::string command;
+	std::string command="";
 	if (ptr == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
@@ -836,14 +860,15 @@ int32_t DeviceBase::SourceVoltageAmplitude(VisaDriverIoctrlBasePtr ptr)
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
+	if (upper_arg->channel!=-1) {
+		//hand channel
+		command.append(QString("INSTrument:NSELect %1;").arg(upper_arg->channel).toStdString());
+	}
 	if (upper_arg->is_read)
 	{
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
 		upper_arg->voltage_mv = 0;
-		command = ":SOURce";
-		if (upper_arg->channel >= 0) {
-			command.append(std::to_string(upper_arg->channel));
-		}
+		command.append(":SOURce");
 		command.append(":VOLTage?");
 		mptr->commond = command;
 		VISA_DEVICE_IOCTRL(mptr)
@@ -860,10 +885,7 @@ int32_t DeviceBase::SourceVoltageAmplitude(VisaDriverIoctrlBasePtr ptr)
 	}
 	else {
 			VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
-			command = ":SOURce";
-			if (upper_arg->channel >= 0) {
-				command.append(std::to_string(upper_arg->channel));
-			}
+			command.append(":SOURce");
 			command.append(":VOLTage ");
 			float voltage_V = (float)upper_arg->voltage_mv / 1000;
 			command.append(std::to_string(voltage_V));
@@ -877,6 +899,7 @@ int32_t DeviceBase::SourceVoltageAmplitude(VisaDriverIoctrlBasePtr ptr)
 				DeviceDriverOutputState* upper = dynamic_cast<DeviceDriverOutputState*>(mptros.get());
 				upper->is_read = false;
 				upper->onoff = false;
+				upper->channel = upper_arg->channel;
 				SourceOutputState(mptros);
 			}
 	}
@@ -1234,6 +1257,7 @@ int32_t DeviceBase::ReadQuery_1997(VisaDriverIoctrlBasePtr ptr)
 {
 
 	int ret = 0;
+	static int channel = -1;
 	if (ptr == nullptr) {
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
@@ -1244,9 +1268,20 @@ int32_t DeviceBase::ReadQuery_1997(VisaDriverIoctrlBasePtr ptr)
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
+	
 	{
 		//voltage
-		std::string command = "MEASure:VOLTage?";
+		std::string command = "";
+		if (upper_arg->channel == -1 && channel != -1) {
+			//backuped current channel
+			upper_arg->channel = channel;
+		}
+		if (upper_arg->channel != -1) {
+			//hand channel
+			command.append(QString("INSTrument:NSELect %1;").arg(upper_arg->channel).toStdString());
+			channel = upper_arg->channel;
+		}
+		command.append("MEASure:VOLTage?");
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
 		mptr->commond = command;
 		VISA_DEVICE_IOCTRL(mptr)
@@ -1262,7 +1297,12 @@ int32_t DeviceBase::ReadQuery_1997(VisaDriverIoctrlBasePtr ptr)
 	}
 	{
 		//:CURRent
-		std::string command = "MEASure:CURRent?";
+		std::string command = "";
+		if (upper_arg->channel != -1) {
+			//hand channel
+			command.append(QString("INSTrument:NSELect %1;").arg(upper_arg->channel).toStdString());
+		}
+		command.append("MEASure:CURRent?");
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
 		mptr->commond = command;
 
@@ -1296,9 +1336,7 @@ int32_t DeviceBase::ReadQuery_1999(VisaDriverIoctrlBasePtr ptr)
 		ret = -ERROR_INVALID_PARAMETER;
 		goto ERROR_OUT;
 	}
-	if (upper_arg->channel > 0) {
-		command.append(std::to_string(upper_arg->channel));
-	}
+
 	command.append("?");
 	{
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
