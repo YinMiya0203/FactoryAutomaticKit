@@ -1,6 +1,10 @@
 #include "NaturalLang.h"
 #define PURE_FLOAT_RE "-?\\d{1,}(\\.[0-9]+)?"
 #define PURE_UINT_RE "\\d+"
+
+//低位在前 这里有问题
+#define CHANNELTOMASK(x,b)	(0x1 << (b-x))
+#define CHANNEVALUELTOMASK(v,c,b)	((!!v) << (b-c))
 #include <QRegularExpression> 
 IniInfoBasePtr NaturalLang::translation_slash_smart(std::string input, QString& output, caseitem_class type)
 {
@@ -38,7 +42,7 @@ IniInfoBasePtr NaturalLang::translation_slash_smart(std::string input, QString& 
 ERROR_OUT:
 	return ptr;
 }
-int32_t NaturalLang::ChannelValueStringToInt(int32_t& output, QString channelmask_str, int32_t channel, QString value_str)
+int32_t NaturalLang::ChannelValueStringToInt(int32_t& output, QString channelmask_str, int32_t channel, QString value_str, int max_channel)
 {
 	QString tag = "VALUE";
 	bool is_mask = false;
@@ -52,14 +56,14 @@ int32_t NaturalLang::ChannelValueStringToInt(int32_t& output, QString channelmas
 	}
 	else {
 		// ch
-		output = CHANNEVALUELTOMASK(value_str.right(value_str.size() - tag_offset).toInt(&is_ok, 10), channel);
+		output = CHANNEVALUELTOMASK(value_str.right(value_str.size() - tag_offset).toInt(&is_ok, 10), channel, max_channel);
 		if (!is_ok) {
 			qCritical("%s unmatch", value_str.toStdString().c_str());
 		}
 	}
 	return 0;
 }
-int32_t NaturalLang::ChannelMaskStringToInt(int32_t& output, QString input)
+int32_t NaturalLang::ChannelMaskStringToInt(int32_t& output, QString input, int max_channel)
 {
 	QString chmask_tag = "CHMASK"; QString ch_tag = "CH";
 	QString tag;
@@ -82,7 +86,7 @@ int32_t NaturalLang::ChannelMaskStringToInt(int32_t& output, QString input)
 		// ch
 		val = input.right(input.size() - tag_offset).toInt(&is_ok, 10);
 		if (val <= 1)val = 1;//default to 1 channel
-		output = CHANNELTOMASK(val);
+		output = CHANNELTOMASK(val, max_channel);
 		if (!is_ok) {
 			qCritical("%s unmatch", input.toStdString().c_str());
 		}
@@ -94,6 +98,7 @@ IniInfoBasePtr NaturalLang::PreconditionWithNetworkId(QString input_str, QString
 	IniInfoBasePtr ptr = nullptr;
 	bool ischannelmask = false;
 	int ch_val = 0;
+	int max_channel = 0;
 	if (input_str.startsWith("Relay")) {
 		//Relay
 		auto input_list = input_str.split("/");
@@ -102,15 +107,16 @@ IniInfoBasePtr NaturalLang::PreconditionWithNetworkId(QString input_str, QString
 			for (auto index = 0; index < input_list.size(); index++) {
 				if (index == 0) {
 					info->networklabel = input_list.at(index);
+					max_channel = info->networklabel.right(2).toInt();
 				}
 				if (index == 1) {
 					info->is_read = input_list.at(index).toUpper() == "R";
 				}
 				if (index == 2) {
-					ch_val = ChannelMaskStringToInt(info->channelmask, input_list.at(index).toUpper());
+					ch_val = ChannelMaskStringToInt(info->channelmask, input_list.at(index).toUpper(), max_channel);
 				}
 				if (index == 3) {
-					ChannelValueStringToInt(info->channelvalue, input_list.at(2).toUpper(), ch_val, input_list.at(index).toUpper());
+					ChannelValueStringToInt(info->channelvalue, input_list.at(2).toUpper(), ch_val, input_list.at(index).toUpper(), max_channel);
 				}
 			} //for
 			ptr = IniInfoBasePtr(info);
