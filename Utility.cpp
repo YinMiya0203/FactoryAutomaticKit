@@ -39,6 +39,21 @@ void Utility::Sleep(unsigned long _Duration)
 	_sleep(_Duration);
 	//qDebug("leaver");
 }
+void Utility::DumpHex(const uint8_t* input, int32_t len,const char *tag)
+{
+	int32_t bank = 8;
+	int offset = 0;
+	qDebug("%s total len %d :", tag, len);
+	for (; offset < len;) {
+		QString tmp;
+		int index = 0;
+		for (; (index < bank) && ((index + offset) < len);index++) {
+			tmp.append(QString::asprintf(" %02x ", input[index + offset]));
+		}
+		qInfo("%s", tmp.toStdString().c_str());
+		offset += index;
+	}
+}
 int32_t Utility::NewFile(QString value,bool ishidden)
 {
 	int ret=0;
@@ -98,3 +113,17 @@ void __cdecl Utility::OutputDebugPrintf(const char* format, ...)
 	}
 }
 #endif
+QString Utility::ShortIntToBrinaryString(int32_t input, int32_t len)
+{
+	QString input_str(input);
+	input_str.setNum(input, 2);
+	QString output = "";
+	if ( input_str.size()>= len) {
+		output = input_str.right(len);
+	}
+	else {
+		output.fill('0', len - input_str.size());
+		output.append(input_str);
+	}
+	return output;
+}

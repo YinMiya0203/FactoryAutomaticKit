@@ -99,7 +99,7 @@ void FactoryAutoTestMain::WindowGeometry()
     QRect screen = QDesktopWidget().screenGeometry();
     QRect screen_available = QDesktopWidget().availableGeometry(this);
     QRect size = this->geometry();
-    qDebug("screen %d - %d ;%d -%d ", screen.width(), screen.height(), screen_available.width(), screen_available.height());
+    //qDebug("screen %d - %d ;%d -%d ", screen.width(), screen.height(), screen_available.width(), screen_available.height());
     auto fixture = GLOBALSETTINGSINSTANCE->GetFixtureTag();
     if(mainview!=nullptr)mainview->setFixedSize(screen_available.width() / 2, screen_available.height());
     if (fixture == "A") {

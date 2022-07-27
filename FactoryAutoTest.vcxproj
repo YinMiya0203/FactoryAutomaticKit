@@ -207,6 +207,7 @@
     <ClCompile Include="GlobalConfig.cpp" />
     <ClCompile Include="NaturalLang.cpp" />
     <ClCompile Include="NIDeviceDriverBase.cpp" />
+    <ClCompile Include="RelayBMWDriver.cpp" />
     <ClCompile Include="UI\QGlobalConfigDialog.cpp" />
     <ClCompile Include="UI\QDeviceDriverRunDialog.cpp" />
     <ClCompile Include="UI\QGlobalSettingsDialog.cpp" />
@@ -249,6 +250,7 @@
     <QtMoc Include="UI\QDeviceDriverRunDialog.h" />
     <ClInclude Include="NaturalLang.h" />
     <ClInclude Include="NIDeviceDriverBase.h" />
+    <ClInclude Include="RelayBMWDriver.h" />
     <ClInclude Include="UI\QGlobalConfigDialog.h" />
     <ClInclude Include="UI\QGlobalSettingsDialog.h" />
     <ClInclude Include="resource.h" />

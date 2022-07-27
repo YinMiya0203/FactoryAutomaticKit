@@ -26,7 +26,8 @@ enum class caseitem_type {
 enum class caseiteminfo_type {
 	Unknown,
 	PassconditionWithNetworkId,
-	PreconditionWithNetworkId,
+	PreconditionWithNetworkIdPowerSupply,
+	PreconditionWithNetworkIdRelay,
 	ManualConfirmWithNetworkId,
 	ManualConfirmWithRes,
 
@@ -83,7 +84,7 @@ public:
 //typedef std::shared_ptr<NetworkLabelInfoBase> NetworkLabelInfoBasePtr;
 class NetworkLabelPreconditionBase:public NetworkLabelInfoBase {
 private:
-	caseiteminfo_type type = caseiteminfo_type::PreconditionWithNetworkId;
+	caseiteminfo_type type = caseiteminfo_type::PreconditionWithNetworkIdPowerSupply;
 public:
 	virtual caseiteminfo_type GetType() { return type; };
 	
@@ -104,6 +105,29 @@ public:
 	};
 };
 typedef std::shared_ptr<NetworkLabelPreconditionBase> NetworkLabelPreconditionBasePtr;
+class NetworkLabelPreconditionRelay :public NetworkLabelInfoBase {
+private:
+	caseiteminfo_type type = caseiteminfo_type::PreconditionWithNetworkIdRelay;
+
+public:
+	virtual caseiteminfo_type GetType() { return type; };
+	int32_t is_read = true;
+	int32_t channelmask = 0x0;
+	int32_t channelvalue = 0x0;
+	virtual QString to_string() {
+		QString output;
+		output.append(networklabel);
+		if(is_read)output.append(QStringLiteral(" 读取 "));
+		else output.append(QStringLiteral(" 设置 "));
+
+		output.append(QStringLiteral(" 通道Mask "));
+		output.append(QString::asprintf("0x%x", channelmask));
+		output.append(QStringLiteral(" 参数 "));
+		output.append(QString::asprintf("0x%x",channelvalue));
+		return output;
+	};
+};
+typedef std::shared_ptr<NetworkLabelPreconditionRelay> NetworkLabelPreconditionRelayPtr;
 class NetworkLabelPassconditionBase :public NetworkLabelInfoBase
 {
 public:
@@ -199,6 +223,7 @@ public:
 	caseitem_type Getitemtype(int mstep);
 	bool isCaseIgnore();
 	static int32_t FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPreconditionBase* msg = nullptr);
+	static int32_t FunctionRelayRW(int32_t dev_id, NetworkLabelPreconditionRelay* msg = nullptr);
 	//static int32_t FunctionQueryCurrentKit(int32_t dev_id, QString& output, NetworkLabelPassconditionBase* msg = nullptr, int32_t mstep = -1);
 	static int32_t GetMaxCurrentLimitMA(QString input, int32_t voltage_mv = 0);
 signals:

@@ -4,6 +4,7 @@
 #include <QSettings>
 #include "VisaDriver.h"
 #include "VictorDMMIDriver.h"
+#include "RelayBMWDriver.h"
 #include "workController.h"
 #include "WorkThread.h"
 #include "MessagePacket.h"
@@ -107,7 +108,7 @@ private:
 	void setupworkthread();
 
 	void setupwatchthread();
-	
+	void DumpDebug();
 	void SetDeviceStatusOutput(bool val);
 	int32_t Readidentification(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadSystemERRor(VisaDriverIoctrlBasePtr ptr);
@@ -119,6 +120,7 @@ private:
 	int32_t ReadQuery_1999(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadQuery_1997(VisaDriverIoctrlBasePtr ptr);
 	int32_t ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr);
+	int32_t RelayChannel(VisaDriverIoctrlBasePtr ptr);
 
 	int32_t EntryFuction(VisaDriverIoctrlBasePtr ptr);
 	DeviceWorkFunc CheckDeviceWorkFunc(QString input);

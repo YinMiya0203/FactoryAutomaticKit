@@ -30,6 +30,7 @@ public:
 enum class DriverClass {
 	DriverSCPI,
 	DriverDMMIVictor,
+	DriverRelayBMW,
 };
 class NiDeviceDriverBase;
 typedef std::shared_ptr<NiDeviceDriverBase> NiDeviceDriverBasePtr;
@@ -55,8 +56,8 @@ public:
 		return QString("%1 [%2]").arg("NIDD").arg(NIDD_VERSION);
 	};
 protected:
-	int32_t write(VisaDriverIoctrlWrite* arg);
-	int32_t read(VisaDriverIoctrlRead* arg);
+	virtual int32_t write(VisaDriverIoctrlWrite* arg);
+	virtual int32_t read(VisaDriverIoctrlRead* arg);
 	std::string mCmdPostfix = "";
 	QMutex mdrivermutex;
 	int32_t moffset_inlist = -1;

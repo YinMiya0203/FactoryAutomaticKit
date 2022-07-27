@@ -124,6 +124,9 @@
     <ClCompile Include="NaturalLang.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RelayBMWDriver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LoginDlg.h">
@@ -236,6 +239,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NaturalLang.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RelayBMWDriver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

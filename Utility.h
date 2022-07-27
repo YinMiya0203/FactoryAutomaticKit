@@ -19,5 +19,7 @@ public:
 	static qint64 GetFileSize_B(QString path);
 	static qint64 GetFileSize_KB(QString path);
 	static void Sleep(unsigned long _Duration);
+	static void DumpHex(const uint8_t*input,int32_t len,const char* tag=nullptr);
+	static QString ShortIntToBrinaryString(int32_t input, int32_t len = 8);
 };
 

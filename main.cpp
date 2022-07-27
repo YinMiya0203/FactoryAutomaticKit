@@ -12,7 +12,10 @@
 #include <QDir>
 #include <sstream>
 #include <QStyleFactory>
+#include <functional>
 static QString log_file="";
+static qint64 log_maxsize = 10 * 1024 * 1024;
+static QMutex log_mutex;
 static QString GetLogfile(bool update=false) {
     if (log_file.size()==0|| update) {
         auto mtime = QDateTime::currentDateTime();
@@ -26,9 +29,8 @@ static QString GetLogfile(bool update=false) {
 }
 void logMessageOutputQt5(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
-    static qint64 maxsize = 10 * 1024 * 1024;
-    static QMutex mutex;
-    mutex.lock();
+
+    log_mutex.lock();
     QString text;
     switch (type) {
     case QtDebugMsg:
@@ -77,7 +79,10 @@ void logMessageOutputQt5(QtMsgType type, const QMessageLogContext& context, cons
         printf("%s", message.toLocal8Bit().constData()); 
         //goto ERR_OUT;
     }
-    if(type >= QtSystemMsg) {
+    //在 closingDown 期间访问log_file崩坏，原因不明
+    if(type >= QtSystemMsg && !QApplication::closingDown())
+    //if (type >= QtSystemMsg )
+    {
         QFile file(GetLogfile());
 #if 0
         if (file.size() > maxsize) { //超过指定大小时截取文件
@@ -100,7 +105,8 @@ void logMessageOutputQt5(QtMsgType type, const QMessageLogContext& context, cons
         else 
 #endif
         //超过大小新建文件
-        if (file.size() > maxsize) {
+        
+        if (file.size() > log_maxsize) {
              file.setFileName(GetLogfile(true));
         }
         {
@@ -112,7 +118,7 @@ void logMessageOutputQt5(QtMsgType type, const QMessageLogContext& context, cons
         }
     }
 ERR_OUT:
-    mutex.unlock();
+    log_mutex.unlock();
 }
 int main(int argc, char *argv[])
 {

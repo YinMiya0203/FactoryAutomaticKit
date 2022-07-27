@@ -564,23 +564,42 @@ int32_t CaseItemBase::CaseItemPreconditionHandle(std::string input, int mstep)
 	int ret = 0;
 	QString showinput;
 	auto info_raw = NaturalLang::translation_slash_smart(input, showinput, caseitem_class::Precondition);
-	NetworkLabelPreconditionBase* info = dynamic_cast<NetworkLabelPreconditionBase*>(info_raw.get());
-	if (info == nullptr) {
-		ret = -ERROR_INVALID_PARAMETER;
-		goto ERR_OUT;
-	}
-	int32_t dev_id;
-	ret = TestcaseBase::get_instance()->GetDeviceId(info->networklabel.toStdString(), dev_id);
-	if (ret != 0) {
-		qCritical("networklabel %s can't find", info->networklabel.toStdString().c_str());
-		ret = -ERROR_INVALID_PARAMETER;
-		goto ERR_OUT;		
-	}
-	{
+	if (info_raw->GetType() == caseiteminfo_type::PreconditionWithNetworkIdPowerSupply) {
+		NetworkLabelPreconditionBase* info = dynamic_cast<NetworkLabelPreconditionBase*>(info_raw.get());
+		if (info == nullptr) {
+			ret = -ERROR_INVALID_PARAMETER;
+			goto ERR_OUT;
+		}
+		int32_t dev_id;
+		ret = TestcaseBase::get_instance()->GetDeviceId(info->networklabel.toStdString(), dev_id);
+		if (ret != 0) {
+			qCritical("networklabel %s can't find", info->networklabel.toStdString().c_str());
+			ret = -ERROR_INVALID_PARAMETER;
+			goto ERR_OUT;
+		}
+		{
 
-		ret = FunctionSetVoltageOut(dev_id,info);
+			ret = FunctionSetVoltageOut(dev_id, info);
+		}
 	}
-
+	else if(info_raw->GetType() == caseiteminfo_type::PreconditionWithNetworkIdRelay){
+		NetworkLabelPreconditionRelay* info = dynamic_cast<NetworkLabelPreconditionRelay*>(info_raw.get());
+		if (info == nullptr) {
+			ret = -ERROR_INVALID_PARAMETER;
+			goto ERR_OUT;
+		}
+		int32_t dev_id;
+		ret = TestcaseBase::get_instance()->GetDeviceId(info->networklabel.toStdString(), dev_id);
+		if (ret != 0) {
+			qCritical("networklabel %s can't find", info->networklabel.toStdString().c_str());
+			ret = -ERROR_INVALID_PARAMETER;
+			goto ERR_OUT;
+		}
+		ret = FunctionRelayRW(dev_id,info);
+	}else {
+		qCritical("type %d can't handle", info_raw->GetType());
+		ret = -ERROR_UNSUPPORTED_TYPE;
+	}
 ERR_OUT:
 	return ret;
 }
@@ -623,7 +642,26 @@ ERR_OUT:
 	if (GlobalConfig_debugCaseItemBase)qDebug("input %s vol %d limitma %d", input.toStdString().c_str(), voltage_mv, limitma);
 	return limitma;
 }
+int32_t CaseItemBase::FunctionRelayRW(int32_t dev_id, NetworkLabelPreconditionRelay* msg)
+{
+	int ret = 0;
+	if (msg == nullptr) {
+		ret = -ERROR_INVALID_PARAMETER;
+		goto ERROR_OUT;
+	}
+	{
+	auto realychannel = VisaDriverIoctrlBasePtr(new DeviceDriverRelayChannelRW);
+	DeviceDriverRelayChannelRW* upper = dynamic_cast<DeviceDriverRelayChannelRW*>(realychannel.get());
 
+	upper->is_read = msg->is_read;
+	upper->channelmask = msg->channelmask;
+	upper->channelvalue = msg->channelvalue;
+	//qDebug("%s", upper->to_string().c_str());
+	ret = TestcaseBase::get_instance()->devcieioctrl(dev_id, realychannel);
+	}
+ERROR_OUT:
+	return ret;
+}
 int32_t CaseItemBase::FunctionSetVoltageOut(int32_t dev_id, NetworkLabelPreconditionBase* msg)
 {
 	//set voltage;check current limit;check output on

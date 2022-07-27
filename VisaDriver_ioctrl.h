@@ -1,4 +1,5 @@
 #pragma once
+#include "Utility.h"
 #if 0
 #define VISADRIVER_IO	0x0f
 #define VISADRIVER_IOR	(0x01 << 0)
@@ -29,6 +30,7 @@ enum class VisaDriverIoctrl
 	SourceCurrentLimit,
 	ReadQuery,
 	WorkFunction,
+	RelayChannelRW,
 	Io_max,
 };
 enum class DeviceWorkFunc {
@@ -236,4 +238,27 @@ public:
 		return raw;
 
 	}
+};
+class DeviceDriverRelayChannelRW :public VisaDriverIoctrlBase
+{
+protected:
+	VisaDriverIoctrl cmd = VisaDriverIoctrl::RelayChannelRW;
+public:
+	VisaDriverIoctrl GetCmd() { return cmd; };
+	std::string to_string() {
+		std::string raw;
+		raw.append("Cmd:"); raw.append(std::to_string(int(cmd)));
+		raw.append("read: "); raw.append(std::to_string(is_read));
+		{
+			raw.append(" channelmask: "); raw.append(Utility::ShortIntToBrinaryString(channelmask).toStdString());
+		}
+		{
+		raw.append(" channelvalue: "); raw.append(Utility::ShortIntToBrinaryString(channelvalue).toStdString());
+		}
+		return raw;
+	};
+	bool is_read = true;
+	int32_t channelmask = 0x0;
+	int32_t channelvalue = 0x0;
+
 };

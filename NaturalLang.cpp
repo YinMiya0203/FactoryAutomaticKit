@@ -38,34 +38,115 @@ IniInfoBasePtr NaturalLang::translation_slash_smart(std::string input, QString& 
 ERROR_OUT:
 	return ptr;
 }
+int32_t NaturalLang::ChannelValueStringToInt(int32_t& output, QString channelmask_str, int32_t channel, QString value_str)
+{
+	QString tag = "VALUE";
+	bool is_mask = false;
+	int tag_offset = tag.size();
+	bool is_ok = false;
+	if (channelmask_str.toUpper().contains("CHMASK")) {
+		is_mask = true;
+	}
+	if (is_mask) {
+		output = value_str.right(value_str.size() - tag_offset).toInt(&is_ok, 16);
+	}
+	else {
+		// ch
+		output = CHANNEVALUELTOMASK(value_str.right(value_str.size() - tag_offset).toInt(&is_ok, 10), channel);
+		if (!is_ok) {
+			qCritical("%s unmatch", value_str.toStdString().c_str());
+		}
+	}
+	return 0;
+}
+int32_t NaturalLang::ChannelMaskStringToInt(int32_t& output, QString input)
+{
+	QString chmask_tag = "CHMASK"; QString ch_tag = "CH";
+	QString tag;
+	bool is_mask = false;
+	int tag_offset = 0;
+	int val = 0;
+	if (input.toUpper().contains(chmask_tag)) {
+		tag = chmask_tag;
+		is_mask = true;
+	}
+	else {
+		tag = ch_tag;
+	}
+	tag_offset = tag.size();
+	bool is_ok = false;
+	if (is_mask) {
+		output = input.right(input.size() - tag_offset).toInt(&is_ok, 16);
+	}
+	else {
+		// ch
+		val = input.right(input.size() - tag_offset).toInt(&is_ok, 10);
+		if (val <= 1)val = 1;//default to 1 channel
+		output = CHANNELTOMASK(val);
+		if (!is_ok) {
+			qCritical("%s unmatch", input.toStdString().c_str());
+		}
+	}
+	return val;
+}
 IniInfoBasePtr NaturalLang::PreconditionWithNetworkId(QString input_str, QString& output)
 {
 	IniInfoBasePtr ptr = nullptr;
-	QRegularExpression re("(?<networklabel>\\w+)/(?<voltage>" PURE_FLOAT_RE ")(?<voltageunit>\\w+)/(?<duration>" PURE_UINT_RE ")(?<durationunit>\\w+)");
-	//QRegularExpression re("(?<networklabel>\\w+)/(?<voltage>\\d+)(?<voltageunit>\\w+)/(?<duration>\\d+)(?<durationunit>\\w+)");
-	//^-?\\d{1,}(\\.[0-9]+)?
-	QRegularExpressionMatch match = re.match(input_str);
-	if (match.hasMatch()) {
-		auto info = new NetworkLabelPreconditionBase;
-		info->networklabel = match.captured("networklabel");
-		{
-			float voltage_mv = match.captured("voltageunit").toUpper().compare("MV") == 0 ? 1 : 1000;
-			//qDebug("voltage_mv %f %s", match.captured("voltage").toFloat(), match.captured("voltage").toStdString().c_str());
-			voltage_mv *= match.captured("voltage").toFloat();
-			//qDebug("voltage_mv %f", voltage_mv);
-			info->voltage_mv = voltage_mv;
+	bool ischannelmask = false;
+	int ch_val = 0;
+	if (input_str.startsWith("Relay")) {
+		//Relay
+		auto input_list = input_str.split("/");
+		if (input_list.size()==4) {
+			auto info = new NetworkLabelPreconditionRelay;
+			for (auto index = 0; index < input_list.size(); index++) {
+				if (index == 0) {
+					info->networklabel = input_list.at(index);
+				}
+				if (index == 1) {
+					info->is_read = input_list.at(index).toUpper() == "R";
+				}
+				if (index == 2) {
+					ch_val = ChannelMaskStringToInt(info->channelmask, input_list.at(index).toUpper());
+				}
+				if (index == 3) {
+					ChannelValueStringToInt(info->channelvalue, input_list.at(2).toUpper(), ch_val, input_list.at(index).toUpper());
+				}
+			} //for
+			ptr = IniInfoBasePtr(info);
+			output = info->to_string();
+			goto ERROR_OUT;
 		}
-		{
-			int duration_ms = match.captured("durationunit").toUpper().compare("MS") == 0 ? 1 : 1000;
-			duration_ms *= match.captured("duration").toFloat();
-			info->duration_ms = duration_ms;
+		else {
+			qCritical("input %s match fail", input_str.toStdString().c_str());
 		}
-		ptr = IniInfoBasePtr(info);
-		output = info->to_string();
-		goto ERROR_OUT;
-	}
-	else {
-		qCritical("input %s match fail", input_str.toStdString().c_str());
+	}else{
+		QRegularExpression re("(?<networklabel>\\w+)/(?<voltage>" PURE_FLOAT_RE ")(?<voltageunit>\\w+)/(?<duration>" PURE_UINT_RE ")(?<durationunit>\\w+)");
+		//QRegularExpression re("(?<networklabel>\\w+)/(?<voltage>\\d+)(?<voltageunit>\\w+)/(?<duration>\\d+)(?<durationunit>\\w+)");
+		//^-?\\d{1,}(\\.[0-9]+)?
+		QRegularExpressionMatch match = re.match(input_str);
+		if (match.hasMatch()) {
+			auto info = new NetworkLabelPreconditionBase;
+			info->networklabel = match.captured("networklabel");
+			{
+				float voltage_mv = match.captured("voltageunit").toUpper().compare("MV") == 0 ? 1 : 1000;
+				//qDebug("voltage_mv %f %s", match.captured("voltage").toFloat(), match.captured("voltage").toStdString().c_str());
+				voltage_mv *= match.captured("voltage").toFloat();
+				//qDebug("voltage_mv %f", voltage_mv);
+				info->voltage_mv = voltage_mv;
+			}
+			{
+				int duration_ms = match.captured("durationunit").toUpper().compare("MS") == 0 ? 1 : 1000;
+				duration_ms *= match.captured("duration").toFloat();
+				info->duration_ms = duration_ms;
+			}
+			ptr = IniInfoBasePtr(info);
+			output = info->to_string();
+			goto ERROR_OUT;
+		}
+		else {
+			qCritical("input %s match fail", input_str.toStdString().c_str());
+		}
 	}
 ERROR_OUT:
 	return ptr;
@@ -78,6 +159,7 @@ int NaturalLang::NetworkLabelChannel(QString val)
 	}
 	return channel;
 }
+
 IniInfoBasePtr NaturalLang::ManualConfirmWithRes(QString input_str, QString& output)
 {
 	IniInfoBasePtr ptr = nullptr;

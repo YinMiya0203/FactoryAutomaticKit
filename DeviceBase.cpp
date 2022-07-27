@@ -50,6 +50,9 @@ DeviceBasePtr DeviceBase::get_instance(QSettings* settings,int offset)
 		if (comm.toUpper()=="DMMI") {
 			mdriverclass = DriverClass::DriverDMMIVictor;
 		}
+		else if(comm.toUpper() == "RELAYBMW"){
+			mdriverclass = DriverClass::DriverRelayBMW;
+		}
 	}
 	DeviceBasePtr ptr(new DeviceBase(offset,
 		mmap[QString(IDENTIFY_STRING)],
@@ -75,7 +78,7 @@ DeviceClass DeviceBase::CheckDeviceClassDC()
 			default_type = DeviceClass::DeviceClass_DC_BatterySimulator;
 			break;
 		}
-		if (str.size() > 1 && (str.at(0) == 'S')) {
+		if (str.size() > 1 && (str.at(0) == 'R')) {
 			default_type = DeviceClass::DeviceClass_Relay_Switch;
 			break;
 		}
@@ -89,10 +92,14 @@ void DeviceBase::InitDeviceClassType()
 		
 		mdevice_class = CheckDeviceClassDC();
 	}
-	else {
+	else if(mcommuinterface == DriverClass::DriverDMMIVictor) {
 		interior_driver = NiDeviceDriverBasePtr(new VictorDMMIDriver);
 		mdevice_class = DeviceClass::DeviceClass_Digit_Multimeter;
 		interior_driver->SetCmdPostfix("\r\n");
+	}
+	else if (DriverClass::DriverRelayBMW== mcommuinterface) {
+		interior_driver = NiDeviceDriverBasePtr(new RelayBMWDriver);
+		mdevice_class = DeviceClass::DeviceClass_Relay_Switch;
 	}
 }
 DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string id, std::string confg,std::string maxva, std::string initial_mesa, DriverClass driverclass):
@@ -149,10 +156,10 @@ DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string
 	interior_driver->SetIndexInList(moffset_inlist);
 	SetDeviceStatusOutput(false);
 	SetDeviceStatusIsconnected(false);
+	mdevicestatus.maxWVAStr = maxva.size() > 0 ? QString(maxva.c_str()) : QString("8");
+	DumpDebug();
 	interfaceidcustomer.clear();
 	FVcontainer.clear();
-
-	mdevicestatus.maxWVAStr = maxva.size()>0? QString(maxva.c_str()): QString("8");
 	setupworkthread();
 }
 std::string DeviceBase::GetIdentify()
@@ -290,12 +297,12 @@ int32_t DeviceBase::testactiveasync()
 
 int32_t DeviceBase::testactivesync()
 {
-	if (mdevice_class !=DeviceClass::DeviceClass_Digit_Multimeter) {
+	if (mdevice_class <= DeviceClass::DeviceClass_DC_BatterySimulator) {
 		auto cmd = new DeviceDriverOutputState;
 		VisaDriverIoctrlBasePtr ptr(cmd);
 		return ioctrl(ptr);
 	}
-	else {
+	else if (mdevice_class == DeviceClass::DeviceClass_Digit_Multimeter) {
 		auto cmd = new DeviceDriverReadQuery;
 		VisaDriverIoctrlBasePtr ptr(cmd);
 		auto type = GetNetworklabel().front();
@@ -307,7 +314,12 @@ int32_t DeviceBase::testactivesync()
 		}
 		return ioctrl(ptr);
 	}
-	
+	else if (mdevice_class == DeviceClass::DeviceClass_Relay_Switch) {
+		auto cmd = new DeviceDriverRelayChannelRW;
+		VisaDriverIoctrlBasePtr ptr(cmd);
+		return ioctrl(ptr);
+	}
+	return -ERROR_UNSUPPORTED_TYPE;
 }
 int32_t DeviceBase::InitialMese(QString qinitialmesa)
 {
@@ -334,6 +346,18 @@ int32_t DeviceBase::InitialMese(QString qinitialmesa)
 				goto ERR_OUT;
 			}
 			ret = CaseItemBase::FunctionSetVoltageOut(moffset_inlist, info);
+		}
+	}
+	if (DeviceClass::DeviceClass_Relay_Switch== mdevice_class) {
+		if (qinitialmesa.size() != 0) {
+			QString output = "";
+			auto ptr = NaturalLang::translation_slash_smart(qinitialmesa.toStdString(), output, caseitem_class::Precondition);
+			NetworkLabelPreconditionRelay* info = dynamic_cast<NetworkLabelPreconditionRelay*>(ptr.get());
+			if (info == nullptr) {
+				ret = -ERROR_INVALID_PARAMETER;
+				goto ERR_OUT;
+			}
+			ret = CaseItemBase::FunctionRelayRW(moffset_inlist, info);
 		}
 	}
 
@@ -415,8 +439,7 @@ int32_t DeviceBase::disconnectsync()
 	if (GlobalConfig_debugdevcieBase)qDebug("index %d ", moffset_inlist);
 	int ret = 0;
 	if (!mdevicestatus.connected)return ret;
-	if(mdevice_class == DeviceClass::DeviceClass_DC_BatterySimulator ||
-		mdevice_class == DeviceClass::DeviceClass_DC) {
+	if(mdevice_class <= DeviceClass::DeviceClass_DC_BatterySimulator) {
 		//先关闭输出
 		auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverSourceVoltage);
 		DeviceDriverSourceVoltage* upper = dynamic_cast<DeviceDriverSourceVoltage*>(mptrsv.get());
@@ -424,6 +447,15 @@ int32_t DeviceBase::disconnectsync()
 		upper->voltage_mv = 0;
 		ret = SourceVoltageAmplitude(mptrsv);
 	
+	}
+	else if (mdevice_class== DeviceClass::DeviceClass_Relay_Switch) {
+		auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverRelayChannelRW);
+		DeviceDriverRelayChannelRW* upper = dynamic_cast<DeviceDriverRelayChannelRW*>(mptrsv.get());
+		upper->is_read = false;
+		upper->channelmask = 0xff;
+		upper->channelvalue = 0;
+		ret = RelayChannel(mptrsv);
+		//qCritical("~ here crash？");//~ with qCritical crash
 	}
 	if (mcommuinterface==DriverClass::DriverSCPI) {
 		ret = SystemLocalRemote(true);
@@ -531,9 +563,21 @@ void DeviceBase::SetDeviceStatusOutput(bool val)
 		WORKTHREADWAIT(devicestatusthread).notify_all();
 	}
 }
+void DeviceBase::DumpDebug()
+{
+	if (GlobalConfig_debugdevcieBase) 
+	{
+		qDebug("device %d idn %s:",moffset_inlist,GetIdentify().c_str());
+		qDebug("\tmdevice_class %d mcommuinterface %d",mdevice_class,mcommuinterface);
+	}
+}
 void DeviceBase::setupwatchthread()
 {
 #ifdef USER_WATCH
+	if (mdevice_class> DeviceClass::DeviceClass_Digit_Multimeter) {
+		//device not nead watch
+		return;
+	}
 	if (devicestatusthread == nullptr) {
 		ThreadworkControllerPtr ptr(new ThreadworkController(std::bind(&DeviceBase::threadloopStatus, this)));
 		devicestatusthread = ptr;
@@ -661,6 +705,9 @@ int32_t DeviceBase::ioctrl(VisaDriverIoctrlBasePtr ptr)
 		break;
 	case VisaDriverIoctrl::ReadQuery:
 		ret = ReadQuery(ptr);
+		break;
+	case VisaDriverIoctrl::RelayChannelRW:
+		ret = RelayChannel(ptr);
 		break;
 	default:
 		qCritical("cmd %d unsupport",cmd);
@@ -1406,4 +1453,67 @@ QString DeviceBase::GetDeviceSCPIVersion()
 	}
 ERROR_OUT:
 	return result;
+}
+
+int32_t DeviceBase::RelayChannel(VisaDriverIoctrlBasePtr ptr)
+{
+	int ret = 0;
+	if (ptr == nullptr) {
+		ret = -ERROR_INVALID_PARAMETER;
+		goto ERROR_OUT;
+	}
+	if (mcommuinterface != DriverClass::DriverRelayBMW) {
+		if (GlobalConfig_debugdevcieBase)qDebug("device %d not support", moffset_inlist);
+		goto ERROR_OUT;
+	}
+	DeviceDriverRelayChannelRW* upper_arg = dynamic_cast<DeviceDriverRelayChannelRW*>(ptr.get());
+	if (upper_arg == nullptr) {
+		qCritical("invaild upper_arg");
+		ret = -ERROR_INVALID_PARAMETER;
+		goto ERROR_OUT;
+	}
+	{
+	//采用长格式命令
+	VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
+	std::string command = ""; 
+	int max_channel = QString(GetIdentify().c_str()).right(2).toInt();
+	if (upper_arg->is_read) {
+		RelayBMWDriver::ReadChannelMaskString(command, max_channel);
+		mptr->commond = command;
+		VISA_DEVICE_IOCTRL(mptr)
+			if (ret == 0) {
+				//string (长格式)-->int(短格式)
+				uint8_t cmdbuffer[64];
+				int result_cn = RelayBMWDriver::StringToLocal8bit(mptr->result, cmdbuffer, sizeof(cmdbuffer));
+				if (result_cn!= (max_channel+3) || cmdbuffer[0]!=0xfd || cmdbuffer[1] != 0x22 || cmdbuffer[max_channel + 3-1] != 0xdf) {
+					qCritical("result unmatch");
+					Utility::DumpHex(cmdbuffer, result_cn,"read result");
+					ret = -ERROR_INVALID_PARAMETER;
+					goto ERROR_OUT;
+				}
+				RelayBMWDriver::LongFormatStringToShortInt(cmdbuffer,sizeof(cmdbuffer), upper_arg->channelvalue);
+				goto ERROR_OUT;
+			}
+	}
+	else {
+		//写
+		command = "";
+		RelayBMWDriver::WriteChannelMaskString(command, upper_arg->channelmask, upper_arg->channelvalue,max_channel);
+		mptr->commond = command;
+		VISA_DEVICE_IOCTRL(mptr)
+			if (ret == 0) {
+				//返回的是板的真实情况
+				uint8_t cmdbuffer[64];
+				int result_cn = RelayBMWDriver::StringToLocal8bit(mptr->result, cmdbuffer, sizeof(cmdbuffer));
+				if (result_cn != (max_channel + 3) || cmdbuffer[0] != 0xfd || cmdbuffer[1] != 0x21 || cmdbuffer[max_channel + 3 - 1] != 0xdf) {
+					qCritical("result unmatch");
+					Utility::DumpHex(cmdbuffer, result_cn, "read result");
+					ret = -ERROR_INVALID_PARAMETER;
+					goto ERROR_OUT;
+				}
+			}
+	}
+	}
+ERROR_OUT:
+	return ret;
 }

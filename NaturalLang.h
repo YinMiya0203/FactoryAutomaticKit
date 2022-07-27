@@ -1,5 +1,7 @@
 #pragma once
 #include "CaseItemBase.h"
+#define CHANNELTOMASK(x)	(0x1 << (x-1))
+#define CHANNEVALUELTOMASK(v,c)	((!!v) << (c-1))
 class NaturalLang
 {
 public:
@@ -8,5 +10,8 @@ public:
 	static IniInfoBasePtr ManualConfirmWithRes(QString input, QString& output);
 	static IniInfoBasePtr PreconditionWithNetworkId(QString input, QString& output);
 	static int NetworkLabelChannel(QString val);
+	static int32_t ChannelMaskStringToInt(int32_t& output, QString input);
+	static int32_t ChannelValueStringToInt(int32_t& output, QString channelmask_str, int32_t channelmask, QString value);
+	
 };
 
