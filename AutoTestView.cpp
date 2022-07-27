@@ -519,7 +519,14 @@ int32_t AutoTestView::setupsettingView(QWidget* parent)
 	label_status->setObjectName("label_status");
 	setting_layout->addWidget(label_status, row_offset++, 0, 1, total_colum);
 	//setting_layout-
-	label_status->setStyleSheet("#label_status{background-color:green;}");
+	label_status->setText(QStringLiteral(""));
+	label_status->setAlignment(Qt::AlignCenter);
+	//qDebug("label_status %d-%d", label_status->width(), label_status->height());
+	QFont font("Consolas", label_status->height()/10, QFont::Bold);
+	label_status->setFont(font);
+	//label_status->setScaledContents(true); //无效
+	//label_status->adjustSize();// 无效
+	label_status->setStyleSheet("#label_status{background-color:#D3D3D3;}");
 	}
 	AutoTestSettingWidgetFresh();
 	return ret;
@@ -905,9 +912,17 @@ void AutoTestView::HandleTestCaseOneShot(MessageTVBGStatus* msg)
 	auto status_label = mparent_widget->findChild<QLabel*>(QString("label_status"));
 	if (status_label) {
 		if (issuccess || isusertermin) {
+			if (isusertermin) {
+				status_label->setText(QStringLiteral("Termi"));
+				status_label->setStyleSheet("#label_status{background-color:yellow;}");
+			}
+			else if(issuccess){
+			status_label->setText(QStringLiteral("Pass"));
 			status_label->setStyleSheet("#label_status{background-color:green;}");
+			}
 		}
 		else {
+			status_label->setText(QStringLiteral("Failed"));
 			status_label->setStyleSheet("#label_status{background-color:red;}");
 		}
 	}
@@ -1279,6 +1294,7 @@ void AutoTestView::on_test_start_pb_clicked()
 		auto status_label = mparent_widget->findChild<QLabel*>(QString("label_status"));
 		if (status_label) {
 			//刷为蓝色 
+			status_label->setText(QStringLiteral("Testing"));
 			status_label->setStyleSheet("#label_status{background-color:#0078D7;}");
 		}
 	}
