@@ -38,7 +38,13 @@ int32_t RelayBMWDriver::read(VisaDriverIoctrlRead* arg)
         {
             retCnt = 0;
             int total_retcnt = 0;
+            int try_cnt = 0;
             while (total_retcnt < cmdsize) {    //bmw8008 首个read cnt 常为1，所以循环读取
+                if (try_cnt> cmdsize) {
+                    qCritical("Try read % bytes had try %d times", cmdsize, try_cnt);
+                    ret = -ERROR_DEVICE_HARDWARE_ERROR;
+                    goto ERR_OUT;
+                }
                 status = viRead(vi, (ViBuf)cmdbuffer+ total_retcnt, cmdsize- total_retcnt, &retCnt);
                 //qDebug("viread retCnt %d", retCnt);
                 if (status != VI_SUCCESS) {
@@ -51,6 +57,7 @@ int32_t RelayBMWDriver::read(VisaDriverIoctrlRead* arg)
                     goto ERR_OUT;
                 }
                 total_retcnt += retCnt;
+                try_cnt++;
             }
         }
         //arg->result = QString(cmdbuffer).trimmed().toStdString();
