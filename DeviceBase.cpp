@@ -381,8 +381,8 @@ int32_t	DeviceBase::SpecialCustomization(IdentifyVerbose* verbose)
 		goto ERROR_OUT;
 	}
 	if (verbose->ProductModel.toUpper()=="IT6302") {
-		//默认0通道
-		std::string command = "INSTrument:NSELect 0";
+		//默认1通道
+		std::string command = "INSTrument:NSELect 1";
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
 		mptr->commond = command;
 		VISA_DEVICE_IOCTRL(mptr)		
