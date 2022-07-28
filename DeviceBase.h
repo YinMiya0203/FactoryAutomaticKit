@@ -37,8 +37,16 @@ typedef struct DeviceInfo_t {
 	DeviceClass deviceclass;
 	DriverClass commuinterface;
 }DeviceInfo;
-
-
+class IdentifyVerbose {
+public:
+	IdentifyVerbose(QString input);
+	QString Manufacture;
+	QString ProductModel;
+	QString SerialNo;
+	QString SoftVersion;
+	bool IsEmpty();
+};
+typedef std::shared_ptr<IdentifyVerbose> IdentifyVerbosePtr;
 #define IDENTIFY_STRING "identify"
 #define NETWORKlabel_STRING "networklabel"
 #define INTERFACEID_STRING "interfaceid"
@@ -132,6 +140,7 @@ private:
 	DeviceClass CheckDeviceClassDC();
 
 	int32_t InitialMese(QString qinitialmesa);
+	int32_t	SpecialCustomization(IdentifyVerbose* verbose);
 private:
 	std::string  identifyorig;
 	std::string  identifycustomer;

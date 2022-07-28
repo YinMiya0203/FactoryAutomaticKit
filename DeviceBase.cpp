@@ -360,8 +360,34 @@ int32_t DeviceBase::InitialMese(QString qinitialmesa)
 			ret = CaseItemBase::FunctionRelayRW(moffset_inlist, info);
 		}
 	}
+	if (QString(GetIdentify().c_str()).toUpper() == "AUTO") {
+		auto msg = new VisaDriverIoctrlBase;
+		msg->cmd = VisaDriverIoctrl::ReadIdentification;
+		auto ptr = VisaDriverIoctrlBasePtr(msg);
+		ret = Readidentification(ptr);
+		if (ret == 0) {
+			auto ptr = new IdentifyVerbose(QString(GetIdentify().c_str()));
+			SpecialCustomization(ptr);
+		}
 
+	}
 ERR_OUT:
+	return ret;
+}
+int32_t	DeviceBase::SpecialCustomization(IdentifyVerbose* verbose)
+{
+	int ret = 0;
+	if (verbose==nullptr || verbose->IsEmpty()) {
+		goto ERROR_OUT;
+	}
+	if (verbose->ProductModel.toUpper()=="IT6302") {
+		//Ä¬ÈÏ0Í¨µÀ
+		std::string command = "INSTrument:NSELect 0";
+		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
+		mptr->commond = command;
+		VISA_DEVICE_IOCTRL(mptr)		
+	}
+ERROR_OUT:
 	return ret;
 }
 int32_t DeviceBase::connectsync(std::string customerinterfaceid)
@@ -395,9 +421,9 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 	{
 		if (!isVirtualDevice())ret = interior_driver->Driversetattribute(masrlconfg);
 	}
+	ret = testactivesync();
 	InitialMese(QString(initialmesa.c_str()));
 	//testconnect
-	ret = testactivesync();	
 	if (ret ==0) {
 		SetDeviceStatusIsconnected(true);
 	}
@@ -405,12 +431,7 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 		SetDeviceStatusIsconnected(false);
 		goto ERROR_OUT;
 	}
-	if (QString(GetIdentify().c_str()).toUpper() == "AUTO") {
-		auto msg = new VisaDriverIoctrlBase;
-		msg->cmd = VisaDriverIoctrl::ReadIdentification;
-		auto ptr = VisaDriverIoctrlBasePtr(msg);
-		Readidentification(ptr);
-	}
+
 	if (mdevicestatus.connected) {
 		SetInterfaceIdCustomer(tmp);
 	}
@@ -1517,3 +1538,20 @@ int32_t DeviceBase::RelayChannel(VisaDriverIoctrlBasePtr ptr)
 ERROR_OUT:
 	return ret;
 }
+
+IdentifyVerbose::IdentifyVerbose(QString input)
+{
+	auto tmp = input.split(",");
+	if (tmp.size() == 4) {
+		Manufacture = tmp.at(0);
+		ProductModel = tmp.at(1);
+		SerialNo = tmp.at(2);
+		SoftVersion = tmp.at(3);
+	}
+}
+
+bool IdentifyVerbose::IsEmpty()
+{
+	return Manufacture.isEmpty();
+}
+
