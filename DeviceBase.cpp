@@ -368,6 +368,7 @@ int32_t DeviceBase::InitialMese(QString qinitialmesa)
 		if (ret == 0) {
 			auto ptr = new IdentifyVerbose(QString(GetIdentify().c_str()));
 			SpecialCustomization(ptr);
+			delete ptr;
 		}
 
 	}
