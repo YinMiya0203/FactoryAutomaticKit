@@ -177,12 +177,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7EB9CDCC07ED4F7D86FE6349BEEF7323"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_865FA0548F544E5C9D1DD89CF40ED292"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -279,6 +273,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D60E68D96E224C7EAD9B8C1992C3D3AA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D71DE1D0D80D43DE9FAEAE50FAFFC721"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -315,7 +315,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F2002215774B4129B9E77BA005C997E5"
+        "MsmKey" = "8:_F411E08610DE4F58937A869ECE1EA0F0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -973,26 +973,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7EB9CDCC07ED4F7D86FE6349BEEF7323"
-            {
-            "SourcePath" = "8:..\\样本案例\\A588\\A588_充电测试_测试案例_V31_开关自动.ini"
-            "TargetName" = "8:A588_充电测试_测试案例_V31_开关自动.ini"
-            "Tag" = "8:"
-            "Folder" = "8:_F1FC523FACFD4AB0835692679078E82A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_865FA0548F544E5C9D1DD89CF40ED292"
             {
             "SourcePath" = "8:FactoryAutoTestinstall\\imageformats\\qjpeg.dll"
@@ -1313,6 +1293,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D60E68D96E224C7EAD9B8C1992C3D3AA"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588\\A588_充电测试_V31_手动开关-E36240A.ini"
+            "TargetName" = "8:A588_充电测试_V31_手动开关-E36240A.ini"
+            "Tag" = "8:"
+            "Folder" = "8:_F1FC523FACFD4AB0835692679078E82A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D71DE1D0D80D43DE9FAEAE50FAFFC721"
             {
             "SourcePath" = "8:..\\样本案例\\A588\\Res\\外电开关关.jpg"
@@ -1433,10 +1433,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F2002215774B4129B9E77BA005C997E5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F411E08610DE4F58937A869ECE1EA0F0"
             {
-            "SourcePath" = "8:..\\样本案例\\A588\\A588_充电测试_测试案例_V31_手动开关.ini"
-            "TargetName" = "8:A588_充电测试_测试案例_V31_手动开关.ini"
+            "SourcePath" = "8:..\\样本案例\\A588\\A588_充电测试_V31_开关自动-IT6302.ini"
+            "TargetName" = "8:A588_充电测试_V31_开关自动-IT6302.ini"
             "Tag" = "8:"
             "Folder" = "8:_F1FC523FACFD4AB0835692679078E82A"
             "Condition" = "8:"
