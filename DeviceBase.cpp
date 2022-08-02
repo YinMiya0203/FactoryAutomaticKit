@@ -360,7 +360,7 @@ int32_t DeviceBase::InitialMese(QString qinitialmesa)
 			ret = CaseItemBase::FunctionRelayRW(moffset_inlist, info);
 		}
 	}
-	if (QString(GetIdentify().c_str()).toUpper() == "AUTO") {
+	if (QString(GetIdentify().c_str()).toUpper().contains("AUTO")) {
 		auto msg = new VisaDriverIoctrlBase;
 		msg->cmd = VisaDriverIoctrl::ReadIdentification;
 		auto ptr = VisaDriverIoctrlBasePtr(msg);
