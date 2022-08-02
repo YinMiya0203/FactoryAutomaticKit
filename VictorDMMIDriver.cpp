@@ -12,6 +12,7 @@ int32_t VictorDMMIDriver::Driversetattribute(asrlconfg_t config)
         //status |= viSetAttribute(vi, VI_ATTR_ASRL_END_OUT, VI_ASRL_END_TERMCHAR);
         status |= viSetAttribute(vi, VI_ATTR_TMO_VALUE, 4000);
         status |= viSetAttribute(vi, VI_ATTR_TERMCHAR_EN, 1);
+        status |= viSetAttribute(vi, VI_ATTR_TERMCHAR, 0x0a);
         if (status != VI_SUCCESS) {
             ret = status;
         }else
@@ -82,7 +83,7 @@ int32_t VictorDMMIDriver::device_online()
                     ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
                 }
             }
-            //Sleep(3 * 1000);//wait rst
+            Sleep(1 * 1000);//wait ONL
         }
     } while (0);
     return ret;

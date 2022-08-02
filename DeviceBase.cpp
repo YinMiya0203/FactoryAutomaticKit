@@ -381,7 +381,7 @@ int32_t	DeviceBase::SpecialCustomization(IdentifyVerbose* verbose)
 	if (verbose==nullptr || verbose->IsEmpty()) {
 		goto ERROR_OUT;
 	}
-	if (verbose->ProductModel.toUpper()=="IT6302") {
+	if (verbose->ProductModel.toUpper().contains("IT6302")) {
 		//Ä¬ÈÏ1Í¨µÀ
 		std::string command = "INSTrument:NSELect 1";
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
@@ -422,8 +422,9 @@ int32_t DeviceBase::connectsync(std::string customerinterfaceid)
 	{
 		if (!isVirtualDevice())ret = interior_driver->Driversetattribute(masrlconfg);
 	}
-	ret = testactivesync();
+	//initialMese must before testsync
 	InitialMese(QString(initialmesa.c_str()));
+	ret = testactivesync();
 	//testconnect
 	if (ret ==0) {
 		SetDeviceStatusIsconnected(true);
@@ -1227,7 +1228,7 @@ int32_t DeviceBase::ReadQuery_victorDmmi(VisaDriverIoctrlBasePtr ptr)
 					} while (0);
 				}
 				else {
-					qCritical("value %s match fail", raw_result.toLocal8Bit().constData());
+					qCritical("value [%s] match fail", raw_result.toLocal8Bit().constData());
 					ret = -ERROR_DEVICE_FEATURE_NOT_SUPPORTED;
 					goto ERROR_OUT;
 				}
@@ -1318,6 +1319,8 @@ int32_t DeviceBase::SystemLocalRemote(bool is_local)
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlWrite);
 		mptr->commond = command;
 		VISA_DEVICE_IOCTRL(mptr)
+		//wait devcie init
+		Utility::Sleep(1 * 1000);
 	}
 ERROR_OUT:
 	return ret;

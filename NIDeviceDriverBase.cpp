@@ -84,7 +84,8 @@ int32_t NiDeviceDriverBase::Driversetattribute(asrlconfg_t config)
     status |= viSetAttribute(vi, VI_ATTR_ASRL_FLOW_CNTRL, config.flow_control);
     //status |= viSetAttribute(vi, VI_ATTR_TMO_VALUE, 4000);
     //status |= viSetAttribute(vi, VI_ATTR_ASRL_END_OUT, VI_ASRL_END_TERMCHAR);
-    //status |= viSetAttribute(vi, VI_ATTR_TERMCHAR_EN, 1);
+    status |= viSetAttribute(vi, VI_ATTR_TERMCHAR_EN, 1);
+    status |= viSetAttribute(vi, VI_ATTR_TERMCHAR, 0x0a);
     if (status != VI_SUCCESS) {
         ret = -ERROR_INVALID_DATA;
     }
