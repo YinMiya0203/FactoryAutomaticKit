@@ -14,7 +14,7 @@ FactoryAutoTestMain::FactoryAutoTestMain(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-
+    this->setObjectName("FactoryAutoTestMain");
     //setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Tool|Qt::WindowDoesNotAcceptFocus);
     //ui.action_about->setToolTip(TestcaseBase::get_instance()->get_runcasename());这个应该是没有tooltip
 #if 0//def UI_DEBUG

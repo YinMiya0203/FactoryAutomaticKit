@@ -59,6 +59,7 @@ QCountDownDialog::QCountDownDialog(QWidget* parent, int buttons, QList<QString> 
     m_pTimer->setInterval(mcounterunit);
     AudioEffect::Warning();
     UI_Utility::SetFixtureBorderImage(this, QPalette::Window,30);
+    UI_Utility::Planning_Layout(parent,this);
 }
 int32_t QCountDownDialog::ShowResource(QList<QString> res_filler, QVBoxLayout* pVBoxLayout)
 {

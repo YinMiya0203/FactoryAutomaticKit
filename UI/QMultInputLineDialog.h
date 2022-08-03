@@ -11,7 +11,7 @@ class QMultInputLineDialog :
     public QDialog
 {
 public:
-    QMultInputLineDialog(QStringList prex,const QString &title=QString(), const QString& comment = QString(), QWidget* parent = nullptr);
+    QMultInputLineDialog(QStringList prex, QWidget* parent = nullptr,const QString &title=QString(), const QString& comment = QString());
     int Run(void);
     InputResultContain GetResult();
     ~QMultInputLineDialog();

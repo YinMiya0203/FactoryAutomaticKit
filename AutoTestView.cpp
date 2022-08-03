@@ -14,7 +14,7 @@
 AutoTestView::AutoTestView(QWidget* main_widget):mparent_widget(main_widget)
 {
 	auto parent_layout = new QGridLayout;
-	
+	this->setParent(main_widget);
 	main_widget->setLayout(parent_layout);
 	qInfo("Ver: %s",GetVerionInfo().toStdString().c_str());
 	//ui.setupUi(this);
@@ -196,12 +196,12 @@ void AutoTestView::RegisterSignalTotestcase()
 	connect(TestcaseBase::get_instance().get(), SIGNAL(messagetctoview(int, MessageTVBasePtr)), this, SLOT(messagefromtestcase(int, MessageTVBasePtr)));
 }
 
-int32_t AutoTestView::setuptitleView(QWidget* mparent_widget)
+int32_t AutoTestView::setuptitleView(QWidget* parent_widget)
 {
 	int32_t ret = 0;
 	auto title_layout = new QGridLayout;
 	int columoffset = 0;
-	mparent_widget->setLayout(title_layout);
+	parent_widget->setLayout(title_layout);
 	
 	auto label = new QLabel(TITLE_TESTCASE);
 	//add to parent
@@ -974,7 +974,7 @@ void AutoTestView::CycleTestHandle()
 void AutoTestView::HandleCountDonwDialog(MessageTVCaseCountDownDialog* msg)
 {
 	if (msg == nullptr)return;
-	QCountDownDialog* dlg = new QCountDownDialog(NULL,1,msg->resource);
+	QCountDownDialog* dlg = new QCountDownDialog(this, 1, msg->resource);
 	int res = dlg->Run(msg->durationms, msg->msg);
 	if (GlobalConfig_debugAutoTestView)qDebug("dlg res %d", res);
 	msg->is_success = (res != QDialog::Rejected);
@@ -997,7 +997,7 @@ void AutoTestView::HandleCaseConfirmDialog(MessageTVCaseConfirmDialog* msg)
 		result = QSPMessageBox::question(this, INFO_STR, msg->msg);
 	}
 	else {
-		QCountDownDialog * dlg = new QCountDownDialog(NULL, 2, msg->resource);
+		QCountDownDialog * dlg = new QCountDownDialog(this, 2, msg->resource);
 		result = QMessageBox::StandardButton(dlg->Run(msg->durationms, msg->msg));
 		if (GlobalConfig_debugAutoTestView)qDebug("dlg res %d", result);
 		delete dlg;
@@ -1012,7 +1012,7 @@ void AutoTestView::HandleCaseConfirmWithinputDialog(MessageTVCaseConfirmWithInpu
 {
 	if (msg == nullptr)return;
 	msg->input_value.clear();
-	QMultInputLineDialog* dlg = new QMultInputLineDialog(msg->prex, "", msg->msg);
+	QMultInputLineDialog* dlg = new QMultInputLineDialog(msg->prex,this, "", msg->msg);
 	int res = dlg->Run();
 	if(res!=0){
 		msg->input_value = dlg->GetResult();

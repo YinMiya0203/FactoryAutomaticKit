@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QMessageBox>
 #include <GlobalSettings.h>
+#include <UI/UI_Utility.h>
 
 QSPMessageBox::QSPMessageBox(QWidget *parent)
 	: QMessageBox(parent)
@@ -93,6 +94,7 @@ QMessageBox::StandardButton QSPMessageBox::privateshow(QMessageBox::Icon icon, Q
         pal.setBrush(QPalette::Window, QBrush(image));
         msgBox.setPalette(pal);
     }
+    UI_Utility::Planning_Layout(parent, &msgBox);
     if (msgBox.exec() == -1)
         return QMessageBox::Cancel;
     return msgBox.standardButton(msgBox.clickedButton());

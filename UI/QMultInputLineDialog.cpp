@@ -4,7 +4,7 @@
 #include "AudioEffect.h"
 #include "UI_Utility.h"
 
-QMultInputLineDialog::QMultInputLineDialog(QStringList prexlist, const QString& title, const QString& comment, QWidget* parent)
+QMultInputLineDialog::QMultInputLineDialog(QStringList prexlist, QWidget* parent, const QString& title, const QString& comment)
 {
 	setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
 	// È«Í¸Ã÷
@@ -70,6 +70,7 @@ QMultInputLineDialog::QMultInputLineDialog(QStringList prexlist, const QString& 
 	setLayout(ptopVBoxLayout);
 	AudioEffect::Warning();
 	UI_Utility::SetFixtureBorderImage(this, QPalette::Window, 30);
+	UI_Utility::Planning_Layout(parent, this);
 }
 
 int QMultInputLineDialog::Run(void)
