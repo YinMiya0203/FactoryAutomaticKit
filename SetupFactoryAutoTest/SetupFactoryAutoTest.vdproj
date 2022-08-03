@@ -303,6 +303,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E060C7BC834440C485618F54196FF256"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E6E9DC317B994EADBF85CEE401555864"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1379,6 +1385,26 @@
             "TargetName" = "8:qt_ru.qm"
             "Tag" = "8:"
             "Folder" = "8:_3EE3DE5FAF9C4F1CA7C44F02AC6FA0D9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E060C7BC834440C485618F54196FF256"
+            {
+            "SourcePath" = "8:..\\样本案例\\A588\\A588_充电测试_V31_开关自动-E36240A.ini"
+            "TargetName" = "8:A588_充电测试_V31_开关自动-E36240A.ini"
+            "Tag" = "8:"
+            "Folder" = "8:_F1FC523FACFD4AB0835692679078E82A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
