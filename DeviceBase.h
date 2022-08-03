@@ -44,6 +44,7 @@ public:
 	QString ProductModel;
 	QString SerialNo;
 	QString SoftVersion;
+	QString to_string();
 	bool IsEmpty();
 };
 typedef std::shared_ptr<IdentifyVerbose> IdentifyVerbosePtr;
@@ -79,6 +80,7 @@ public:
 	};
 	std::string GetIdentify();
 	int32_t SetIdentifyCustomer(std::string value);
+	bool IsSettable(QString value);
 	std::string GetNetworklabel() {
 		return networklabel;
 	};
@@ -140,7 +142,8 @@ private:
 	DeviceClass CheckDeviceClassDC();
 
 	int32_t InitialMese(QString qinitialmesa);
-	int32_t	SpecialCustomization(IdentifyVerbose* verbose);
+	int32_t	SpecialCustomizationPostConnect(IdentifyVerbose* verbose);
+	int32_t SpecialCustomizationPreDisconnect(IdentifyVerbose* verbose);
 private:
 	std::string  identifyorig;
 	std::string  identifycustomer;
@@ -163,5 +166,6 @@ private:
 	ThreadworkControllerPtr msgthread = nullptr;
 	ThreadworkControllerPtr devicestatusthread = nullptr;
 	static DeviceBasePtrContainer mstaticdeviceptrcontainer;
+	IdentifyVerbose *midentifyverbose = nullptr;
 };
 

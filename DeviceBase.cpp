@@ -165,7 +165,7 @@ DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string
 std::string DeviceBase::GetIdentify()
 {
 	std::string tmp = identifyorig;
-	if ((stricmp(identifyorig.c_str(), "auto") == 0)
+	if (IsSettable(identifyorig.c_str())
 		&&
 		(identifycustomer.size() > 0)) {
 		tmp = identifycustomer;
@@ -205,11 +205,17 @@ int32_t DeviceBase::SetInterfaceIdCustomer(std::string value)
 	}
 	return ret;
 }
+bool DeviceBase::IsSettable(QString value)
+{
+	bool ret = false;
+	ret = value.toUpper().endsWith("_AUTO");
+	return ret;
+}
 int32_t DeviceBase::SetIdentifyCustomer(std::string value)
 {
 	if (GlobalConfig_debugdevcieBase)qDebug(" value %s", value.c_str());
 	int ret = -1;
-	if (stricmp(identifyorig.c_str(), "auto") == 0) {
+	if (IsSettable(identifyorig.c_str())) {
 		identifycustomer = value;
 		ret = 0;
 	}
@@ -360,27 +366,33 @@ int32_t DeviceBase::InitialMese(QString qinitialmesa)
 			ret = CaseItemBase::FunctionRelayRW(moffset_inlist, info);
 		}
 	}
-	if (QString(GetIdentify().c_str()).toUpper().contains("AUTO")) {
+	if (IsSettable(GetIdentify().c_str())) {
 		auto msg = new VisaDriverIoctrlBase;
 		msg->cmd = VisaDriverIoctrl::ReadIdentification;
 		auto ptr = VisaDriverIoctrlBasePtr(msg);
 		ret = Readidentification(ptr);
 		if (ret == 0) {
-			auto ptr = new IdentifyVerbose(QString(GetIdentify().c_str()));
-			SpecialCustomization(ptr);
-			delete ptr;
+			if (midentifyverbose != nullptr) {
+				delete midentifyverbose;
+				midentifyverbose = nullptr;
+			}
+			midentifyverbose = new IdentifyVerbose(QString(GetIdentify().c_str()));
+			SpecialCustomizationPostConnect(midentifyverbose);
+			//delete ptr;
 		}
 
 	}
 ERR_OUT:
 	return ret;
 }
-int32_t	DeviceBase::SpecialCustomization(IdentifyVerbose* verbose)
+int32_t	DeviceBase::SpecialCustomizationPostConnect(IdentifyVerbose* verbose)
 {
 	int ret = 0;
 	if (verbose==nullptr || verbose->IsEmpty()) {
+		qCritical("null param");
 		goto ERROR_OUT;
 	}
+	//qDebug("%s", verbose->to_string().toStdString().c_str());
 	if (verbose->ProductModel.toUpper().contains("IT6302")) {
 		//默认1通道
 		std::string command = "INSTrument:NSELect 1";
@@ -457,17 +469,18 @@ void DeviceBase::SetDeviceStatusIsconnected(bool val)
 {
 	mdevicestatus.connected = val;
 }
-int32_t DeviceBase::disconnectsync()
+int32_t DeviceBase::SpecialCustomizationPreDisconnect(IdentifyVerbose* verbose)
 {
-	if (GlobalConfig_debugdevcieBase)qDebug("index %d ", moffset_inlist);
 	int ret = 0;
-	if (!mdevicestatus.connected)return ret;
-	if(mdevice_class <= DeviceClass::DeviceClass_DC_BatterySimulator) {
+	if (mdevice_class <= DeviceClass::DeviceClass_DC_BatterySimulator) {
 		//先关闭输出
 		auto mptrsv = VisaDriverIoctrlBasePtr(new DeviceDriverSourceVoltage);
 		DeviceDriverSourceVoltage* upper = dynamic_cast<DeviceDriverSourceVoltage*>(mptrsv.get());
 		upper->is_read = false;
 		upper->voltage_mv = 0;
+		if (verbose != nullptr&& verbose->ProductModel.toUpper().contains("IT6302")) {
+			upper->channel = 1;
+		}
 		ret = SourceVoltageAmplitude(mptrsv);
 	
 	}
@@ -483,6 +496,15 @@ int32_t DeviceBase::disconnectsync()
 	if (mcommuinterface==DriverClass::DriverSCPI) {
 		ret = SystemLocalRemote(true);
 	}
+
+	return ret;
+}
+int32_t DeviceBase::disconnectsync()
+{
+	if (GlobalConfig_debugdevcieBase)qDebug("index %d ", moffset_inlist);
+	int ret = 0;
+	if (!mdevicestatus.connected)return ret;
+	ret = SpecialCustomizationPreDisconnect(midentifyverbose);
 	if (!isVirtualDevice()) ret= interior_driver->Driverclose();
 	if (ret == 0) {
 		SetDeviceStatusIsconnected(false);
@@ -1554,10 +1576,17 @@ IdentifyVerbose::IdentifyVerbose(QString input)
 		SerialNo = tmp.at(2);
 		SoftVersion = tmp.at(3);
 	}
+	else {
+		qCritical("input [%s] unmatch",input.toStdString().c_str());
+	}
 }
 
 bool IdentifyVerbose::IsEmpty()
 {
 	return Manufacture.isEmpty();
+}
+QString IdentifyVerbose::to_string()
+{
+	return "M:" + Manufacture+"P:"+ProductModel+"SN:"+SerialNo+"SV:"+SoftVersion;
 }
 
