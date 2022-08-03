@@ -1351,7 +1351,9 @@ int32_t DeviceBase::ReadQuery_1997(VisaDriverIoctrlBasePtr ptr)
 		if (upper_arg->channel != -1) {
 			//hand channel
 			command.append(QString("INSTrument:NSELect %1;").arg(upper_arg->channel).toStdString());
+#if 0	//disable local backup channel
 			channel = upper_arg->channel;
+#endif
 		}
 		command.append("MEASure:VOLTage?");
 		VisaDriverIoctrlBasePtr mptr(new VisaDriverIoctrlRead);
