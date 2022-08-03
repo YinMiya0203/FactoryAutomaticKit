@@ -1,5 +1,14 @@
 #include "Utility.h"
 #include <winerror.h>
+#include <QProcess>
+
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonParseError>
+#include <QJsonValue>
+
+#include <QRegularExpression>
 QString Utility::GetWinErrorText(int32_t errcode) {
 	int len = 256;
 	static CHAR* pmsg = (CHAR*)malloc(len * sizeof(CHAR));
@@ -125,5 +134,113 @@ QString Utility::ShortIntToBrinaryString(int32_t input, int32_t len)
 		output.fill('0', len - input_str.size());
 		output.append(input_str);
 	}
+	return output;
+}
+
+QStringList Utility::PnPDeviceFilter(QString filter_input, QStringList res_input)
+{
+	//USBTestAndMeasurementDevice/4499341
+	QStringList output;
+	output.clear();
+	QString str_class = "Ports";
+	QString filter = filter_input;
+	QStringList outputresult = {};
+	if (filter_input.size() == 0) {
+		goto ERROR_OUT;
+	}
+	if (filter_input.split("/").size()>1) {
+		str_class = filter_input.split("/").at(0);
+		filter = filter_input.split("/").at(1);
+	}
+	// str_class 是usb id的不需要去read com port
+	if (str_class == "USBTestAndMeasurementDevice") {
+		outputresult.append(filter);
+		goto START_FILTER;
+	}
+	{
+		QString script_path = "powershell.exe";
+		QStringList commands;
+		commands.append("-Command");
+		commands.append(QString("Get-PnpDevice -Status \"OK\" -Class \"%1\"  |Select-Object FriendlyName,InstanceId | ConvertTo-Json").arg(str_class));
+		QProcess* p = new QProcess();
+		p->setReadChannel(QProcess::StandardOutput);
+		QObject::connect(p, &QProcess::readyReadStandardOutput, [p, filter, &outputresult]() {
+			QString output(p->readAllStandardOutput());
+			//qDebug() << "output" << output;
+			QJsonParseError jsonError;
+			QJsonDocument jsondoc = QJsonDocument::fromJson(output.toLocal8Bit(), &jsonError);
+			if (jsondoc.isNull()) {
+				qCritical("tojsondoc fail");
+			}
+			else {
+				if (jsondoc.isArray())
+				{
+					QJsonArray jsonArray = jsondoc.array();
+					int nSize = jsonArray.size();
+					for (int i = 0; i < nSize; i++) {
+						auto val = jsonArray.at(i);
+						if (val.isObject()) {
+							auto obj = val.toObject();
+							if (obj.contains("FriendlyName") && obj.contains("InstanceId")) {
+								QJsonValue value = obj.value("InstanceId");
+								if (value.toString().contains(filter)) {
+									//qDebug() << value;
+									auto result = obj.value("FriendlyName").toString();
+									QRegularExpression re("([^(]*)[(](?<comport>\\w+)[)]");//done
+									QRegularExpressionMatch match = re.match(result);
+									if (match.hasMatch()) {
+										//qDebug("filter output %s",match.captured("comport").toStdString().c_str());
+										outputresult.append(match.captured("comport"));
+									}
+									else {
+										qCritical("unmatch");
+									}
+								}
+
+							}
+						}
+					}
+				}
+
+			}
+			});
+	
+		p->start(script_path, commands);
+
+		p->waitForFinished();
+	}
+START_FILTER:
+	if (outputresult.size()==0) {
+		goto ERROR_OUT;
+	}
+	//从 res_input 中过滤出outputresult包涵的内容
+	{
+		//1.usb 2.port
+		for each (auto hwdes in outputresult)
+		{
+			QString target = "";
+			if (hwdes.contains(QRegExp("^\\d+$"))) {
+				target = hwdes;
+			}
+			else {
+				if (hwdes.startsWith("COM")) {
+					target = QString("ASRL%1::INSTR").arg(hwdes.right(hwdes.size()-strlen("COM")));
+				}
+				else {
+					qCritical("can't handle hwdes %s", hwdes.toStdString().c_str());
+					output.clear();
+					goto ERROR_OUT;
+				}
+			}
+			for each (auto visares in res_input)
+			{
+				if (visares == target) {
+					output.append(visares);
+					break;
+				}
+			}
+		}
+	}
+ERROR_OUT:
 	return output;
 }

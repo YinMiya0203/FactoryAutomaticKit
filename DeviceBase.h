@@ -51,6 +51,7 @@ typedef std::shared_ptr<IdentifyVerbose> IdentifyVerbosePtr;
 #define IDENTIFY_STRING "identify"
 #define NETWORKlabel_STRING "networklabel"
 #define INTERFACEID_STRING "interfaceid"
+#define INTERFACEID_FILTER "interfaceid_filter"
 #define ASRLBDPSF_STRING	"asrlbdpsf"
 #define MAXPOWERWVA		"maxvA"
 #define INITIALMESA	"initialmesa"
@@ -141,6 +142,8 @@ private:
 	void InitDeviceClassType();
 	DeviceClass CheckDeviceClassDC();
 
+	void Setinterfaceid_filter(QString value);
+	QString Getinterfaceid_filter();
 	int32_t InitialMese(QString qinitialmesa);
 	int32_t	SpecialCustomizationPostConnect(IdentifyVerbose* verbose);
 	int32_t SpecialCustomizationPreDisconnect(IdentifyVerbose* verbose);
@@ -152,6 +155,7 @@ private:
 	std::string interfaceidcustomer;
 	std::string arslconfgstr;
 	std::string initialmesa;
+	QString minterfaceid_filter="";
 	asrlconfg_t masrlconfg;
 	//int32_t maxWVA = 8;
 	int moffset_inlist;

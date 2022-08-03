@@ -37,10 +37,13 @@ DeviceBasePtr DeviceBase::get_instance(QSettings* settings,int offset)
 	if (checkingParam(settings, mmap) != true)return NULL;
 	std::string maxva = "8";
 	std::string initialmesa = "";
+	std::string interfaceid_filter = "";
 	if (mmap.find(QString(MAXPOWERWVA)) != mmap.end()) {
 		maxva = mmap[QString(MAXPOWERWVA)];
 	}
-	
+	if (mmap.find(QString(INTERFACEID_FILTER)) != mmap.end()) {
+		interfaceid_filter = mmap[QString(INTERFACEID_FILTER)];
+	}
 	if (mmap.find(QString(INITIALMESA)) != mmap.end()) {
 		initialmesa = mmap[QString(INITIALMESA)];
 	}
@@ -62,6 +65,10 @@ DeviceBasePtr DeviceBase::get_instance(QSettings* settings,int offset)
 		maxva,
 		initialmesa,
 		mdriverclass));
+	//init
+	if (interfaceid_filter.size() > 0) {
+		ptr->Setinterfaceid_filter(QString(interfaceid_filter.c_str()));
+	}
 	mstaticdeviceptrcontainer.push_back(ptr);
 	return ptr;
 }
@@ -102,7 +109,20 @@ void DeviceBase::InitDeviceClassType()
 		mdevice_class = DeviceClass::DeviceClass_Relay_Switch;
 	}
 }
-DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string id, std::string confg,std::string maxva, std::string initial_mesa, DriverClass driverclass):
+void DeviceBase::Setinterfaceid_filter(QString value)
+{
+	if (minterfaceid_filter.size()==0) {
+		minterfaceid_filter = value;
+	}
+	else {
+		qCritical("minterfaceid_filter had init by %s", minterfaceid_filter.toStdString().c_str());
+	}
+}
+QString DeviceBase::Getinterfaceid_filter() {
+	return minterfaceid_filter;
+}
+DeviceBase::DeviceBase(int offset,std::string iden, std::string net, std::string id, std::string confg,std::string maxva, 
+	std::string initial_mesa, DriverClass driverclass):
 	moffset_inlist(offset),identifyorig(iden),networklabel(net),interfaceidorig(id), arslconfgstr(confg),
 	initialmesa(initial_mesa),
 	mcommuinterface(driverclass)
@@ -532,6 +552,22 @@ Resourcecontainer DeviceBase::FindResourcecontainer()
 	msg->is_success = (ret == 0);
 	if (msg->is_success) {
 		msg->res = tmp;
+		//ÆôÓÃ¹ýÂËÆ÷
+		if (Getinterfaceid_filter().size()>0) {
+			QStringList res_list = {};
+			for each (auto res in tmp)
+			{
+				res_list.append(res.c_str());
+			}
+			auto output = Utility::PnPDeviceFilter(Getinterfaceid_filter(), res_list);
+			if (output.size() > 0) {
+				msg->res.clear();
+				for each (auto tres in output)
+				{
+					msg->res.push_back(tres.toStdString().c_str());
+				}
+			}
+		}
 	}
 	MessageTVBasePtr ptr(msg);
 	emit notifytoView(int(msg->GetCmd()), ptr);

@@ -21,5 +21,6 @@ public:
 	static void Sleep(unsigned long _Duration);
 	static void DumpHex(const uint8_t*input,int32_t len,const char* tag=nullptr);
 	static QString ShortIntToBrinaryString(int32_t input, int32_t len = 8);
+	static QStringList PnPDeviceFilter(QString filter, QStringList input);
 };
 
