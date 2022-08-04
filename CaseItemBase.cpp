@@ -614,6 +614,7 @@ int32_t CaseItemBase::GetMaxCurrentLimitMA(QString input, int32_t voltage_mv)
 		QVector<float>curma_vecotr = {};
 		foreach(auto item, input.split("/")) {
 			//maxvA=8v-3A/20v-1.5A
+			if (item.size() == 0)continue;
 			QRegularExpression re("(?<voltage>" PURE_FLOAT_RE ")[vV]{1,}-(?<current>" PURE_FLOAT_RE ")[aA]{1,}");
 			QRegularExpressionMatch match = re.match(item);
 			if (match.hasMatch()) {
@@ -623,7 +624,7 @@ int32_t CaseItemBase::GetMaxCurrentLimitMA(QString input, int32_t voltage_mv)
 				curma_vecotr.push_back(I * 1000);
 			}
 			else {
-				qCritical("unmatch %s ", item.toStdString().c_str());
+				qCritical("unmatch [%s] ", item.toStdString().c_str());
 			}
 		}
 		int offset = 0;
