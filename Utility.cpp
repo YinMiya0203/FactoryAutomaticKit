@@ -234,7 +234,7 @@ START_FILTER:
 			}
 			for each (auto visares in res_input)
 			{
-				if (visares == target) {
+				if (visares.contains(target)) {
 					output.append(visares);
 					break;
 				}
